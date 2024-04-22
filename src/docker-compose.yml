@@ -1,0 +1,61 @@
+version: '3.8'
+
+networks:
+  transcendence:
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile_backend
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    depends_on:
+      - database
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+  database:
+    container_name: database
+    image: postgres:latest
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - ./PostgreSQL/:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - transcendence
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+     - '3000:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - '--web.enable-lifecycle'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ./Docker/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+  
+volumes:
+  frontend:
+    driver: local
+  grafana-storage: {}
+  prometheus_data: {}
