@@ -1,0 +1,21 @@
+FROM python:3.9
+
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /app
+
+COPY backend/Requirements.txt /app/Requirements.txt
+
+RUN pip install -r Requirements.txt
+
+RUN apt-get update && apt-get install -y netcat-traditional || apt-get install -y netcat || apt-get install -y nc
+
+COPY ../backend/ /app
+
+EXPOSE 8000
+
+COPY Docker/healthcheck.sh /usr/local/bin/healthcheck.sh
+
+RUN chmod +x /usr/local/bin/healthcheck.sh
+
+CMD ["/usr/local/bin/healthcheck.sh", "python", "/app/backend/manage.py", "runserver", "0.0.0.0:8000"]
