@@ -10,7 +10,7 @@ RUN pip install -r Requirements.txt
 
 RUN apt-get update && apt-get install -y netcat-traditional || apt-get install -y netcat || apt-get install -y nc
 
-COPY ../backend/ /app
+COPY backend/ /app
 
 EXPOSE 8000
 
