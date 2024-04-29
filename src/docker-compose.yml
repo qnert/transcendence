@@ -19,6 +19,13 @@ services:
       - transcendence
     restart: unless-stopped
 
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
   database:
     container_name: database
     image: postgres:latest
