@@ -8,3 +8,8 @@ sqlparse
 psycopg2-binary
 python-dotenv
 django-environ
+django-two-factor-auth
+phonenumbers
+django-crispy-forms
+twilio
+django-otp-yubikey
