@@ -65,6 +65,21 @@
 		}
 	}
 
+	function updateContent(path, idOfContent) {
+		fetch(path)
+		  .then(response => response.text())
+		  .then(html => {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(html, "text/html");
+			const newContent = doc.querySelector(idOfContent); 
+			const specialText = document.getElementById("specialText");
+			specialText.innerHTML = ""; 
+			specialText.appendChild(newContent);
+			reattachEventListeners();
+		  })
+		  .catch(error => console.error('Error fetching content:', error));
+	  };
+
 	</script>
 	</body>
 	</html>
