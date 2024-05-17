@@ -86,6 +86,12 @@
 		generateQRCode()
 	}
 
+	window.addEventListener('popstate', function(event) {
+		if (event.state && event.state.path) {
+			updateContent(event.state.path);
+		}
+	});
+
 	</script>
 	</body>
 	</html>
