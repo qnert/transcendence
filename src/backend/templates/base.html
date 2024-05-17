@@ -45,8 +45,18 @@
     </main>
 	
 	
-	<script>
-		
+	<script>	
+	
+		function loginButton(){
+			const loginButton = document.getElementById("loginLink");
+			if(loginButton){
+				loginButton.addEventListener("click", function(event) {
+					event.preventDefault();
+					handleRoute(event, "/login/", "#loginFormContent");
+			});	
+		}
+	}	
+
 	</script>
 	</body>
 	</html>
