@@ -49,4 +49,16 @@ class LoginView(APIView):
 			return JsonResponse({'message': 'successful'}, status=200)
 		else:
 			return JsonResponse({'error': 'Invalid credentials'}, status=401)
-		
+
+class RegisterView(APIView):
+	def post(self, request):
+		email = request.data.get('email')
+		username = request.data.get('username')
+		password = request.data.get('password')
+
+		if User.objects.filter(email=email).exists():
+			return JsonResponse({'error': 'User with this email already exists.'}, status=450)
+		if User.objects.filter(username=username).exists():
+			return JsonResponse({'error': 'User with this username already exists.'}, status=410)
+		user = User.objects.create_user(username=username, email=email, password=password)
+		return JsonResponse({'success': 'User registered successfully'}, status=201)
