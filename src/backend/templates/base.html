@@ -57,6 +57,14 @@
 		}
 	}	
 
+	function handleRoute(event, path, idOfContent) {
+		event.preventDefault();
+		if (window.location.pathname !== path) { //does this make sense????
+			window.history.pushState({path: path}, '', path);
+			updateContent(path, idOfContent);
+		}
+	}
+
 	</script>
 	</body>
 	</html>
