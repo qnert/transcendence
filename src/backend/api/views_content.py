@@ -1,13 +1,13 @@
 from django.shortcuts import render
 
 
-def homeView(request):
+def baseView(request):
 	return render(request, 'base.html')
 
 def loginFormView(request):
-	return render(request, 'loginForm.html')
+	return render(request, 'login.html')
 
-def testView(request):
+def homeView(request):
 	return render(request, 'home.html')
 
 def twoFAView(request):

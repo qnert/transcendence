@@ -40,206 +40,191 @@
 		</nav>	
 	</div>
 	
-    <main id="specialText" class="container" >
+    <main id="oldContent">
 		{% block content %}{% endblock content %}
     </main>
 	
 	
 	<script>	
 	
+		function updateContent(path) {
+			fetch(path)
+			  .then(response => response.text())
+			  .then(html => {
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(html, "text/html");
+				const newContent = doc.querySelector("#newContent"); 
+				const oldContent = document.getElementById("oldContent");
+				oldContent.innerHTML = ""; 
+				oldContent.appendChild(newContent);
+				reattachEventListeners();
+			  })
+			  .catch(error => console.error('Error fetching content:', error));
+		  };
+		
+
+		function handleRoute(event, path) {
+			event.preventDefault();
+			if (window.location.pathname !== path) {
+				window.history.pushState({path: path}, '', path);
+				updateContent(path);
+			}
+		}
+
+		function reattachEventListeners(){
+			loginButton()
+			Login()
+		}
+
+		function Login() {
+			const Login = document.getElementById("loginFormContent");
+			if (Login) {
+				Login.addEventListener("submit", async function(event) {
+					event.preventDefault();
+					const username = document.getElementById("username").value;
+					const password = document.getElementById("password").value;
+					const csrftoken = getCookie("csrftoken");
+	
+					try {
+						const response = await fetch("/api/login/", {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+								"X-CSRFToken": csrftoken,
+							},
+							body: JSON.stringify({ username, password }),
+						});
+						if (!response.ok) 
+							throw new Error("Login failed");
+						await getAccessToken(username, password, csrftoken);
+						setLoginStatus('true');
+						window.history.pushState({ path: '/home/' }, '', '/home/');
+						updateContent("/home/");
+					} catch(error) {
+						console.error("Login error:", error);
+						alert("Login failed. Please try again.");
+					}
+				});
+			} else {
+				console.log("Login form not found");
+			}
+		}
+
 		function loginButton(){
 			const loginButton = document.getElementById("loginLink");
 			if(loginButton){
 				loginButton.addEventListener("click", function(event) {
 					event.preventDefault();
-					handleRoute(event, "/login/", "#loginFormContent");
+					handleRoute(event, "/login/");
 			});	
 		}
-	}	
-
-	function handleRoute(event, path, idOfContent) {
-		event.preventDefault();
-		if (window.location.pathname !== path) { //does this make sense????
-			window.history.pushState({path: path}, '', path);
-			updateContent(path, idOfContent);
-		}
 	}
 
-	function updateContent(path, idOfContent) {
-		fetch(path)
-		  .then(response => response.text())
-		  .then(html => {
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(html, "text/html");
-			const newContent = doc.querySelector(idOfContent); 
-			const specialText = document.getElementById("specialText");
-			specialText.innerHTML = ""; 
-			specialText.appendChild(newContent);
-			reattachEventListeners();
-		  })
-		  .catch(error => console.error('Error fetching content:', error));
-	  };
+		window.addEventListener('popstate', function(event) {
+			if (event.state && event.state.path) {
+				updateContent(event.state.path);
+			}
+		});
 
-	  function reattachEventListeners(){
-		loginButton()
-		Login()
-		generateQRCode()
-	}
 
-	window.addEventListener('popstate', function(event) {
-		if (event.state && event.state.path) {
-			updateContent(event.state.path);
-		}
+		
+//need to call the logout endpoint
+
+	document.addEventListener("DOMContentLoaded", function() {
+		reattachEventListeners();
 	});
 
 
-	reattachEventListeners();
-});
-
-
-function checkJWTToken(){
-	const access_token = localStorage.getItem('access_token')
-	if (access_token === null && isLoggedIn()){
-		setLoginStatus('false')
-		window.location.href = '/login/'
-	}
-
-}
-
-function setLoginStatus(status){
-	localStorage.setItem('loginStatus', status);
-}
-
-function isLoggedIn(){
-	const loggedIn = localStorage.getItem('loginStatus');
-	return loggedIn === 'true';
-}
-
-setInterval(checkJWTToken, 5000);
-	
-
-function getCookie(name) {
-	let cookieValue = null;
-	if (document.cookie && document.cookie !== "") {
-		const cookies = document.cookie.split(";");
-		for (let i = 0; i < cookies.length; i++) {
-			const cookie = cookies[i].trim();
-			if (cookie.substring(0, name.length + 1) === name + "=") {
-				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-				break;
-			}
+	function checkJWTToken(){
+		const access_token = localStorage.getItem('access_token')
+		if (access_token === null && isLoggedIn()){
+			setLoginStatus('false')
+			window.location.href = '/login/'
 		}
-	}
-	return cookieValue;
-}
 
-async function getAccessToken(username, password, csrftoken) {
-	try {
-		const response = await fetch("/token/", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"X-CSRFToken": csrftoken,
-			},
-			body: JSON.stringify({ username, password }),
-		});
-
-		if (!response.ok) {
-			throw new Error("Token failed");
-		}
-		const data = await response.json();
-		localStorage.setItem("access_token", data.access);
-		localStorage.setItem("refresh_token", data.refresh);
-	} catch (error) {
-		console.error("Token error:", error);
-		alert("Token");
 	}
-}
+
+	function setLoginStatus(status){
+		localStorage.setItem('loginStatus', status);
+	}
+
+	function isLoggedIn(){
+		const loggedIn = localStorage.getItem('loginStatus');
+		return loggedIn === 'true';
+	}
+
+	setInterval(checkJWTToken, 5000);
+		
+
+	function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === name + "=") {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function getAccessToken(username, password, csrftoken) {
+        try {
+            const response = await fetch("/token/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken,
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Token failed");
+            }
+            const data = await response.json();
+            localStorage.setItem("access_token", data.access);
+            localStorage.setItem("refresh_token", data.refresh);
+        } catch (error) {
+            console.error("Token error:", error);
+            alert("Token");
+        }
+    }
 //test if refresh token is null
-async function refreshToken() {
-	const refreshToken = localStorage.getItem("refresh_token");
-	try {
-		const response = await fetch("/token/refresh/", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ refresh: refreshToken }),
-		});
+    async function refreshToken() {
+        const refreshToken = localStorage.getItem("refresh_token");
+        try {
+            const response = await fetch("/token/refresh/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ refresh: refreshToken }),
+            });
 
-		if (!response.ok) {
-			throw new Error("Token refresh failed");
-		}
-		const data = await response.json();
-		localStorage.setItem("access_token", data.access);
-	} catch (error) {
-		console.error("Token refresh error:", error);
-		alert("Token refresh failed. Please login again.");
-		updateContent("content", '/login/');
+            if (!response.ok) {
+                throw new Error("Token refresh failed");
+            }
+            const data = await response.json();
+            localStorage.setItem("access_token", data.access);
+        } catch (error) {
+            console.error("Token refresh error:", error);
+            alert("Token refresh failed. Please login again.");
+            updateContent('/login/');
+        }
+    }
+
+	function setLoginStatus(status){
+		localStorage.setItem('loginStatus', status);
 	}
-}
-
-function Login() {
-	const Login = document.getElementById("loginFormContent");
-	if (Login) {
-		Login.addEventListener("submit", async function(event) {
-			event.preventDefault();
-			const username = document.getElementById("username").value;
-			const password = document.getElementById("password").value;
-			const csrftoken = getCookie("csrftoken");
-
-			try {
-				const response = await fetch("/api/login/", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						"X-CSRFToken": csrftoken,
-					},
-					body: JSON.stringify({ username, password }),
-				});
-				if (!response.ok) throw new Error("Login failed");
-
-				const twoFAResponse = await fetch("/api/get_2fa_status/", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						"X-CSRFToken": csrftoken,
-					},
-				});
-				if (!twoFAResponse.ok) throw new Error("Getting 2FA status failed");
-
-				const twoFAResponseData = await twoFAResponse.json();
-				console.log(twoFAResponseData.enable);
-				if (twoFAResponseData.enable === true) {
-					updateContent("/2FA/", '#twoFA');
-					window.history.pushState({ path: '/2FA/' }, '', '/2FA/');
-				}
-				else{
-					await getAccessToken(username, password, csrftoken);
-					setLoginStatus('true');
-					window.history.pushState({ path: '/test/' }, '', '/test/');
-					updateContent("/test/", "#test");
-				}
-			} catch (error) {
-				console.error("Login error:", error);
-				alert("Login failed. Please try again.");
-			}
-		});
-	} else {
-		console.log("Login form not found");
+	//check if token is null, protect routes in backend if there is no token anymore
+	function isLoggedIn(){
+		const loggedIn = localStorage.getItem('loginStatus');
+		return 
 	}
-}
-
-
-function setLoginStatus(status){
-	localStorage.setItem('loginStatus', status);
-}
-//check if token is null, protect routes in backend if there is no token anymore
-function isLoggedIn(){
-	const loggedIn = localStorage.getItem('loginStatus');
-	return loggedIn === 'true';
-}
-
 	</script>
 	</body>
 	</html>
