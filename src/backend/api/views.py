@@ -6,7 +6,7 @@ from rest_framework.exceptions import AuthenticationFailed
 import jwt, datetime
 from django.contrib.auth.models import User
 from rest_framework import status
-from api.models import User
+from .models import *
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -15,15 +15,29 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.utils.html import escape
-from django_otp import devices_for_user
-from django_otp.plugins.otp_totp.models import TOTPDevice
-import pyotp
-import qrcode
 import io
 import json
+from io import BytesIO
+import qrcode
 import base64
+import pyotp
 from django.contrib.auth.decorators import login_required
+from .services import user_two_factor_auth_data_create
 
+
+def Setup_2FA(request):
+	user = request.user
+	secret_key = pyotp.random_base32()
+	print(f"Generated Secret Key: {secret_key}")
+	otp_auth_url = pyotp.totp.TOTP(secret_key).provisioning_uri(user.username, issuer_name="Transcendence")
+	user_profile, created = UserTwoFactorAuthData.objects.get_or_create(user=user)
+	user_profile.otp_secret = secret_key
+	user_profile.save()
+	qr = qrcode.make(otp_auth_url)
+	buffered = BytesIO()
+	qr.save(buffered, format="PNG")
+	img_str = base64.b64encode(buffered.getvalue()).decode()
+	return JsonResponse({'qr_code': img_str})
 
 
 class LogoutView(APIView):
