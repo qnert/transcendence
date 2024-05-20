@@ -74,6 +74,36 @@
 		function reattachEventListeners(){
 			loginButton()
 			Login()
+			generateQRCode()
+		}
+		function generateQRCode() {
+			const qrcodeButton = document.getElementById("generateQRCode");
+			if (qrcodeButton) {
+				qrcodeButton.addEventListener("click", function(event) {
+					event.preventDefault();
+					fetch("/api/setup-2fa", {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						}
+					})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error("Network response was not ok");
+						}
+						return response.text();
+					})
+					.then(responseText => {
+						console.log("Response Text:", responseText);
+						const data = JSON.parse(responseText);  // Parse the response text as JSON
+						const qrCodeImg = document.getElementById("qrcode");
+						qrCodeImg.src = "data:image/png;base64," + data.qr_code;
+					})
+					.catch(error => {
+						console.log("Error:", error);
+					});
+				});
+			}
 		}
 
 		function Login() {
