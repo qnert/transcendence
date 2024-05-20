@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div id="newContent">
+	<h1>Setup Two Factor Authentication</h1>
+	<div id="qrcode-container">
+		<button id="generateQRCode">Generate</button>
+		<img id="qrcode">
+	</div>
+
+	<p>Scan this QR code with Google Authenticator</p>
+
+	<input type="text" id="otpInput" placeholder="Enter OTP">
+	<button id="validateOTP">Confirm</button>
+</div>
+
+{% endblock %}
