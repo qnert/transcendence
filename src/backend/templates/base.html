@@ -96,7 +96,8 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.valid) {
-                            alert("Validation successful");
+							window.history.pushState({ path: '/home/' }, '', '/home/');
+							updateContent("/home/");
                         } else {
                             alert("Validation failed: Invalid OTP");
                         }
@@ -159,10 +160,28 @@
 						});
 						if (!response.ok) 
 							throw new Error("Login failed");
-						await getAccessToken(username, password, csrftoken);
-						setLoginStatus('true');
-						window.history.pushState({ path: '/home/' }, '', '/home/');
-						updateContent("/home/");
+						
+						const twoFAResponse = await fetch("/api/get_2fa_status/", {
+							method: "GET",
+							headers: {
+								"Content-Type": "application/json",
+								"X-CSRFToken": csrftoken,
+							},
+						});
+						if (!twoFAResponse.ok)
+							throw new Error("Getting 2FA status failed");
+						const twoFAResponseData = await twoFAResponse.json();
+						console.log(twoFAResponseData.enable);
+						if (twoFAResponseData.enable === true) {
+							updateContent("/2FA/", '#twoFA');
+							window.history.pushState({ path: '/2FA/' }, '', '/2FA/');
+						}
+						else{
+							await getAccessToken(username, password, csrftoken);
+							setLoginStatus('true');
+							window.history.pushState({ path: '/test/' }, '', '/test/');
+							updateContent("/test/", "#test");
+						}
 					} catch(error) {
 						console.error("Login error:", error);
 						alert("Login failed. Please try again.");

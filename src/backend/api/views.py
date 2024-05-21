@@ -24,6 +24,28 @@ import pyotp
 from django.contrib.auth.decorators import login_required
 
 
+
+def Get_2FA_Status(request):
+	if request.method == "GET":
+		user = request.user
+		if user.is_authenticated:
+			is_2fa_enabled = user.is_2fa_enabled
+			return JsonResponse({'enable': is_2fa_enabled})
+	else:
+		return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+def Update_2FA_Status(request):
+	if request.method == "PUT":
+		user = request.user
+		data = json.loads(request.body)
+		new_2fa_status = data.get('is_2fa_enabled')
+		user.is_2fa_enabled = new_2fa_status
+		user.save()
+		return JsonResponse({'success': True})
+	
+	else:
+		return JsonResponse({'error': 'Method not allowed'}, status=405)
+
 def Validate_OTP(request):
 	user = request.user
 	data = json.loads(request.body)
