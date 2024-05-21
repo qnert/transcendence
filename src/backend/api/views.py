@@ -12,6 +12,9 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.utils.html import escape
@@ -56,11 +59,10 @@ def Validate_OTP(request):
 		is_valid = totp.verify(otp)
 		if is_valid:
 			return JsonResponse({'valid': True})
-		return JsonResponse({'valid': False})
+		return JsonResponse({'valid': False}, status=200)
 	else:
-		return JsonResponse({'error': '2FA is not set up for this user'})
+		return JsonResponse({'error': '2FA is not set up for this user'}, status=405)
 
-	
 def Setup_2FA(request):
 	user = request.user
 	secret_key = pyotp.random_base32()
@@ -75,16 +77,22 @@ def Setup_2FA(request):
 	return JsonResponse({'qr_code': img_str})
 
 
-class LogoutView(APIView):
-	permission_classes = (IsAuthenticated)
-	def post(self, request):
+def LogoutView(request):		
+	body = json.loads(request.body)
+	refresh_token = body.get("refresh_token")
+	if refresh_token:
 		try:
-			refresh_token = request.data["refresh_token"]
+			if refresh_token is None:
+				return JsonResponse({'error': 'Refresh token not provided'}, status=400)	
 			token = RefreshToken(refresh_token)
 			token.blacklist()
-			return Response(status=status.HTTP_205_RESET_CONTENT)
-		except Exception as e:
-			return Response(status=status.HTTP_400_BAD_REQUEST)
+			(request)
+			return JsonResponse({'logout': True})
+	
+		except (TokenError, InvalidToken) as e:
+			return JsonResponse({'error': 'Invalid or expired token'}, status=400)
+	else:
+		return JsonResponse({'error': 'User was not logged in'}, status=400)
 
 
 class LoginView(APIView):
