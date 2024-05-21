@@ -11,11 +11,3 @@ def OTP_required(view_func):
 			return view_func(request, *args, **kwargs)
 	
 	return _wrapped_view
-
-
-def own_login_required(view_func):
-    def _wrapped_view(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({'error': 'User not authenticated'}, status=401)
-        return view_func(request, *args, **kwargs)
-    return _wrapped_view
