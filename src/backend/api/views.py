@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-
+from .decorators import *
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.utils.html import escape
@@ -58,6 +58,7 @@ def Validate_OTP(request):
 		totp = pyotp.TOTP(user_2fa_data.otp_secret)
 		is_valid = totp.verify(otp)
 		if is_valid:
+			user.completed_2fa = True
 			return JsonResponse({'valid': True})
 		return JsonResponse({'valid': False}, status=200)
 	else:
@@ -86,7 +87,7 @@ def LogoutView(request):
 				return JsonResponse({'error': 'Refresh token not provided'}, status=400)	
 			token = RefreshToken(refresh_token)
 			token.blacklist()
-			(request)
+			request.user.completed_2fa = False
 			return JsonResponse({'logout': True})
 	
 		except (TokenError, InvalidToken) as e:

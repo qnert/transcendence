@@ -13,7 +13,7 @@ class User(AbstractUser):
 	password = models.CharField(max_length=255)
 	username = models.CharField(max_length=255, unique=True)
 	is_2fa_enabled = models.BooleanField(default=True)
-	# completed_2fa = models.BooleanField(default=False)
+	completed_2fa = models.BooleanField(default=False)
 	
 	REQUIRED_FIELDS = []
 
