@@ -22,17 +22,30 @@ import qrcode
 import base64
 import pyotp
 from django.contrib.auth.decorators import login_required
-from .services import user_two_factor_auth_data_create
 
 
+def Validate_OTP(request):
+	user = request.user
+	data = json.loads(request.body)
+	otp = data.get('otp')
+	user_2fa_data, created = UserTwoFactorAuthData.objects.get_or_create(user=user)
+	if (user_2fa_data):
+		totp = pyotp.TOTP(user_2fa_data.otp_secret)
+		is_valid = totp.verify(otp)
+		if is_valid:
+			return JsonResponse({'valid': True})
+		return JsonResponse({'valid': False})
+	else:
+		return JsonResponse({'error': '2FA is not set up for this user'})
+
+	
 def Setup_2FA(request):
 	user = request.user
 	secret_key = pyotp.random_base32()
-	print(f"Generated Secret Key: {secret_key}")
 	otp_auth_url = pyotp.totp.TOTP(secret_key).provisioning_uri(user.username, issuer_name="Transcendence")
-	user_profile, created = UserTwoFactorAuthData.objects.get_or_create(user=user)
-	user_profile.otp_secret = secret_key
-	user_profile.save()
+	user_2fa_data, created = UserTwoFactorAuthData.objects.get_or_create(user=user)
+	user_2fa_data.otp_secret = secret_key
+	user_2fa_data.save()
 	qr = qrcode.make(otp_auth_url)
 	buffered = BytesIO()
 	qr.save(buffered, format="PNG")

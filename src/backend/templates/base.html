@@ -75,7 +75,41 @@
 			loginButton()
 			Login()
 			generateQRCode()
+			validateOTP()
 		}
+
+        function validateOTP() {
+            const validateButton = document.getElementById("validateOTP");
+            if (validateButton) {
+                validateButton.addEventListener("click", function(event) {
+                    event.preventDefault();
+                    const otp = document.getElementById("otpInput").value;
+					const csrftoken = getCookie("csrftoken");
+                    fetch("/api/validateOTP/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+							"X-CSRFToken": csrftoken,
+                        },
+                        body: JSON.stringify({otp: otp })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.valid) {
+                            alert("Validation successful");
+                        } else {
+                            alert("Validation failed: Invalid OTP");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("An error occurred while validating the OTP");
+                    });
+                });
+            }
+        }
+
+
 		function generateQRCode() {
 			const qrcodeButton = document.getElementById("generateQRCode");
 			if (qrcodeButton) {
@@ -94,8 +128,7 @@
 						return response.text();
 					})
 					.then(responseText => {
-						console.log("Response Text:", responseText);
-						const data = JSON.parse(responseText);  // Parse the response text as JSON
+						const data = JSON.parse(responseText);
 						const qrCodeImg = document.getElementById("qrcode");
 						qrCodeImg.src = "data:image/png;base64," + data.qr_code;
 					})
