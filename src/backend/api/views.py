@@ -83,8 +83,6 @@ def LogoutView(request):
 	refresh_token = body.get("refresh_token")
 	if refresh_token:
 		try:
-			if refresh_token is None:
-				return JsonResponse({'error': 'Refresh token not provided'}, status=400)	
 			token = RefreshToken(refresh_token)
 			token.blacklist()
 			request.user.completed_2fa = False
@@ -93,7 +91,7 @@ def LogoutView(request):
 		except (TokenError, InvalidToken) as e:
 			return JsonResponse({'error': 'Invalid or expired token'}, status=400)
 	else:
-		return JsonResponse({'error': 'User was not logged in'}, status=400)
+		return JsonResponse({'error': 'Refresh token not provided'}, status=400)	
 
 
 class LoginView(APIView):

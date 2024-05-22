@@ -44,7 +44,6 @@
 	</div>
 	
     <main id="oldContent">
-
 		{% block content %}{% endblock content %}
     </main>
 	
@@ -99,12 +98,13 @@
 							},
 							body: JSON.stringify({ refresh_token: refreshToken })
 						});
-	
-							localStorage.removeItem('access_token');
-							localStorage.removeItem('refresh_token');
-							setLoginStatus('false');
-							window.history.pushState({ path: '/login/' }, '', '/login/');
-							updateContent("/login/");
+						if (!response.ok)
+							throw new Error("Logout fail");
+						localStorage.removeItem('access_token');
+						localStorage.removeItem('refresh_token');
+						setLoginStatus('false');
+						window.history.pushState({ path: '/login/' }, '', '/login/');
+						updateContent("/login/");
 				
 					} catch (error) {
 						console.log("Error in logout", error);
@@ -145,7 +145,8 @@
 							throw new Error("Getting 2FA status failed");
 						const twoFAResponseData = await twoFAResponse.json();
 						if (twoFAResponseData.enable === true) {
-							updateContent("/2FA/", '#twoFA');
+							updateContent("/2FA/");
+							await getAccessToken(username, password, csrftoken);
 							window.history.pushState({ path: '/2FA/' }, '', '/2FA/');
 						}
 						else{
