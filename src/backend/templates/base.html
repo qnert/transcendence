@@ -52,7 +52,18 @@
 	
 		function updateContent(path) {
 			fetch(path)
-			  .then(response => response.text())
+			.then(response => {
+				if (!response.ok) {
+				  if (response.status === 401) {
+					updateContent("/login/");
+				  } else if (response.status === 403) {
+					updateContent("/login/");
+				  } else {
+					throw new Error("Unexpected Error");
+				  }
+				}
+				return response.text();
+			  })
 			  .then(html => {
 				const parser = new DOMParser();
 				const doc = parser.parseFromString(html, "text/html");
@@ -94,7 +105,8 @@
 							method: "POST",
 							headers: {
 								"Content-Type": "application/json",
-								"X-CSRFToken": csrftoken
+								"X-CSRFToken": csrftoken,
+								'Cache-Control': 'no-cache'
 							},
 							body: JSON.stringify({ refresh_token: refreshToken })
 						});
@@ -128,6 +140,7 @@
 							headers: {
 								"Content-Type": "application/json",
 								"X-CSRFToken": csrftoken,
+								'Cache-Control': 'no-cache'
 							},
 							body: JSON.stringify({ username, password }),
 						});
@@ -139,6 +152,7 @@
 							headers: {
 								"Content-Type": "application/json",
 								"X-CSRFToken": csrftoken,
+								'Cache-Control': 'no-cache'
 							},
 						});
 						if (!twoFAResponse.ok)
@@ -178,6 +192,7 @@
                         headers: {
                             "Content-Type": "application/json",
 							"X-CSRFToken": csrftoken,
+							'Cache-Control': 'no-cache'
                         },
                         body: JSON.stringify({otp: otp })
                     })
@@ -208,6 +223,7 @@
 						method: "GET",
 						headers: {
 							"Content-Type": "application/json",
+							'Cache-Control': 'no-cache'
 						}
 					})
 					.then(response => {
@@ -298,6 +314,7 @@
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRFToken": csrftoken,
+					'Cache-Control': 'no-cache'
                 },
                 body: JSON.stringify({ username, password }),
             });
@@ -321,6 +338,7 @@
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+					'Cache-Control': 'no-cache'
                 },
                 body: JSON.stringify({ refresh: refreshToken }),
             });
