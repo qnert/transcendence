@@ -25,6 +25,84 @@ import qrcode
 import base64
 import pyotp
 from django.contrib.auth.decorators import login_required
+import os
+from dotenv import load_dotenv
+from urllib.parse import urlencode
+import requests
+
+REDIRECT_URI = "http://0.0.0.0:8000/callback/"
+UID = os.getenv("UID")
+SECRET = os.getenv("SECRET")
+
+
+def redirect_to_login(request):
+    params = {
+        'client_id': UID,
+        'redirect_uri': REDIRECT_URI,
+        'response_type': 'code',
+        'scope': 'public',
+        'state': 'unguessable_random_string',
+    }
+    url = f"https://api.intra.42.fr/oauth/authorize?{urlencode(params)}"
+    return JsonResponse({'url': url}, status=200)
+
+def auth_callback(request):
+	code = request.GET.get('code')
+	state = request.GET.get('state')
+	if not state or state != state:
+		return JsonResponse({'error': 'Unauthoriazed access detected'}, status=401)
+	
+	token_response = requests.post('https://api.intra.42.fr/oauth/token', data={
+        'grant_type': 'authorization_code',
+        'client_id': UID,
+        'client_secret': SECRET,
+        'code': code,
+        'redirect_uri': REDIRECT_URI,
+    })
+	if token_response.status_code != 200:
+		return JsonResponse({'error': 'Unable to retrie the access token'}, status=400)
+	token_data = token_response.json()
+	access_token = token_data.get('access_token')
+	return JsonResponse({'access_token': access_token}, status=200)
+
+def fetch_user_data(request):
+	access_token = request.access_token
+	user_info = get_user_data(access_token)
+	if not user_info:
+		return JsonResponse({'error': 'could not fetch user data'}, status=401)
+	username = user_info['login']
+	email = user_info.get('email', '')
+	first_name = user_info.get('first_name', '')
+	last_name = user_info.get('last_name', '')
+	profile_picture_url = user_info['image']['version']['large']	
+
+	user, created = User.objects.get_or_create(username=username, defaukt={
+		'username': username,
+		'first_name': first_name,
+		'last_name': last_name,
+		'email': email,
+	})
+
+	if created:
+		return JsonResponse({'error': 'User already registerd'}, status=400)
+
+	user_profile, created = UserProfile.objects.get_or_create(user=user, defaults={
+		'profile_picture_url': profile_picture_url,
+		'needs_password_set': True,
+		'registered': True,
+		'display_name': username,
+	})
+
+
+def get_user_data(access_token):
+    # Get the user data from the 42 API
+    headers = {'Authorization': f'Bearer {access_token}'}
+    response = requests.get('https://api.intra.42.fr/v2/me', headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    return {}
+
+
 
 
 

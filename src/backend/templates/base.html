@@ -77,6 +77,36 @@
 			logout()
 			generateQRCode()
 			validateOTP()
+			oauth()
+		}
+
+		function getQueryParams() {
+			const params = new URLSearchParams(window.location.search);
+			return {
+				code: params.get('code'),
+				state: param.get('state')
+			}
+		}
+
+		document.addEventListener("DOMContentLoaded", () => {
+			const {code, state } = getQueryParams();
+			if(code && state){
+				
+			}
+		})
+
+
+		function oauth() {
+			const registerButton = document.getElementById("register");
+			if (registerButton) {
+				registerButton.addEventListener("click", () => {
+				fetch("/api/oauth")
+					.then(response => response.json())
+					.then(data => {
+						window.location.href = data.url;
+					})
+				})
+			}
 		}
 
 		function logout() {
