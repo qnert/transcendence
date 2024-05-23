@@ -6,3 +6,5 @@ src/PostgreSQL/
 media
 env/
 .DS_store
+.env
+src/backend/backend/.env
