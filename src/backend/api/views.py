@@ -18,6 +18,7 @@ from .decorators import *
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.utils.html import escape
+from django.shortcuts import redirect, render
 import io
 import json
 from io import BytesIO
@@ -29,29 +30,48 @@ import os
 from dotenv import load_dotenv
 from urllib.parse import urlencode
 import requests
+from django.urls import reverse
+import random
+import string
 
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
-UID = os.getenv("UID")
-SECRET = os.getenv("SECRET")
+UID = "u-s4t2ud-eb4d25721512a1e2da0dcdd30cf8690c975996bfe99fea803547dfdde2556456"
+SECRET = "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"
+code = ''
+state = ''
 
+def generate_random_string():
+    length = random.randint(16, 32)
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(characters) for _ in range(length))
 
+random_string = generate_random_string()
 def redirect_to_login(request):
-    params = {
-        'client_id': UID,
-        'redirect_uri': REDIRECT_URI,
-        'response_type': 'code',
-        'scope': 'public',
-        'state': 'unguessable_random_string',
-    }
-    url = f"https://api.intra.42.fr/oauth/authorize?{urlencode(params)}"
-    return JsonResponse({'url': url}, status=200)
+	params = {
+		'client_id': UID,
+		'redirect_uri': REDIRECT_URI,
+		'response_type': 'code',
+		'scope': 'public',
+		'state': random_string,
+	}
+	url = f"https://api.intra.42.fr/oauth/authorize?{urlencode(params)}"
+	return JsonResponse({'url': url}, status=200)
+
 
 def auth_callback(request):
 	code = request.GET.get('code')
 	state = request.GET.get('state')
-	if not state or state != state:
-		return JsonResponse({'error': 'Unauthoriazed access detected'}, status=401)
+	# if not state or state != state:
+	# 	return JsonResponse({'error': 'Unauthoriazed access detected'}, status=401)
+	print("Code1: ", code)
+	request.session['auth_code'] = code
+	print("Code_session: ", request.session['auth_code'])
+	return redirect('set_passwd')
 	
+
+def fetch_user_data(request):
+	code = request.session.get('auth_code')
+	print("CODE INCOMING", code)
 	token_response = requests.post('https://api.intra.42.fr/oauth/token', data={
         'grant_type': 'authorization_code',
         'client_id': UID,
@@ -63,10 +83,6 @@ def auth_callback(request):
 		return JsonResponse({'error': 'Unable to retrie the access token'}, status=400)
 	token_data = token_response.json()
 	access_token = token_data.get('access_token')
-	return JsonResponse({'access_token': access_token}, status=200)
-
-def fetch_user_data(request):
-	access_token = request.access_token
 	user_info = get_user_data(access_token)
 	if not user_info:
 		return JsonResponse({'error': 'could not fetch user data'}, status=401)
@@ -74,13 +90,13 @@ def fetch_user_data(request):
 	email = user_info.get('email', '')
 	first_name = user_info.get('first_name', '')
 	last_name = user_info.get('last_name', '')
-	profile_picture_url = user_info['image']['version']['large']	
-
-	user, created = User.objects.get_or_create(username=username, defaukt={
+	profile_picture_url = user_info.get('image', {}).get('version', {}).get('large', '')
+	user, created = User.objects.get_or_create(username=username, defaults={
 		'username': username,
 		'first_name': first_name,
 		'last_name': last_name,
 		'email': email,
+		'password': "123"
 	})
 
 	if created:
@@ -92,18 +108,14 @@ def fetch_user_data(request):
 		'registered': True,
 		'display_name': username,
 	})
-
+	return JsonResponse({'success': 'success'}, status=200)
 
 def get_user_data(access_token):
-    # Get the user data from the 42 API
     headers = {'Authorization': f'Bearer {access_token}'}
     response = requests.get('https://api.intra.42.fr/v2/me', headers=headers)
     if response.status_code == 200:
         return response.json()
     return {}
-
-
-
 
 
 def Get_2FA_Status(request):

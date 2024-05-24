@@ -84,28 +84,50 @@
 			const params = new URLSearchParams(window.location.search);
 			return {
 				code: params.get('code'),
-				state: param.get('state')
+				state: params.get('state'),
+				response_type: params.get('response_type')
 			}
 		}
+		
+		let counter = 0
 
-		document.addEventListener("DOMContentLoaded", () => {
-			const {code, state } = getQueryParams();
-			if(code && state){
-				
-			}
-		})
+		window.onload = function() {
+			const currentUrl = window.location.href
+			if(currentUrl.includes('/set_'))
+				fetch("/api/fetch_user_data")
+					.then(response => response.json())
+					.then(data => {
+						if(data.error){
+							alert(data.error)
+						}
+						console.log("Getting User data successful")
+					})
+				.catch(error => {
+					console.error('Error during fetch:', error);
+				});
+			};
 
 
 		function oauth() {
 			const registerButton = document.getElementById("register");
 			if (registerButton) {
 				registerButton.addEventListener("click", () => {
-				fetch("/api/oauth")
-					.then(response => response.json())
-					.then(data => {
-						window.location.href = data.url;
-					})
-				})
+					fetch("/api/oauth/")
+						.then(response => {
+							if (!response.ok) {
+								return response.text().then(text => {
+									throw new Error(`Network response was not ok: ${response.statusText}\n${text}`);
+								});
+							}
+							return response.json();
+						})
+						.then(data => {
+							window.location.href = data.url;
+						})
+						.catch(error => {
+							console.error('Error during fetch:', error);
+						});
+				});
 			}
 		}
 

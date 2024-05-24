@@ -14,3 +14,6 @@ def homeView(request):
 
 def twoFAView(request):
 	return render(request, '2FA.html')
+
+def set_passwd(request):
+	return render(request, 'set_passwd.html')
