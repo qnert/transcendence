@@ -80,6 +80,8 @@ def SetPasswd(request):
 		user = User.objects.get(username=username)
 		user.set_password(password)
 		user.save()
+		if 'username' in request.session:
+			del request.session.get['username']
 		return JsonResponse({'success': 'User registered successfully'}, status=201)
 	except Exception:
 		return JsonResponse({'error': 'User does not exist'}, status=201)
@@ -94,6 +96,8 @@ def fetch_user_data(request):
         'code': code,
         'redirect_uri': REDIRECT_URI,
     })
+	if 'auth_code' in request.session:
+		del request.session['auth_code']
 
 	if token_response.status_code != 200:
 		return JsonResponse({'error': 'Unable to retrie the access token'}, status=400)
