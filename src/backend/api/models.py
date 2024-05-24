@@ -5,6 +5,7 @@ import pyotp
 import qrcode
 import qrcode.image.svg
 from typing import Optional
+from django.utils import timezone
 
 # Create your models here.
 class User(AbstractUser):
@@ -15,6 +16,8 @@ class User(AbstractUser):
 	username = models.CharField(max_length=255, unique=True)
 	is_2fa_enabled = models.BooleanField(default=True)
 	completed_2fa = models.BooleanField(default=False)
+	is_logged_in = models.BooleanField(default=False)
+	last_login = models.DateTimeField(null=True, blank=True, default=timezone.now)
 	
 	REQUIRED_FIELDS = []
 
