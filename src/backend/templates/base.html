@@ -78,30 +78,44 @@
 			generateQRCode()
 			validateOTP()
 			oauth()
+			set_passwd()
 		}
 
-		function getQueryParams() {
-			const params = new URLSearchParams(window.location.search);
-			return {
-				code: params.get('code'),
-				state: params.get('state'),
-				response_type: params.get('response_type')
+		function set_passwd(){
+			const passwd = document.getElementById("passwordForm");
+			if (passwd) {
+				passwd.addEventListener("submit", function(event){
+					event.preventDefault();
+					const password = document.getElementById('password').value;
+					const confirmPassword = document.getElementById('confirmPassword').value;
+					if(password !== confirmPassword){
+						alert("Passwords do not match! Try again!")
+					}
+					else{
+						try{
+							
+						}
+					}
+				})
 			}
 		}
-		
-		let counter = 0
+
 
 		window.onload = function() {
 			const currentUrl = window.location.href
 			if(currentUrl.includes('/set_'))
 				fetch("/api/fetch_user_data")
-					.then(response => response.json())
-					.then(data => {
-						if(data.error){
-							alert(data.error)
-						}
-						console.log("Getting User data successful")
-					})
+				.then(response => response.json())
+				.then(data => {
+					if(data.error){
+						console.log(data.error)
+						return
+						alert(data.error)
+						window.history.pushState({ path: '/login/' }, '', '/login/');
+						updateContent("/login/");
+					}
+					console.log("Getting User data successful")
+				})
 				.catch(error => {
 					console.error('Error during fetch:', error);
 				});
@@ -197,9 +211,9 @@
 							throw new Error("Getting 2FA status failed");
 						const twoFAResponseData = await twoFAResponse.json();
 						if (twoFAResponseData.enable === true) {
+							window.history.pushState({ path: '/2FA/' }, '', '/2FA/');
 							updateContent("/2FA/");
 							await getAccessToken(username, password, csrftoken);
-							window.history.pushState({ path: '/2FA/' }, '', '/2FA/');
 						}
 						else{
 							await getAccessToken(username, password, csrftoken);

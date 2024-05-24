@@ -5,11 +5,11 @@
 	<form id="loginFormContent" method="POST">
 		<div class="mb-3">
 			<label for= "username">Username</label>
-			<input type="text" id="username" name="username" autocomplete="on" />
+			<input type="text" id="username" name="username" autocomplete="on" required/>
 		</div>
 		<div class="mb-3">
 			<label for="password">Password</label>
-			<input type="password" id="password" name="password"/>
+			<input type="password" id="password" name="password" required/>
 		</div>
 		{% csrf_token %}
 		<button type="submit">Login</button>

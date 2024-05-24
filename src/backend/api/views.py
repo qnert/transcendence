@@ -63,15 +63,25 @@ def auth_callback(request):
 	state = request.GET.get('state')
 	# if not state or state != state:
 	# 	return JsonResponse({'error': 'Unauthoriazed access detected'}, status=401)
-	print("Code1: ", code)
 	request.session['auth_code'] = code
-	print("Code_session: ", request.session['auth_code'])
 	return redirect('set_passwd')
 	
 
+def SetPasswd(request):
+	# password security for example atleast 8 characters long
+	username = request.session.get('username')
+	password = request.POST.get('password')
+	try:
+		user = User.objects.get(username=username)
+		user.set_password(password)
+		user.save()
+		return JsonResponse({'success': 'User registered successfully'}, status=201)
+	except User.DoesNotExist:
+		return JsonResponse({'error': 'User does not exist'}, status=201)
+ 
+
 def fetch_user_data(request):
 	code = request.session.get('auth_code')
-	print("CODE INCOMING", code)
 	token_response = requests.post('https://api.intra.42.fr/oauth/token', data={
         'grant_type': 'authorization_code',
         'client_id': UID,
@@ -79,28 +89,32 @@ def fetch_user_data(request):
         'code': code,
         'redirect_uri': REDIRECT_URI,
     })
+
 	if token_response.status_code != 200:
 		return JsonResponse({'error': 'Unable to retrie the access token'}, status=400)
+	
 	token_data = token_response.json()
 	access_token = token_data.get('access_token')
 	user_info = get_user_data(access_token)
 	if not user_info:
 		return JsonResponse({'error': 'could not fetch user data'}, status=401)
+	
 	username = user_info['login']
 	email = user_info.get('email', '')
 	first_name = user_info.get('first_name', '')
 	last_name = user_info.get('last_name', '')
 	profile_picture_url = user_info.get('image', {}).get('version', {}).get('large', '')
-	user, created = User.objects.get_or_create(username=username, defaults={
-		'username': username,
-		'first_name': first_name,
-		'last_name': last_name,
-		'email': email,
-		'password': "123"
-	})
 
-	if created:
+	try:
+		user = User.objects.get(username=username)
 		return JsonResponse({'error': 'User already registerd'}, status=400)
+	except User.DoesNotExist:
+		user = User.objects.create(username=username, defaults={
+			'username': username,
+			'first_name': first_name,
+			'last_name': last_name,
+			'email': email,
+		})
 
 	user_profile, created = UserProfile.objects.get_or_create(user=user, defaults={
 		'profile_picture_url': profile_picture_url,
@@ -108,6 +122,7 @@ def fetch_user_data(request):
 		'registered': True,
 		'display_name': username,
 	})
+	request.session['username'] = username
 	return JsonResponse({'success': 'success'}, status=200)
 
 def get_user_data(access_token):
@@ -207,3 +222,7 @@ class RegisterView(APIView):
 			return JsonResponse({'error': 'User with this username already exists.'}, status=410)
 		user = User.objects.create_user(username=username, email=email, password=password)
 		return JsonResponse({'success': 'User registered successfully'}, status=201)
+	
+
+
+		

@@ -2,7 +2,16 @@
 
 {% block content %}
 <div id="newContent">
-	<h1>Hello</h1>
+	<h2>Set Your New Password</h2>
+    <form id="passwordForm">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br><br>
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
+        <br><br>
+        <button type="submit">Submit</button>
+    </form>
 </div>
 
 
