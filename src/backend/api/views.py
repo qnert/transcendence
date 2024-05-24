@@ -33,6 +33,7 @@ import requests
 from django.urls import reverse
 import random
 import string
+from .serializers import *
 
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
 UID = "u-s4t2ud-eb4d25721512a1e2da0dcdd30cf8690c975996bfe99fea803547dfdde2556456"
@@ -46,6 +47,7 @@ def generate_random_string():
     return ''.join(random.choice(characters) for _ in range(length))
 
 random_string = generate_random_string()
+
 def redirect_to_login(request):
 	params = {
 		'client_id': UID,
@@ -70,13 +72,16 @@ def auth_callback(request):
 def SetPasswd(request):
 	# password security for example atleast 8 characters long
 	username = request.session.get('username')
-	password = request.POST.get('password')
+	print("USERNAME", username)
+	data = json.loads(request.body)
+	password = data.get('password')
+	print("PASSWORD", password)
 	try:
 		user = User.objects.get(username=username)
 		user.set_password(password)
 		user.save()
 		return JsonResponse({'success': 'User registered successfully'}, status=201)
-	except User.DoesNotExist:
+	except Exception:
 		return JsonResponse({'error': 'User does not exist'}, status=201)
  
 
@@ -108,20 +113,19 @@ def fetch_user_data(request):
 	try:
 		user = User.objects.get(username=username)
 		return JsonResponse({'error': 'User already registerd'}, status=400)
-	except User.DoesNotExist:
-		user = User.objects.create(username=username, defaults={
-			'username': username,
-			'first_name': first_name,
-			'last_name': last_name,
-			'email': email,
-		})
+	except Exception:
+		user = User.objects.create(username=username,
+			first_name= first_name,
+			last_name= last_name,
+			email = email,
+		)
 
-	user_profile, created = UserProfile.objects.get_or_create(user=user, defaults={
-		'profile_picture_url': profile_picture_url,
-		'needs_password_set': True,
-		'registered': True,
-		'display_name': username,
-	})
+	user_profile, created = UserProfile.objects.get_or_create(user=user,
+		profile_picture_url=profile_picture_url,
+		needs_password_set=True,
+		registered=True,
+		display_name=username,
+	)
 	request.session['username'] = username
 	return JsonResponse({'success': 'success'}, status=200)
 
@@ -202,7 +206,9 @@ def LogoutView(request):
 class LoginView(APIView):
 	def post(self, request):
 		username = request.data.get('username')
+		print(username)
 		password = request.data.get('password')
+		print(password)
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			login(request ,user)

@@ -9,5 +9,6 @@ urlpatterns = [
 	path('validateOTP/', views.Validate_OTP),
 	path('get_2fa_status/', views.Get_2FA_Status),
 	path('oauth/', views.redirect_to_login, name='oauth'),
-	path('fetch_user_data', views.fetch_user_data),
+	path('fetch_user_data/', views.fetch_user_data),
+	path('set_passwd/', views.SetPasswd),
 ]

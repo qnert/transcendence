@@ -78,49 +78,64 @@
 			generateQRCode()
 			validateOTP()
 			oauth()
-			set_passwd()
 		}
 
 		function set_passwd(){
 			const passwd = document.getElementById("passwordForm");
 			if (passwd) {
-				passwd.addEventListener("submit", function(event){
+				passwd.addEventListener("click", async function(event){
 					event.preventDefault();
 					const password = document.getElementById('password').value;
 					const confirmPassword = document.getElementById('confirmPassword').value;
+
 					if(password !== confirmPassword){
 						alert("Passwords do not match! Try again!")
 					}
 					else{
+						const csrftoken = getCookie("csrftoken")
 						try{
-							
+							const response = await fetch("/api/set_passwd/", {
+								method: "POST",
+								headers: {
+									"Content-Type": "application/json",
+									"X-CSRFToken": csrftoken,
+									'Cache-Control': 'no-cache'
+								},
+								body: JSON.stringify({password:confirmPassword})
+							});
+							if(!response.ok){
+								alert(response.error);
+							}
+							alert("Setting your passwd was successful!")
+							window.history.pushState({ path: '/login/' }, '', '/login/');
+							updateContent("/login/");
+						}
+						catch(error) {
+							console.error("something went wrong");
 						}
 					}
-				})
+				});
 			}
 		}
 
-
-		window.onload = function() {
-			const currentUrl = window.location.href
-			if(currentUrl.includes('/set_'))
-				fetch("/api/fetch_user_data")
-				.then(response => response.json())
-				.then(data => {
-					if(data.error){
-						console.log(data.error)
-						return
-						alert(data.error)
-						window.history.pushState({ path: '/login/' }, '', '/login/');
-						updateContent("/login/");
+			window.onload = function(){
+				const registration = document.getElementById("passwordForm");
+				if (registration) {
+					const currentUrl = window.location.href;
+					if (currentUrl.includes('/set_')) {
+							fetch("/api/fetch_user_data/")
+								.then(response => response.json())
+								.then(data => {
+									if (data.error) {
+									}
+									console.log("Getting User data successful");
+								})
+								.catch(error => {
+									console.error('Error during fetch:', error);
+								});
+						}
 					}
-					console.log("Getting User data successful")
-				})
-				.catch(error => {
-					console.error('Error during fetch:', error);
-				});
-			};
-
+			}
 
 		function oauth() {
 			const registerButton = document.getElementById("register");

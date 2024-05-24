@@ -14,7 +14,7 @@ class User(AbstractUser):
 	email = models.CharField(max_length=255, unique=True)
 	password = models.CharField(max_length=255)
 	username = models.CharField(max_length=255, unique=True)
-	is_2fa_enabled = models.BooleanField(default=True)
+	is_2fa_enabled = models.BooleanField(default=False)
 	completed_2fa = models.BooleanField(default=False)
 	is_logged_in = models.BooleanField(default=False)
 	last_login = models.DateTimeField(null=True, blank=True, default=timezone.now)
@@ -25,7 +25,8 @@ class UserTwoFactorAuthData(models.Model):
 	user = models.OneToOneField(
 		settings.AUTH_USER_MODEL,
 		related_name='two_factor_auth_data',
-		on_delete=models.CASCADE)
+		on_delete=models.CASCADE,
+		)
 	otp_secret = models.CharField(max_length=255, blank=True, null=True)
 
 

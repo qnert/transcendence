@@ -2,15 +2,15 @@
 
 {% block content %}
 <div id="newContent">
-	<h2>Set Your New Password</h2>
-    <form id="passwordForm">
+    <form id="passwordForm" method="POST">
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
         <br><br>
         <label for="confirmPassword">Confirm Password:</label>
         <input type="password" id="confirmPassword" name="confirmPassword" required>
         <br><br>
-        <button type="submit">Submit</button>
+		{% csrf_token %}
+        <button type="button" onclick="set_passwd()">Create</button>
     </form>
 </div>
 
