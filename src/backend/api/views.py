@@ -41,6 +41,25 @@ SECRET = "s-s4t2ud-deb86e90f0993fcd1f5b8c93e196e76100d45b1a936555e307912397a5c38
 code = ''
 state = ''
 
+import logging
+logger = logging.getLogger(__name__)
+def get_profile(request):
+	user = request.user
+	profile_image = user.profile.profile_picture_url
+	profile_data = {
+		'username': user.username,
+		'email': user.email,
+        # 'profile_image': profile_image if profile_image else None
+        'profile_image': None
+	}
+	logger.debug('Profile Data: %s', profile_data)
+	return JsonResponse(profile_data)
+
+def check_passwd(request):
+	username = request.session.get('username')
+	value = User.objects.filter(username=username, condition=True).exists()
+	return JsonResponse({'value': value})
+
 def generate_random_string():
     length = random.randint(16, 32)
     characters = string.ascii_letters + string.digits + string.punctuation
@@ -124,14 +143,15 @@ def fetch_user_data(request):
 			email = email,
 		)
 
-	user_profile, created = UserProfile.objects.get_or_create(user=user,
-		profile_picture_url=profile_picture_url,
+	user_profile, profile_created = UserProfile.objects.get_or_create(user=user,
+		profile_picture_url= profile_picture_url,
 		needs_password_set=True,
 		registered=True,
 		display_name=username,
 	)
 	request.session['username'] = username
 	return JsonResponse({'success': 'success'}, status=200)
+
 
 def get_user_data(access_token):
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -206,7 +226,7 @@ def LogoutView(request):
 	else:
 		return JsonResponse({'error': 'Refresh token not provided'}, status=400)	
 
-
+# add that the user needs to set a password, if not set, then he gets redirected to set_passwd
 class LoginView(APIView):
 	def post(self, request):
 		username = request.data.get('username')

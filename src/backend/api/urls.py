@@ -11,4 +11,5 @@ urlpatterns = [
 	path('oauth/', views.redirect_to_login, name='oauth'),
 	path('fetch_user_data/', views.fetch_user_data),
 	path('set_passwd/', views.SetPasswd),
+	path('get_profile/', views.get_profile),
 ]

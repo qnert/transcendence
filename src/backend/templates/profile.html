@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="newContent">
+        <h1>User Profile</h1>
+        <div id="profile">
+            <p><strong>Username:</strong> <span id="profile-username"></span></p>
+            <p><strong>Email:</strong> <span id="profile-email"></span></p>
+            <p><strong>Profile Image:</strong></p>
+            <img id="profile-image" alt="Profile Image" style="width:150px;height:150px;">
+			<br>
+			<br>
+            <form id="update-email-form">
+                <label for="new-email">New Email:</label>
+				<br>
+                <input type="email" id="new-email" name="new-email" required>
+                <button type="submit">Save</button>
+            </form>
+        </div>
+</div>
+{% endblock content %}
