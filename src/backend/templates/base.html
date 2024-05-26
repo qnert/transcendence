@@ -105,13 +105,6 @@
 							if (data) {
 								document.getElementById('profile-username').textContent = data.username;
 								document.getElementById('profile-email').textContent = data.email;
-								const profileImage = document.getElementById('profile-image');
-								if (data.profile_image) {
-									profileImage.src = data.profile_image;
-									profileImage.style.display = 'block';
-								} else {
-									profileImage.style.display = 'none';
-								}
 							}
 						} catch (error) {
 							console.error('Error parsing JSON:', error);
