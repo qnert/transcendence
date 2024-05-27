@@ -9,4 +9,12 @@ down:
 	docker-compose -f src/docker-compose.yml down
 
 migrate:
-	cd src/; docker-compose exec backend /bin/bash
+	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py migrate
+
+bash:
+	@echo "Services:"
+	@docker-compose -f src/docker-compose.yml config --services | column
+	@echo
+	@echo 'Enter service name to start bash:'
+	@read service; \
+	docker-compose -f src/docker-compose.yml exec $$service /bin/bash
