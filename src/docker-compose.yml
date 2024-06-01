@@ -36,17 +36,17 @@ services:
       - ../.env
     volumes:
       - ./PostgreSQL/:/var/lib/postgresql/data
-    ports:
+    ports:  
       - 5432:5432
     networks:
       - transcendence
-
+# check exposiong ports
   grafana:
     image: grafana/grafana
     container_name: grafana
     restart: unless-stopped
     ports:
-     - '3000:3000'
+     - 3000:3000
     volumes:
       - grafana-storage:/var/lib/grafana
 
