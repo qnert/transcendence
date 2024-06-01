@@ -1,12 +1,30 @@
+.PHONY: all
 all: up
 
+.PHONY: re
 re: down up
 
+.PHONY: up
 up:
 	docker-compose -f src/docker-compose.yml up --build
 
+.PHONY: down
 down:
 	docker-compose -f src/docker-compose.yml down
 
+.PHONY: migrate
 migrate:
-	cd src/; docker-compose exec backend /bin/bash
+	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py migrate
+
+.PHONY: migrations
+migrations:
+	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py makemigrations
+
+.PHONY: bash
+bash:
+	@echo "Services:"
+	@docker-compose -f src/docker-compose.yml config --services | column
+	@echo
+	@echo 'Enter service name to start bash:'
+	@read service; \
+	docker-compose -f src/docker-compose.yml exec $$service /bin/bash
