@@ -38,3 +38,12 @@ class UserProfile(models.Model):
 	registered = models.BooleanField(default=False)
 	# access_token = models.CharField(max_length=255, blank=True, null=True)
 	# token_expiration = models.DateTimeField(null=True, blank=True
+	def save(self, *args, **kwargs):
+		if not self.display_name:
+			self.display_name = self.user.username
+		super().save(*args, **kwargs)
+
+	def get_profile_picture(self):
+		if self.profile_picture:
+			return self.profile_picture.url
+		return self.profile_picture_url
