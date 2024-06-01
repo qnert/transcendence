@@ -35,6 +35,7 @@ from django.urls import reverse
 import random
 import string
 from .serializers import *
+from django.core.exceptions import ObjectDoesNotExist
 
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
 UID = "u-s4t2ud-eb4d25721512a1e2da0dcdd30cf8690c975996bfe99fea803547dfdde2556456"
@@ -44,12 +45,13 @@ state = ''
 
 def get_profile(request):
 	user = request.user
-	profile_image = user.profile.profile_picture_url
+	profile_picture = user.profile.profile_picture_url
 	profile_data = {
 		'username': user.username,
 		'email': user.email,
-        # 'profile_image': profile_image if profile_image else None
-        'profile_image': None
+        'profile_picture': profile_picture if profile_picture else None,
+		'picture_url': user.profile.profile_picture_url,
+		'display_name': user.profile.display_name
 	}
 	return JsonResponse(profile_data)
 
@@ -121,6 +123,7 @@ def fetch_user_data(request):
 	
 	token_data = token_response.json()
 	access_token = token_data.get('access_token')
+	#maybe test if access_token is there?
 	user_info = get_user_data(access_token)
 	if not user_info:
 		return JsonResponse({'error': 'could not fetch user data'}, status=401)
@@ -130,10 +133,11 @@ def fetch_user_data(request):
 	first_name = user_info.get('first_name', '')
 	last_name = user_info.get('last_name', '')
 	profile_picture_url =  user_info['image']['versions']['large']
-	user = User.objects.get(username=username)
-	if user:
+
+	try:
+		user = User.objects.get(username=username)
 		return JsonResponse({'error': 'User already registerd'}, status=400)
-	else:
+	except User.DoesNotExist:
 		user = User.objects.create(username=username,
 			first_name= first_name,
 			last_name= last_name,

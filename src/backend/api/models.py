@@ -33,6 +33,7 @@ class UserTwoFactorAuthData(models.Model):
 class UserProfile(models.Model):
 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
 	display_name = models.CharField(max_length=50, blank=True)
+	profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
 	profile_picture_url = models.URLField(max_length=300, blank=True, default='')
 	needs_password_set = models.BooleanField(default=True)
 	registered = models.BooleanField(default=False)
