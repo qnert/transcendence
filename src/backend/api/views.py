@@ -19,6 +19,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.utils.html import escape
 from django.shortcuts import redirect, render
+from loguru import logger
 import io
 import json
 from io import BytesIO
@@ -43,6 +44,7 @@ state = ''
 
 import logging
 logger = logging.getLogger(__name__)
+
 def get_profile(request):
 	user = request.user
 	profile_image = user.profile.profile_picture_url
@@ -131,12 +133,11 @@ def fetch_user_data(request):
 	email = user_info.get('email', '')
 	first_name = user_info.get('first_name', '')
 	last_name = user_info.get('last_name', '')
-	profile_picture_url = user_info.get('image', {}).get('version', {}).get('large', '')
-
-	try:
-		user = User.objects.get(username=username)
+	profile_picture_url =  user_info['image']['versions']['large']
+	user = User.objects.get(username=username)
+	if user:
 		return JsonResponse({'error': 'User already registerd'}, status=400)
-	except Exception:
+	else:
 		user = User.objects.create(username=username,
 			first_name= first_name,
 			last_name= last_name,
