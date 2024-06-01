@@ -42,9 +42,6 @@ SECRET = "s-s4t2ud-deb86e90f0993fcd1f5b8c93e196e76100d45b1a936555e307912397a5c38
 code = ''
 state = ''
 
-import logging
-logger = logging.getLogger(__name__)
-
 def get_profile(request):
 	user = request.user
 	profile_image = user.profile.profile_picture_url
@@ -54,7 +51,6 @@ def get_profile(request):
         # 'profile_image': profile_image if profile_image else None
         'profile_image': None
 	}
-	logger.debug('Profile Data: %s', profile_data)
 	return JsonResponse(profile_data)
 
 def check_passwd(request):
