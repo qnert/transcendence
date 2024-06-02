@@ -6,7 +6,7 @@ re: down up
 
 .PHONY: up
 up:
-	docker-compose -f src/docker-compose.yml up --build
+	docker-compose -f src/docker-compose.yml up -d --build
 
 .PHONY: down
 down:
@@ -22,7 +22,11 @@ migrations:
 
 .PHONY: test
 test:
-	src/backend/manage.py test
+	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py test backend/
+
+.PHONY: venv
+venv:
+	source env/bin/activate
 
 .PHONY: bash
 bash:
