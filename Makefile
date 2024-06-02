@@ -20,6 +20,10 @@ migrate:
 migrations:
 	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py makemigrations
 
+.PHONY: test
+test:
+	src/backend/manage.py test
+
 .PHONY: bash
 bash:
 	@echo "Services:"
