@@ -6,7 +6,7 @@ re: down up
 
 .PHONY: up
 up:
-	docker-compose -f src/docker-compose.yml up -d --build
+	docker-compose -f src/docker-compose.yml up --build
 
 .PHONY: down
 down:
