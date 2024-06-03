@@ -15,6 +15,7 @@ services:
       - .:/app
     depends_on:
       - database
+      - redis
     networks:
       - transcendence
     restart: unless-stopped
@@ -28,9 +29,10 @@ services:
     networks:
       - transcendence
 
+  # check exposiong ports
   database:
     container_name: database
-    image: postgres:latest
+    image: postgres
     restart: unless-stopped
     env_file:
       - ../.env
@@ -40,10 +42,12 @@ services:
       - 5432:5432
     networks:
       - transcendence
-# check exposiong ports
+  
   grafana:
     image: grafana/grafana
     container_name: grafana
+    networks:
+      - transcendence
     restart: unless-stopped
     ports:
      - 3000:3000
@@ -53,6 +57,8 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    networks:
+      - transcendence
     command:
       - '--web.enable-lifecycle'
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -63,6 +69,17 @@ services:
       - ./Docker/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
   
+  # check exposiong ports
+    redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - 6379:6379
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+
 volumes:
   frontend:
     driver: local
