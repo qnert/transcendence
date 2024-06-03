@@ -16,3 +16,10 @@ django-otp-yubikey
 pyotp
 qrcode[pil]
 loguru
+daphne
+django-rosetta
+django-parler
+Pillow
+asyncpg
+channels
+channels_redis
