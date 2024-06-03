@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('register/', views.RegisterView.as_view()),
@@ -13,4 +15,7 @@ urlpatterns = [
 	path('set_passwd/', views.SetPasswd),
 	path('get_profile/', views.get_profile),
 	path('save_changes/', views.save_changes),
-]
+	path('search_friends/', views.search_friends, name='search_friends'),
+    path('send_friend_request/', views.send_friend_request, name='send_friend_request'),
+    path('delete_friend/', views.delete_friend, name='delete_friend'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) #is it really needed?

@@ -48,3 +48,30 @@ class UserProfile(models.Model):
 		if self.profile_picture:
 			return self.profile_picture.url
 		return self.profile_picture_url
+	
+
+
+# Friend request table - stores data about the request history
+class FriendRequest(models.Model):
+    from_user = models.ForeignKey(User, related_name='sent_requests', on_delete=models.CASCADE)
+    to_user = models.ForeignKey(User, related_name='received_requests', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    accepted = models.BooleanField(default=False)
+
+    class Meta:
+      unique_together = ('from_user', 'to_user')
+
+    def __str__(self):
+      return f"{self.from_user} to {self.to_user} (accepted: {self.accepted})"
+
+# Active Friendship table - stores data about current friendships held by the user
+class Friendship(models.Model):
+    user1 = models.ForeignKey(User, related_name='friends1', on_delete=models.CASCADE)
+    user2 = models.ForeignKey(User, related_name='friends2', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+      unique_together = ('user1', 'user2')
+
+    def __str__(self):
+      return f"{self.user1} is friends with {self.user2}"

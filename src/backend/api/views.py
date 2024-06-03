@@ -36,12 +36,70 @@ import random
 import string
 from .serializers import *
 from django.core.exceptions import ObjectDoesNotExist
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
+
+
+
 
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
 UID = "u-s4t2ud-eb4d25721512a1e2da0dcdd30cf8690c975996bfe99fea803547dfdde2556456"
 SECRET = "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"
 code = ''
 state = ''
+
+def search_friends(request):
+    query = request.GET.get('q', '')
+    if query:
+        users = UserProfile.objects.filter(display_name__icontains=query).exclude(user=request.user)
+        results = [{
+            'id': user.user.id,
+            'display_name': user.display_name,
+            'profile_picture_url': user.get_profile_picture(),
+        } for user in users]
+        return JsonResponse({'results': results})
+    return JsonResponse({'results': []})
+
+def send_friend_request(request):
+    data = json.loads(request.body)
+    user_id = data.get('user_id')
+    to_user = get_object_or_404(User, id=user_id)
+
+    if not FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
+        FriendRequest.objects.create(from_user=request.user, to_user=to_user)
+
+        # Notify the recipient via WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"user_{to_user.id}",
+            {
+                "type": "friend_request_notification",
+                "message": f"{request.user.username} sent you a friend request!",
+                "friend_name": request.user.username,
+                "friend_id": request.user.id
+            }
+        )
+
+        return JsonResponse({'message': 'Friend request sent successfully'})
+    return JsonResponse({'message': 'Friend request already sent'}, status=400)
+
+def delete_friend(request):
+    data = json.loads(request.body)
+    friend_id = data.get('friend_id')
+
+    try:
+        friend = User.objects.get(id=friend_id)
+        Friendship.objects.filter(user1=request.user, user2=friend).delete()
+        Friendship.objects.filter(user1=friend, user2=request.user).delete()
+        FriendRequest.objects.filter(from_user=request.user, to_user=friend).delete()
+        FriendRequest.objects.filter(from_user=friend, to_user=request.user).delete()
+
+        return JsonResponse({'success': True})
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'User not found'})
+
+
 
 def save_changes(request):
 	user = request.user
