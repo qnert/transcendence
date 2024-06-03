@@ -101,6 +101,10 @@ def delete_friend(request):
 
 
 
+def get_username(request):
+	username = request.user.username
+	return JsonResponse({'username': username})
+
 def save_changes(request):
 	user = request.user
 	data = json.loads(request.body)

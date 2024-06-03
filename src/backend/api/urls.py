@@ -18,4 +18,5 @@ urlpatterns = [
 	path('search_friends/', views.search_friends, name='search_friends'),
     path('send_friend_request/', views.send_friend_request, name='send_friend_request'),
     path('delete_friend/', views.delete_friend, name='delete_friend'),
+	path('get_username/', views.get_username),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) #is it really needed?
