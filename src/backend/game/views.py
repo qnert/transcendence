@@ -13,19 +13,17 @@ from django.http import JsonResponse
 channel_layer = get_channel_layer()
 
 # Create your views here.
-@login_required
-def game(request):
-  return render(request, 'game/game.html')
 
-@login_required
+def game(request):
+  return render(request, 'game.html')
+
 def multiplayer(request, room_name=None):
-  return render(request, 'game/multiplayer.html', {'room_name': room_name})
+  return render(request, 'multiplayer.html', {'room_name': room_name})
 
 def get_username(request):
   username = UserProfile.objects.get(user=request.user)
   return JsonResponse({'username': username.display_name})
 
-@login_required
 def matches(request):
   user_profile = request.user.profile
   game_results = GameResult.objects.filter(user_profile=user_profile)
