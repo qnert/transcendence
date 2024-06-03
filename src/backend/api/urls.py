@@ -12,4 +12,5 @@ urlpatterns = [
 	path('fetch_user_data/', views.fetch_user_data),
 	path('set_passwd/', views.SetPasswd),
 	path('get_profile/', views.get_profile),
+	path('save_changes/', views.save_changes),
 ]
