@@ -21,13 +21,13 @@
 
   </head>
   <style>
-	body {
+	{% comment %} body {
 	  background-color: #333;
 	  color: white;
-	}
+	} {% endcomment %}
 	</style>
   <body>
-	{% include "navbar.html" %}
+	{% include "test.html" %}
 	
     <main id="oldContent">
 		{% block content %}{% endblock content %}
