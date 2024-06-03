@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from core.models import User, Friendship
+from api.models import User, Friendship
 from django.db import models
 from .models import Message, BlockedUser
 import json

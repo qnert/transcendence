@@ -1,8 +1,5 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
-from core.models import User, Friendship
+from api.models import User, Friendship
 
 # Create your models here.
 class Message(models.Model):

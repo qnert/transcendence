@@ -20,7 +20,7 @@ from api.views import *
 from rest_framework_simplejwt import views as jwt_views
 from two_factor.urls import urlpatterns as tf_urls
 from api.views import auth_callback
-# from game.views import game, multiplayer, get_username, matches
+from game.views import game, multiplayer, get_username, matches
 
 
 urlpatterns = [
@@ -31,11 +31,11 @@ urlpatterns = [
 	path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
 	path('token/verify/', jwt_views.TokenVerifyView.as_view(), name="token_verify"),
 	path('callback/', auth_callback, name='oauth_callback'),
-	# path('game/', game, name='game'),
-    # path('username/', get_username, name='get_username'),
-    # path('multiplayer/', multiplayer, name='multiplayer'),
-    # path('matches/', matches, name='matches'),
-    path('rosetta/', include('rosetta.urls')),
+	path('game/', game, name='game'),
+    path('username/', get_username, name='get_username'),
+    path('multiplayer/', multiplayer, name='multiplayer'),
+    path('matches/', matches, name='matches'),
+    # path('rosetta/', include('rosetta.urls')),
     path('api/', include('api.urls')),
 
 ]

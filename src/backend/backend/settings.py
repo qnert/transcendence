@@ -34,20 +34,21 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-	# 'daphne',
+	'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-	# 'rest_framework_simplejwt',
-	# 'rest_framework_simplejwt.token_blacklist',
-	# 'api',
-    # 'rest_framework',
-    # 'corsheaders',
-	# 'game',
-	# 'django_otp',
+	'rest_framework_simplejwt',
+	'rest_framework_simplejwt.token_blacklist',
+    'rest_framework',
+    'corsheaders',
+	'api',
+	'game',
+	'chat',
+	'django_otp',
     # 'rosetta',
     # 'parler',
 ]
@@ -163,12 +164,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AUTH_USER_MODEL = 'api.User'
+AUTH_USER_MODEL = 'api.User'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWS_CREDENTIALS = True
 
-ASGI_APPLICATION = "backend.asgi.application"
+ASGI_APPLICATION = 'backend.asgi.application'
 
 CHANNEL_LAYERS = {
     "default": {
