@@ -27,13 +27,14 @@
 	} {% endcomment %}
 	</style>
   <body>
-	{% include "test.html" %}
+
+	{% include "navbar.html" %}
 	
     <main id="oldContent">
 		{% block content %}{% endblock content %}
     </main>
 	
-	<div>
+	<div id="chatRoom">
 
 		{% include "chatroom.html" %}
 
@@ -85,7 +86,182 @@
 			oauth()
 			profileButton()
 			saveChanges()
+			homeButton()
+			defaultButton()
+			soloGame()
+			multiplayerGame()
 		}
+
+
+		async function getUsernameFromBackend(token) {
+			try {
+				const response = await fetch("/api/get_username", {
+					method: "GET",
+					headers: {
+						"Authorization": `Bearer ${token}`,
+					}
+				});
+				if (response.ok) {
+					const userData = await response.json();
+					const username = userData.username;
+					return username;
+				} else {
+					throw new Error("Failed to get username from backend");
+				}
+			} catch (error) {
+				console.error("Error getting username from backend:", error);
+				throw error;
+			}
+		}
+		
+
+		async function checkAccessToken() {
+			const token = localStorage.getItem("access_token");
+			if (token) {
+				try {
+					const response = await fetch("/token/verify/", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"Authorization": `Bearer ${token}`,
+						},
+						body: JSON.stringify({ token: token }),
+					});
+					if (response.ok) {
+						const username = await getUsernameFromBackend(token);
+						showLoggedInState(username);
+					} else {
+						showLoggedOutState();
+					}
+				} catch (error) {
+					console.error("Error verifying token:", error);
+					showLoggedOutState();
+				}
+			} else {
+				showLoggedOutState();
+			}
+		};
+
+
+		document.addEventListener("DOMContentLoaded", checkAccessToken);
+
+
+
+			const showLoggedInState = (username) => {
+				navButtons.innerHTML = `
+				<button class="nav-button" id="defaultPage">Transcendence</button>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+				  <span class="navbar-toggler-icon"></span>
+				</button>
+				<li class="nav-item">
+					<button class="nav-button" id="game" >Solo Game</button>
+				</li>
+
+					<li class="nav-item dropdown">
+						<button class="nav-button dropdown-toggle" id="friendsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+							Friends
+						</button>
+						<ul class="dropdown-menu" aria-labelledby="friendsDropdown">
+							<li>
+								<input type="text" id="search-friends" class="form-control" placeholder="Search user...">
+							</li>
+							<li id="search-results"></li>
+							<div id="friend-requests"></div>
+							<div class="dropdown-divider"></div>
+							<h5 class="dropdown-header">Friends</h5>
+							<div id="friends-list"></div>
+						</ul>
+					</li>
+					<li class="nav-item">
+						<button class="nav-button" id="multiplayerGame" >Play Multiplayer</button>
+					</li>
+					<li class="nav-item dropdown">
+						<button class="nav-button dropdown-toggle" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+							${username}
+						</button>
+						<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+							<li><button class="dropdown-item" id="profile" >View Profile</button></li>
+							<li><hr class="dropdown-divider"></li>
+							<li><button class="dropdown-item" id="logout">Logout</button></li>
+						</ul>
+					</li>
+				`;
+				reattachEventListeners();
+			};
+		
+			// Function to display UI for logged-out state
+			const showLoggedOutState = () => {
+				navButtons.innerHTML = `
+				<button class="nav-button" id="defaultPage">Transcendence</button>
+				<li class="nav-item">
+					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+				</li>
+				<li class="nav-item">
+					<button class="nav-button login-button" id="login">Login</button>
+				</li>
+				<li class="nav-item">
+					<button class="nav-button" id="register" >Authenticate with 42</button>
+				</li>
+			`;
+				reattachEventListeners();
+			};
+
+			
+		function soloGame(){
+			const soloGameButton = document.getElementById("game");
+			if (soloGameButton) {
+				soloGameButton.addEventListener("click", function(event) {
+					event.preventDefault();
+					handleRoute(event, "/game/");
+				});
+			}
+		}
+
+		function multiplayerGame(){
+			const multiplayerGame = document.getElementById("multiplayerGame");
+			if (multiplayerGame) {
+				multiplayerGame.addEventListener("click", function(event) {
+					event.preventDefault();
+					handleRoute(event, "/multiplayer/");
+				});
+			}
+		}
+
+		function loginButton(){
+			const loginButton = document.getElementById("login");
+			if(loginButton){
+				loginButton.addEventListener("click", function(event) {
+					event.preventDefault();
+					handleRoute(event, "/login/");
+			});	
+		}
+	}
+
+
+		function defaultButton(){
+			const defaultButton = document.getElementById("defaultButton");
+			if(defaultButton){
+				defaultButton.addEventListener("click", function(event) {
+					event.preventDefault();
+					window.history.pushState({ path: '' }, '', '');
+					updateContent("");
+			});
+		}
+	}
+
+
+		function homeButton(){
+			const homeButton = document.getElementById("homeButton");
+			if(homeButton){
+				homeButton.addEventListener("click", function(event) {
+					event.preventDefault();
+					window.history.pushState({ path: '/home/' }, '', '/home/');
+					updateContent("/home/");
+			});
+		}
+	}
 
 		function updateProfile() {
 				fetch('/api/get_profile/', {
@@ -157,7 +333,7 @@
 		}
 
 		function profileButton() {
-			const profileButton = document.getElementById("profileLink");
+			const profileButton = document.getElementById("profile");
 			if (profileButton) {
 				profileButton.addEventListener("click", function(event) {
 					event.preventDefault();
@@ -404,10 +580,12 @@
 							await getAccessToken(username, password, csrftoken);
 						}
 						else{
+							console.log("there");
 							await getAccessToken(username, password, csrftoken);
 							setLoginStatus('true');
 							window.history.pushState({ path: '/home/' }, '', '/home/');
 							updateContent("/home/");
+							checkAccessToken();
 						}
 					} catch(error) {
 						console.error("Login error:", error);
@@ -485,15 +663,6 @@
 		}
 		
 
-		function loginButton(){
-			const loginButton = document.getElementById("loginLink");
-			if(loginButton){
-				loginButton.addEventListener("click", function(event) {
-					event.preventDefault();
-					handleRoute(event, "/login/");
-			});	
-		}
-	}
 
 		window.addEventListener('popstate', function(event) {
 			if (event.state && event.state.path) {
