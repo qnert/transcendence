@@ -43,6 +43,34 @@ SECRET = "s-s4t2ud-deb86e90f0993fcd1f5b8c93e196e76100d45b1a936555e307912397a5c38
 code = ''
 state = ''
 
+def save_changes(request):
+	user = request.user
+	data = json.loads(request.body)
+	display_name = data.get('display_name')
+	picture_url = data.get('picture_url')
+	print("picture_url:", picture_url)
+	print("displa_name:" ,display_name)
+	profile = user.profile
+	if display_name is not None:
+		profile.display_name = display_name
+	if picture_url is not None:
+		profile.profile_picture_url = picture_url
+	profile.save()
+	return JsonResponse({'message': 'Changes saved successfully'})
+
+
+def set_new_passwd(request):
+	user = request.user
+	data = json.loads(request.body)
+	old_passwd = data.get('old_passwd')
+	if not authenticate(username=user.username, password=old_passwd):
+		return JsonResponse({'error': 'Incorrect old Password'}, status=400)
+	new_passwd = data.get('new_passwd')
+	user.set_password(new_passwd)
+	user.save
+	return JsonResponse({'message': 'New password set successfully'})
+
+
 def get_profile(request):
 	user = request.user
 	profile_picture = user.profile.profile_picture_url
