@@ -70,7 +70,7 @@ services:
       - prometheus_data:/prometheus
   
   # check exposiong ports
-    redis:
+  redis:
     image: redis:latest
     container_name: redis
     ports:
