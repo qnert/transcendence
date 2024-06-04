@@ -16,6 +16,10 @@ down:
 migrate:
 	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py migrate
 
+.PHONY: collect
+collect:
+	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py collectstatic
+
 .PHONY: migrations
 migrations:
 	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py makemigrations
