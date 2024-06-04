@@ -217,19 +217,19 @@
 				  }
 				}
 				return response.text();
-			  })
-			  .then(html => {
-				const parser = new DOMParser();
-				const doc = parser.parseFromString(html, "text/html");
-				const newContent = doc.querySelector("#newContent"); 
-				const oldContent = document.getElementById("oldContent");
-				oldContent.innerHTML = ""; 
-				oldContent.appendChild(newContent);
-				reattachEventListeners();
-			  })
-			  .catch(error => console.error('Error fetching content:', error));
+			})
+			.then(html => {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(html, "text/html");
+			const newContent = doc.querySelector("#newContent"); 
+			const oldContent = document.getElementById("oldContent");
+			oldContent.innerHTML = ""; 
+			oldContent.appendChild(newContent);
+			reattachEventListeners();
+			 })
+			 .catch(error => console.error('Error fetching content:', error));
 		  };
-		  
+
 		function handleRoute(event, path) {
 			event.preventDefault();
 			if (window.location.pathname !== path) {
