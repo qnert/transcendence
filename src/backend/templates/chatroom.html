@@ -195,7 +195,7 @@
 	</div>
   
   <script>
-	document.addEventListener("DOMContentLoaded", function() {
+	{% comment %} document.addEventListener("DOMContentLoaded", function() {
 	  let chatSocket;
 	  let selectedFriendId = null;
   
@@ -384,7 +384,8 @@
 	  }
   
 	  loadFriends();
-	});
+	}); {% endcomment %}
+
   </script>
   
   
