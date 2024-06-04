@@ -87,6 +87,7 @@
 			oauth()
 			homeButton()
 			defaultButton()
+			bindProfileButton()
 			soloGame()
 			multiplayerGame()
 		}
@@ -149,7 +150,7 @@
 
 			const showLoggedInState = (username) => {
 				navButtons.innerHTML = `
-				<button class="nav-button" id="defaultPage">Transcendence</button>
+				<button class="nav-button" id="homeButton">Transcendence</button>
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 				  <span class="navbar-toggler-icon"></span>
 				</button>
@@ -192,7 +193,7 @@
 			// Function to display UI for logged-out state
 			const showLoggedOutState = () => {
 				navButtons.innerHTML = `
-				<button class="nav-button" id="defaultPage">Transcendence</button>
+				<button class="nav-button" id="defaultButton">Transcendence</button>
 				<li class="nav-item">
 					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 						<span class="navbar-toggler-icon"></span>
@@ -245,8 +246,11 @@
 			if(defaultButton){
 				defaultButton.addEventListener("click", function(event) {
 					event.preventDefault();
-					window.history.pushState({ path: '' }, '', '');
-					updateContent("");
+					window.history.pushState({ path: '/' }, '', '/');
+					const oldContent = document.getElementById("oldContent");
+					if(oldContent){
+						oldContent.innerHTML = "";
+					}
 			});
 		}
 	}
