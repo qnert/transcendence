@@ -4,7 +4,8 @@ from django.core.exceptions import ValidationError
 from tournament.models import Tournament
 
 # TODO doesnt exist anymore, need to change
-from core.models import UserProfile
+from api.models import UserProfile
+
 
 class TournamentModelTestCase(TestCase):
 

@@ -2,4 +2,4 @@ from django.shortcuts import render
 
 
 def tournament(request):
-    return render(request, 'tournament/tournament.html')
+    return render(request, 'tournament.html')
