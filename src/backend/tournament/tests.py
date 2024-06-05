@@ -1,9 +1,10 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from core.models import UserProfile
 from tournament.models import Tournament
 
+# TODO doesnt exist anymore, need to change
+from core.models import UserProfile
 
 class TournamentModelTestCase(TestCase):
 

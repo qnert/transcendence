@@ -54,6 +54,7 @@ INSTALLED_APPS = [
  	'api',
 	'game',
 	'chat',
+    'tournament',
 	'django_otp',
 	'django_prometheus',
 ]

@@ -1,8 +1,9 @@
 from django.db import models
-from core.models import UserProfile
 from django.core.exceptions import ValidationError
 from datetime import date
 
+# TODO doesnt exist anymore, need to change
+from core.models import UserProfile
 
 # TODO stats for 1st, 2nd, 3rd and hosting and leaving early in UserProfile
 class Tournament(models.Model):
