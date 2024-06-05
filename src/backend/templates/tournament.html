@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Game</title>
+    {% load static %}
+</head>
+<body>
+    <h1 style="text-align: center">Tournament Game</h1>
+    <button type="button" id="createTournamentButton" onClick="createTournament()" class="btn btn-primary">Primary</button>
+
+    {% comment %} Fetch method for create Tournament {% endcomment %}
+    <script src="{% static 'tournament/tournament.js' %}"></script>
+</body>
+</html>
