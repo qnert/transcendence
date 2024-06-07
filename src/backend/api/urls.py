@@ -23,4 +23,10 @@ urlpatterns = [
 	path('get_username/', views.get_username),
 	path('activate_two_FA/', views.activate_two_FA),
 	path('deactivate_two_FA/', views.deactivate_two_FA),
+	path('friends/', views.friends_list, name='friends_list'),
+	path('friends_online_status/', views.friends_online_status, name='friends_online_status'),
+	path('pending_friend_requests/', views.pending_friend_requests, name='pending_friend_requests'),
+	path('messages/<int:friend_id>/', views.get_chat_messages, name='get_chat_messages'),
+	path('block/<int:user_id>/', views.block_user, name='block_user'),
+	path('unblock/<int:user_id>/', views.unblock_user, name='unblock_user'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) #is it really needed?

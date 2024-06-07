@@ -39,6 +39,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.db import transaction
+from django.shortcuts import render, get_object_or_404
+from api.models import UserProfile, Friendship, FriendRequest
+from chat.models import Message, BlockedUser
+
 
 
 
@@ -71,6 +75,114 @@ def deactivate_two_FA(request):
 
 
 
+
+def friends_list(request):
+    user_profile = UserProfile.objects.get(user=request.user)
+    user_id = user_profile.user_id
+
+    # Get friends' IDs
+    friend_ids_query = Friendship.objects.filter(models.Q(user1_id=user_id) | models.Q(user2_id=user_id))
+    friend_ids = set()
+
+    for friendship in friend_ids_query:
+        if friendship.user1_id != user_id:
+            friend_ids.add(friendship.user1_id)
+        else:
+            friend_ids.add(friendship.user2_id)
+
+    # Retrieve friends' data
+    friends_data = UserProfile.objects.filter(user_id__in=friend_ids).exclude(user_id=user_id).values('display_name', 'profile_picture_url', 'user_id', 'is_online')
+
+    response_data = []
+    for friend in friends_data:
+        is_blocked = BlockedUser.objects.filter(blocker_id=user_id, blocked_id=friend['user_id']).exists()
+        blocked_by = BlockedUser.objects.filter(blocker_id=friend['user_id'], blocked_id=user_id).exists()
+        friend_data = {
+            'display_name': friend['display_name'],
+            'profile_picture_url': friend['profile_picture_url'],
+            'user_id': friend['user_id'],
+            'is_blocked': is_blocked,
+            'blocked_by': blocked_by,
+            'is_online': friend['is_online']
+        }
+        response_data.append(friend_data)
+    return JsonResponse(response_data, safe=False)
+
+
+def friends_online_status(request):
+    user = request.user
+    # Get all friends where the user is either user1 or user2
+    friends_user1 = Friendship.objects.filter(user1=user).values_list('user2', flat=True)
+    friends_user2 = Friendship.objects.filter(user2=user).values_list('user1', flat=True)
+
+    # Combine the two sets of friend IDs
+    friend_ids = list(friends_user1) + list(friends_user2)
+
+    # Get the User objects of these friend IDs
+    friends = UserProfile.objects.filter(id__in=friend_ids)
+    online_status = {}
+
+    for friend in friends:
+      online_status[friend.id] = friend.is_online
+
+    return JsonResponse(online_status)
+
+
+def pending_friend_requests(request):
+    pending_requests = FriendRequest.objects.filter(to_user=request.user, accepted=False)
+    requests_data = [
+        {
+          "id": req.id,
+          "from_user_id": req.from_user.id,
+          "from_user_name": req.from_user.username,
+          "profile_picture_url": req.from_user.profile.get_profile_picture(),
+        }
+        for req in pending_requests
+    ]
+    return JsonResponse(requests_data, safe=False)
+
+
+def get_chat_messages(request, friend_id):
+    try:
+        current_user = request.user
+        friend = User.objects.get(id=friend_id)
+
+        if BlockedUser.objects.filter(blocker=friend, blocked=current_user).exists():
+            return JsonResponse({'error': 'You are blocked by this user and cannot view messages.'}, status=403)
+
+        # Fetch messages between the current user and the specified friend
+        messages = Message.objects.filter(
+            (models.Q(sender=current_user) & models.Q(recipient=friend)) |
+            (models.Q(sender=friend) & models.Q(recipient=current_user))
+        ).order_by('timestamp')
+
+        # Prepare the data to be returned as JSON
+        messages_data = [
+            {
+                'sender': message.sender.username,
+                'content': message.content,
+                'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            for message in messages
+        ]
+
+        return JsonResponse({'messages': messages_data}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'Friend not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def block_user(request, user_id):
+    user_to_block = get_object_or_404(User, id=user_id)
+    BlockedUser.objects.get_or_create(blocker=request.user, blocked=user_to_block)
+    return JsonResponse({'status': 'success', 'message': f'You have blocked {user_to_block.username}'})
+
+
+def unblock_user(request, user_id):
+    user_to_unblock = get_object_or_404(User, id=user_id)
+    BlockedUser.objects.filter(blocker=request.user, blocked=user_to_unblock).delete()
+    return JsonResponse({'status': 'success', 'message': f'You have unblocked {user_to_unblock.username}'})
 
 def search_friends(request):
     query = request.GET.get('q', '')
