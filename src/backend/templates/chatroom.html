@@ -35,8 +35,8 @@
 		</div>
 	</div>
   
-  {% comment %} <script>
-	document.addEventListener("DOMContentLoaded", function() {
+  <script>
+	{% comment %} document.addEventListener("DOMContentLoaded", function() {
 	  let chatSocket;
 	  let selectedFriendId = null;
   
@@ -225,9 +225,9 @@
 	  }
   
 	  loadFriends();
-	});
+	}); {% endcomment %}
 
-  </script> {% endcomment %}
+  </script>
   
   
 {% endblock chat %}
