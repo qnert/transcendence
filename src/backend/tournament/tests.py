@@ -1,15 +1,17 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.core.exceptions import ValidationError
+from django.urls import reverse  # used to test url endpoints
+
+from api.models import User, UserProfile
 from tournament.models import Tournament
 
-# TODO doesnt exist anymore, need to change
-from api.models import User, UserProfile
-
+import json  # used to serialize dict to json
 
 # @note User changed to api.User
 # @note email is uniquely required
 
-class TournamentModelTestCase(TestCase):
+
+class TournamentModelTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -58,3 +60,23 @@ class TournamentModelTestCase(TestCase):
         print()
         print(self.tournament)
         print()
+
+
+class TournamentEndPointTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.user_name = User.objects.create_user(
+            username='testuser', password='1234', email='testuser@some_domain.com')
+        cls.user_profile = UserProfile.objects.create(user=cls.user_name)
+
+    def test_setup(self):
+        self.client.login(username='testuser', password='1234')
+
+        url = reverse('create_tournament')
+        data = {'tournament_name': 'tournament1'}
+        json_data = json.dumps(data)
+        response = self.client.post(url, json_data, content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Tournament.objects.filter(name="Tournament1").exists())
