@@ -20,7 +20,7 @@ class Tournament(models.Model):
 
     def __str__(self):
         names = [participant.user.username for participant in self.participants.all()]
-        return (f'Tournament name: {self.name}\nHost: {self.created_by}\nUsers: {names}')
+        return (f'Tournament name: {self.name}\nHost: {self.created_by.display_name}\nUsers: {names}')
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
