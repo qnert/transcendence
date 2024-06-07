@@ -1,11 +1,13 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from tournament.models import Tournament
 
 # TODO doesnt exist anymore, need to change
-from api.models import UserProfile
+from api.models import User, UserProfile
 
+
+# @note User changed to api.User
+# @note email is uniquely required
 
 class TournamentModelTestCase(TestCase):
 
@@ -16,7 +18,8 @@ class TournamentModelTestCase(TestCase):
         cls.users = []
         cls.user_profiles = []
         for index in range(9):
-            cls.users.append(User.objects.create_user(username=f'testuser{index}', password='1234'))
+            cls.users.append(User.objects.create_user(
+                username=f'testuser{index}', password='1234', email=f'testuser{index}@some_domain.com'))
             cls.user_profiles.append(UserProfile.objects.create(user=cls.users[index]))
         cls.host = cls.users[0]
         cls.host_profile = cls.user_profiles[0]

@@ -6,6 +6,8 @@ from datetime import date
 from api.models import UserProfile
 
 # TODO stats for 1st, 2nd, 3rd and hosting and leaving early in UserProfile
+
+
 class Tournament(models.Model):
     created_at = models.DateField(default=date.today)
     name = models.CharField(max_length=50)
