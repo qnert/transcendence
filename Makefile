@@ -1,12 +1,12 @@
 .PHONY: all
-all: up
+all: detached
 
 .PHONY: re
 re: down up
 
 .PHONY: up
 up:
-	docker-compose -f src/docker-compose.yml up -d --build
+	docker-compose -f src/docker-compose.yml up --build
 
 .PHONY: down
 down:
@@ -48,3 +48,16 @@ showmigrations:
 .PHONY: createsuperuser
 createsuperuser:
 	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py createsuperuser
+
+.PHONY: logs
+logs:
+	@echo "Services:"
+	@docker-compose -f src/docker-compose.yml config --services | column
+	@echo
+	@echo 'Enter service name to follow logs:'
+	@read service; \
+	docker-compose -f src/docker-compose.yml logs -f $$service
+
+.PHONY: detached
+detached:
+	docker-compose -f src/docker-compose.yml up -d
