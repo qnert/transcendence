@@ -8,3 +8,4 @@ env/
 .DS_store
 *.env
 .vscode
+clear_db.sh
