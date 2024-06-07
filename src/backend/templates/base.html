@@ -1,7 +1,6 @@
-{% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+	<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -20,6 +19,7 @@
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
     ></script>
+	{% comment %} <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}"> {% endcomment %}
   </head>
   <style>
 	.friend-list li {
@@ -250,9 +250,143 @@
 			bindProfileButton()
 			soloGame()
 			multiplayerGame()
+			handleCheckbox()
+			checkBox()
+			setNewPasswd()
+		}
+
+		function setNewPasswd(){
+			const passwd = document.getElementById("newPasswdButton");
+			if (passwd) {
+				passwd.addEventListener("click", async function(event){
+					event.preventDefault();
+					const oldPassword = document.getElementById('oldPassword').value;
+					const password = document.getElementById('password').value;
+					const confirmPassword = document.getElementById('confirmPassword').value;
+
+					if(password !== confirmPassword){
+						alert("Passwords do not match! Try again!")
+					}
+					else{
+						const csrftoken = getCookie("csrftoken")
+						try{
+							const response = await fetch("/api/set_new_passwd/", {
+								method: "POST",
+								headers: {
+									"Content-Type": "application/json",
+									"X-CSRFToken": csrftoken,
+									'Cache-Control': 'no-cache'
+								},
+								body: JSON.stringify({password:confirmPassword, old_passwd:oldPassword})
+							});
+							if(!response.ok){
+								alert(response.error);
+							}
+							alert("Setting your new password was successful!")
+						}
+						catch(error) {
+							console.error("something went wrong");
+						}
+					}
+				});
+			}
 		}
 
 
+
+		async function activatetwoFA(){
+			try {
+				const csrftoken = getCookie("csrftoken");
+				const response = await fetch("/api/Update_2FA_Status/", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						'Cache-Control': 'no-cache',
+						"X-CSRFToken": csrftoken,
+					},
+					body: JSON.stringify({ enable: true })
+				});
+				if (!response.ok) {
+					throw new Error("Changing twoFA failed");
+				}
+				else{
+					alert("2FA activated")
+				}
+			} catch (error) {
+				console.error("Token refresh error:", error);
+			}
+		}
+
+		async function deactivatetwoFA(){
+			try {
+				const csrftoken = getCookie("csrftoken");
+				const response = await fetch("/api/Update_2FA_Status/", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						'Cache-Control': 'no-cache',
+						"X-CSRFToken": csrftoken,
+					},
+					body: JSON.stringify({ enable: false })
+				});
+				if (!response.ok) {
+					throw new Error("Changing twoFA failed");
+				}
+				else{
+					alert("2FA deactivated!")
+				}
+			} catch (error) {
+				console.error("Token refresh error:", error);
+			}
+		}
+
+		
+		async function checkBox() {
+			const checkBox = document.getElementById('checkBox');
+			if (checkBox) {
+			  try {
+				const csrftoken = getCookie("csrftoken");
+				const twoFAResponse = await fetch("/api/get_2fa_status/", {
+				  method: "GET",
+				  headers: {
+					"Content-Type": "application/json",
+					"X-CSRFToken": csrftoken,
+					'Cache-Control': 'no-cache'
+				  },
+				});
+				if (!twoFAResponse.ok) throw new Error("Getting 2FA status failed");
+				
+				const twoFAResponseData = await twoFAResponse.json();
+				if (twoFAResponseData.enable === true) {
+				  checkBox.checked = true;
+				}
+				else{
+					checkBox.checked = false;
+				}
+			  } catch (error) {
+				console.error(error);
+			  }
+			}
+		  };
+
+		  window.onload = async function() {
+			checkBox();
+		  };
+
+
+		function handleCheckbox(){
+			const checkBox = document.getElementById("checkBox");
+			if(checkBox){
+				checkBox.addEventListener("change", function(){
+					if(checkBox.checked)
+						activatetwoFA();
+					else{
+						deactivatetwoFA();
+					}
+				});
+			}
+		}
+		
 		async function getUsernameFromBackend(token) {
 			try {
 				const response = await fetch("/api/get_username", {
@@ -415,7 +549,6 @@
 		}
 	}
 
-
 		function homeButton(){
 			const homeButton = document.getElementById("homeButton");
 			if(homeButton){
@@ -427,6 +560,15 @@
 		}
 	}
 
+	 window.onload = function () {
+		const currentUrl = window.location.href;
+		console.log(currentUrl);
+		if (currentUrl.includes('profile')) {
+			fetchProfileData();
+		}
+		bindSaveChangesButton();
+		bindProfileButton();
+	};
 	
 	document.addEventListener('DOMContentLoaded', function() {
 		const currentUrl = window.location.href;
@@ -450,9 +592,9 @@
 			return response.text();
 		})
 		.then(rawData => {
-			console.log('Raw Response Data:', rawData);
 			try {
 				const data = JSON.parse(rawData);
+				console.log('Raw Response Data:', data); // Log raw data
 				if (data) {
 					document.getElementById('profile-name').textContent = data.username;
 					document.getElementById('profile-username').value = data.username;
@@ -460,7 +602,6 @@
 					document.getElementById('profile-display_name').value = data.display_name;
 					document.getElementById('profile-picture_url').value = data.picture_url;
 					const profilePictureUrl = data.profile_picture;
-					console.log(data.profile_picture);
 					if (profilePictureUrl) {
 						console.log(profilePictureUrl);
 						const profilePicture = document.getElementById('profile-picture');
@@ -521,12 +662,6 @@
 			});
 		}
 	}
-	
-
-
-
-
-
 
 		function set_passwd(){
 			const passwd = document.getElementById("passwordForm");
@@ -649,6 +784,7 @@
 			if (Login) {
 				Login.addEventListener("submit", async function(event) {
 					event.preventDefault();
+					console.log("test");
 					const username = document.getElementById("username").value;
 					const password = document.getElementById("password").value;
 					const csrftoken = getCookie("csrftoken");
@@ -678,12 +814,13 @@
 							throw new Error("Getting 2FA status failed");
 						const twoFAResponseData = await twoFAResponse.json();
 						if (twoFAResponseData.enable === true) {
+							console.log("that");
 							window.history.pushState({ path: '/2FA/' }, '', '/2FA/');
 							updateContent("/2FA/");
 							await getAccessToken(username, password, csrftoken);
 						}
 						else{
-							console.log("there");
+							console.log("this");
 							await getAccessToken(username, password, csrftoken);
 							setLoginStatus('true');
 							window.history.pushState({ path: '/home/' }, '', '/home/');
@@ -721,6 +858,7 @@
                     .then(data => {
                         if (data.valid) {
 							window.history.pushState({ path: '/home/' }, '', '/home/');
+							checkAccessToken();
 							updateContent("/home/");
                         } else {
                             alert("Validation failed: Invalid OTP");
@@ -885,7 +1023,7 @@
 	
 	  window.onload = function() {
 		const currentUrl = window.location.href;
-		if (currentUrl.includes('profile')){
+		if (currentUrl.includes('game')){
 			document.getElementById("background").value = "#ffffff"; // Default to white
 			document.getElementById("borders").value = "#0000ff"; // Default to blue
 			document.getElementById("ballColor").value = "#0000ff"; // Default to blue
@@ -1279,7 +1417,196 @@
 		}
 	  };
 	
-
+	  document.addEventListener("DOMContentLoaded", function() {
+		let chatSocket;
+		let selectedFriendId = null;
+	
+		function loadFriends() {
+		  // Fetch the list of friends from the server (replace with your actual endpoint)
+		  fetch('/api/friends/')
+			.then(response => response.json())
+			.then(data => {
+			  const friendList = document.getElementById('friendList');
+			  friendList.innerHTML = ''; // Clear the list
+			  data.forEach(friend => {
+				const li = document.createElement('li');
+				li.id = `friend-${friend.user_id}`;
+				li.dataset.friendId = friend.user_id;
+	
+				const img = document.createElement('img');
+				img.src = friend.profile_picture_url;
+				img.alt = friend.display_name;
+	
+				const statusText = document.createElement('span');
+				statusText.id = `chat-status-${friend.user_id}`;
+				statusText.className = 'status-text ' + (friend.is_online ? 'online' : 'offline');
+				statusText.textContent = friend.is_online ? 'online' : 'offline';
+	
+				const friendDetails = document.createElement('div');
+				friendDetails.className = 'friend-details';
+				friendDetails.appendChild(img);
+				friendDetails.appendChild(statusText);
+	
+				const friendInfo = document.createElement('div');
+				friendInfo.className = 'friend-info';
+	
+				const nameAndButtons = document.createElement('div');
+				nameAndButtons.className = 'name-and-buttons';
+	
+				const span_name = document.createElement('span');
+				span_name.textContent = friend.display_name;
+	
+				const messageButton = document.createElement('button');
+				messageButton.textContent = 'Message';
+				messageButton.onclick = () => selectFriend(friend.user_id, friend.display_name);
+	
+				const blockButton = document.createElement('button');
+				blockButton.textContent = 'Block';
+				blockButton.onclick = () => blockUser(friend.user_id);
+	
+				const unblockButton = document.createElement('button');
+				unblockButton.textContent = 'Unblock';
+				unblockButton.onclick = () => unblockUser(friend.user_id);
+				unblockButton.style.display = 'none'; // Hide the unblock button initially
+	
+				if (friend.is_blocked) {
+				  messageButton.style.display = 'none';
+				  blockButton.style.display = 'none';
+				  statusText.style.display = 'none';
+				  unblockButton.style.display = 'inline';
+				}
+	
+				if (friend.blocked_by)
+				  statusText.style.display = 'none';
+	
+				nameAndButtons.appendChild(span_name);
+				nameAndButtons.appendChild(messageButton);
+				nameAndButtons.appendChild(blockButton);
+				nameAndButtons.appendChild(unblockButton);
+	
+				friendInfo.appendChild(nameAndButtons);
+	
+				li.appendChild(friendDetails);
+				li.appendChild(friendInfo);
+				friendList.appendChild(li);
+			  });
+			});
+		}
+	
+		function selectFriend(friendId, friendName) {
+		  selectedFriendId = friendId;
+		  document.getElementById('friend-name').textContent = friendName;
+		  document.getElementById('chatRoom').style.display = 'block';
+		  document.getElementById('friendsList').style.display = 'none';
+		  document.getElementById('message').disabled = false;
+		  document.getElementById('send').disabled = false;
+		  loadMessages(friendId);
+		  initializeWebSocket(friendId);
+		}
+	
+		function loadMessages(friendId) {
+		  // Fetch the chat messages from the server (replace with your actual endpoint)
+		  fetch(`/api/messages/${friendId}/`)
+			  .then(response => response.json())
+			  .then(data => {
+				  // Check if the response contains messages
+				  if (data.messages && Array.isArray(data.messages)) {
+					  const messageList = document.getElementById('chat-text');
+					  messageList.innerHTML = ''; // Clear the list
+					  data.messages.forEach(message => {
+						  document.querySelector('#chat-text').value += (message.sender + ': ' + message.content + '\n');
+					  });
+				  } else {
+					  console.error('Unexpected response format:', data);
+				  }
+			  })
+			  .catch(error => console.error('Error loading messages:', error));
+		  }
+	
+		function initializeWebSocket(friendId) {
+		  if (chatSocket) {
+			chatSocket.close();
+		  }
+	
+		  const userId = {{ request.user.id }};
+		  chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${userId}/${friendId}/`);
+	
+		  chatSocket.onmessage = function(e) {
+			const data = JSON.parse(e.data);
+			const chatText = document.getElementById('chat-text');
+			chatText.value += `${data.sender}: ${data.message}\n`;
+		  };
+	
+		  chatSocket.onclose = function(e) {
+			console.error('Chat socket closed');
+		  };
+		}
+	
+		document.getElementById('send').onclick = sendMessage;
+		document.getElementById('message').addEventListener('keypress', function(e) {
+		  if (e.key === 'Enter') {
+			sendMessage();
+		  }
+		});
+	
+		function sendMessage() {
+		  const messageInput = document.getElementById('message');
+		  const message = messageInput.value.trim();
+		  if (message && chatSocket.readyState === WebSocket.OPEN) {
+			chatSocket.send(JSON.stringify({
+			  'message': message,
+			  'friend_id': selectedFriendId
+			}));
+			messageInput.value = '';
+		  }
+		}
+	
+		document.getElementById('leave').onclick = function() {
+		  if (chatSocket) {
+			chatSocket.close();
+		  }
+		  document.getElementById('chatRoom').style.display = 'none';
+		  document.getElementById('friendsList').style.display = 'block';
+		  document.getElementById('message').disabled = true;
+		  document.getElementById('send').disabled = true;
+		  document.getElementById('chat-text').value = '';
+		  document.getElementById('message').value = '';
+		};
+	
+		function blockUser(userId) {
+		  fetch(`/api/block/${userId}/`, {
+			method: 'POST',
+			headers: {
+			  'Content-Type': 'application/json',
+			  'X-CSRFToken': '{{ csrf_token }}'
+			},
+			body: JSON.stringify({})
+		  })
+			.then(response => response.json())
+			.then(data => {
+			  updateFriendDropdown();
+			  loadFriends(); // Reload the friend list to update the button states
+			});
+		}
+	
+		function unblockUser(userId) {
+		  fetch(`/api/unblock/${userId}/`, {
+			method: 'POST',
+			headers: {
+			  'Content-Type': 'application/json',
+			  'X-CSRFToken': '{{ csrf_token }}'
+			},
+			body: JSON.stringify({})
+		  })
+			.then(response => response.json())
+			.then(data => {
+			  updateFriendDropdown();
+			  loadFriends(); // Reload the friend list to update the button states
+			});
+		}
+	
+		loadFriends();
+	  });
 
 
 	</script>
