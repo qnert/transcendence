@@ -66,17 +66,31 @@ class TournamentEndPointTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """ sets up a user to send the requests from """
+
+        # creates setup once for this whole TestCase class
         cls.client = Client()
         cls.user_name = User.objects.create_user(
             username='testuser', password='1234', email='testuser@some_domain.com')
         cls.user_profile = UserProfile.objects.create(user=cls.user_name)
 
-    def test_setup(self):
+    def setUp(self):
+
+        # setup for every test case
         self.client.login(username='testuser', password='1234')
 
+    def test_create_tournament(self):
+        """ checks create_tournament endpoint """
+
+# TODO abstract code for faster test writing
+        # valid data test
         url = reverse('create_tournament')
         data = {'tournament_name': 'tournament1'}
-        json_data = json.dumps(data)
-        response = self.client.post(url, json_data, content_type='application/json')
+        response = self.client.post(url, json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(Tournament.objects.filter(name="Tournament1").exists())
+        self.assertTrue(Tournament.objects.filter(name="tournament1").exists())
+
+        # invalid json test
+        data = {}
+        response = self.client.post(url, json.dumps(data), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
