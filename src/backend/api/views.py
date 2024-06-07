@@ -38,7 +38,7 @@ from .serializers import *
 from django.core.exceptions import ObjectDoesNotExist
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-
+from django.db import transaction
 
 
 
@@ -48,6 +48,29 @@ UID = "u-s4t2ud-eb4d25721512a1e2da0dcdd30cf8690c975996bfe99fea803547dfdde2556456
 SECRET = "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"
 code = ''
 state = ''
+
+
+def activate_two_FA(request):
+	try:
+		user = request.user
+		user.is_2fa_enabled = True
+		user.save()
+		return JsonResponse({'message': 'success'})
+	except User.DoesNotExist:
+		return JsonResponse({'message': 'failed'})
+
+
+def deactivate_two_FA(request):
+	try:
+		user = request.user
+		user.is_2fa_enabled = False
+		user.save()
+		return JsonResponse({'message': 'success'})
+	except User.DoesNotExist:
+		return JsonResponse({'message': 'failed'})
+
+
+
 
 def search_friends(request):
     query = request.GET.get('q', '')
@@ -127,9 +150,11 @@ def set_new_passwd(request):
 	old_passwd = data.get('old_passwd')
 	if not authenticate(username=user.username, password=old_passwd):
 		return JsonResponse({'error': 'Incorrect old Password'}, status=400)
-	new_passwd = data.get('new_passwd')
+	new_passwd = data.get('password')
+	print(request.user.username)
+	print(new_passwd)
 	user.set_password(new_passwd)
-	user.save
+	user.save()
 	return JsonResponse({'message': 'New password set successfully'})
 
 
@@ -181,10 +206,8 @@ def auth_callback(request):
 def SetPasswd(request):
 	# password security for example atleast 8 characters long
 	username = request.session.get('username')
-	print("USERNAME", username)
 	data = json.loads(request.body)
 	password = data.get('password')
-	print("PASSWORD", password)
 	try:
 		user = User.objects.get(username=username)
 		user.set_password(password)
@@ -258,14 +281,16 @@ def Get_2FA_Status(request):
 		if user.is_authenticated:
 			is_2fa_enabled = user.is_2fa_enabled
 			return JsonResponse({'enable': is_2fa_enabled})
+		else:
+			return JsonResponse({'error': 'User is not authenticated'})
 	else:
 		return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 def Update_2FA_Status(request):
-	if request.method == "PUT":
+	if request.method == "POST":
 		user = request.user
 		data = json.loads(request.body)
-		new_2fa_status = data.get('is_2fa_enabled')
+		new_2fa_status = data.get('enable')
 		user.is_2fa_enabled = new_2fa_status
 		user.save()
 		return JsonResponse({'success': True})
