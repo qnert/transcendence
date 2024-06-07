@@ -6,7 +6,7 @@ re: down up
 
 .PHONY: up
 up:
-	docker-compose -f src/docker-compose.yml up --build
+	docker-compose -f src/docker-compose.yml up -d --build
 
 .PHONY: down
 down:
@@ -40,3 +40,11 @@ bash:
 	@echo 'Enter service name to start bash:'
 	@read service; \
 	docker-compose -f src/docker-compose.yml exec $$service /bin/bash
+
+.PHONY: showmigrations
+showmigrations:
+	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py showmigrations
+
+.PHONY: createsuperuser
+createsuperuser:
+	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py createsuperuser
