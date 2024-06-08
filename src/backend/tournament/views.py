@@ -17,13 +17,16 @@ def create_tournament(request):
         request_json = json.loads(request.body)
         user_profile = UserProfile.objects.get(user=request.user)
     except ObjectDoesNotExist:
-        return JsonResponse({"error": "UserProfile doesn't exist for the current user"})
+        return JsonResponse({"error": "UserProfile doesn't exist for the current user"}, status=400)
     except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON data in request body"})
+        return JsonResponse({"error": "Invalid JSON data in request body"}, status=400)
 
     tournament_name = request_json.get("tournament_name")
     if not tournament_name:
         return JsonResponse({"error": "Tournament name is required"}, status=400)
+
+    if Tournament.objects.filter(name=tournament_name).exists():
+        return JsonResponse({"error": "Tournament name must be unique"}, status=400)
 
     Tournament.objects.create(name=tournament_name, created_by=user_profile)
 

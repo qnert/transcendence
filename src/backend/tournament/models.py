@@ -10,7 +10,7 @@ from api.models import UserProfile
 
 class Tournament(models.Model):
     created_at = models.DateField(default=date.today)
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     # @note mb a ForeignKey on User side would make more sense
     participants = models.ManyToManyField(UserProfile, related_name='active_tournament')
     created_by = models.ForeignKey(UserProfile, related_name='created_tournaments',

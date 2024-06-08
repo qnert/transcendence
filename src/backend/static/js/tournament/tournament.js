@@ -22,12 +22,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
 async function createTournament(tournamentName) {
     const URL = "/create-tournament/";
-    const promise = await fetch(URL, {
-        method: "POST",
-        body: JSON.stringify({ tournament_name: tournamentName }),
-    });
-    const processedResponse = await promise.json();
-
-    // @note remove
-    console.log(processedResponse);
+    try {
+        const response = await fetch(URL, {
+            method: "POST",
+            body: JSON.stringify({ tournament_name: tournamentName }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        // Handle status codes with 2xx as ok
+        if (response.ok) {
+            const processedResponse = await response.json();
+            document.getElementById("newContent").innerHTML =
+                "<h2>Tournament Created Successfully!</h2>";
+        } else {
+            errorResponse = await response.json();
+            alert(errorResponse.error);
+        }
+    } catch (error) {
+        alert("An error occurred. Please try again later.");
+    }
 }
