@@ -10,6 +10,8 @@
             integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
             crossorigin="anonymous"
         />
+        <!-- suppresses GET error of favicon -->
+        <link rel="shortcut icon" href="#" />
         {% load static %}
     </head>
     <body>
@@ -17,24 +19,25 @@
 
         <!-- used to update content in a SPA -->
         <div id="newContent">
-
             <form id="tournament-form">
                 <div class="form-group">
                     <label></label>
                     <input
                         type="text"
                         class="form-control"
-                        id="tournament-name-field"
+                        id="tournament-form-name-field"
                         placeholder="Enter Tournament Name"
-                        aria-describedby="tournament-name-helper"
+                        aria-describedby="tournament-form-name-field-helper"
                     />
-                    <small id="tournament-name-helper" class="form-text text-muted"
-                        >Only a-z A-Z 0-9 _ - allowed
+                    <small
+                        id="tournament-form-name-field-helper"
+                        class="form-text text-muted"
+                        >valid characters are A-Z a-z 0-9 _ -(no spaces
+                        allowed, must contain at least one letter!)
                     </small>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
-
         </div>
 
         <script src="{% static 'js/tournament/tournament.js' %}"></script>
