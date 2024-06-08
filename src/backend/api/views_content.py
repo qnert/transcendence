@@ -19,3 +19,6 @@ def profileView(request):
 
 def set_passwd(request):
 	return render(request, 'set_passwd.html')
+
+def chatView(request):
+	return render(request, 'chatroom.html')
