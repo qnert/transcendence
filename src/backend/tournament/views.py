@@ -7,8 +7,8 @@ from api.models import UserProfile
 import json
 
 
-def tournament(request):
-    return render(request, 'tournament.html')
+def tournament_creation(request):
+    return render(request, 'tournament_creation.html')
 
 
 @csrf_exempt  # @note
@@ -26,8 +26,12 @@ def create_tournament(request):
         return JsonResponse({"error": "Tournament name is required"}, status=400)
 
     if Tournament.objects.filter(name=tournament_name).exists():
-        return JsonResponse({"error": "Tournament name must be unique"}, status=400)
+        return JsonResponse({"error": "Tournament name is already taken"}, status=409)
 
     Tournament.objects.create(name=tournament_name, created_by=user_profile)
 
     return JsonResponse({"message": "success"}, status=201)
+
+
+def tournament_lobby(request):
+    return render(request, 'tournament_lobby.html')

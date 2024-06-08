@@ -21,7 +21,7 @@ from rest_framework_simplejwt import views as jwt_views
 from two_factor.urls import urlpatterns as tf_urls
 from api.views import auth_callback
 from game.views import game, multiplayer, get_username, matches
-from tournament.views import tournament, create_tournament
+from tournament.views import tournament_creation, create_tournament, tournament_lobby
 
 urlpatterns = [
 	path('', include('django_prometheus.urls')),
@@ -39,5 +39,6 @@ urlpatterns = [
     # path('rosetta/', include('rosetta.urls')),
     path('api/', include('api.urls')),
     path('create-tournament/', create_tournament, name='create_tournament'),
-    path('tournament/', tournament, name='tournament'),
+    path('tournament-creation/', tournament_creation, name='tournament_creation'),
+    path('tournament-lobby/', tournament_lobby, name='tournament_lobby'),
 ]

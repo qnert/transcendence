@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// @note abstract code a little
 async function createTournament(tournamentName) {
     const URL = "/create-tournament/";
     try {
@@ -32,9 +33,22 @@ async function createTournament(tournamentName) {
         });
         // Handle status codes with 2xx as ok
         if (response.ok) {
+            // @note do i even need the processedResponse?
             const processedResponse = await response.json();
-            document.getElementById("newContent").innerHTML =
-                "<h2>Tournament Created Successfully!</h2>";
+
+            const lobbyURL = "/tournament-lobby/";
+            const lobbyResponse = await fetch(lobbyURL, {
+                method: "GET",
+            });
+
+            if (lobbyResponse.ok) {
+                const lobbyHTML = await lobbyResponse.text();
+                document.getElementById("newContent").innerHTML = lobbyHTML;
+                const newURL = "/tournament-lobby/";
+                history.pushState({ path: newURL }, "", newURL);
+            } else {
+                alert("Failed to load the tournament lobby.");
+            }
         } else {
             errorResponse = await response.json();
             alert(errorResponse.error);
