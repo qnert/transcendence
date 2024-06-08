@@ -779,11 +779,9 @@
 
 
 
-		let counter = 0;
 		function oauth() {
 			const registerButton = document.getElementById("registerButton");
-			if (registerButton && counter < 1) {
-				counter++;
+			if (registerButton) {
 				registerButton.addEventListener("click", (event) => {
 					event.preventDefault();
 					fetch("/api/oauth/")
