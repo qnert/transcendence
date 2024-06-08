@@ -191,14 +191,16 @@
   <body>
 
 	{% include "navbar.html" %}
-	
+
+	<div id="alerts-container"></div>
+
     <main id="oldContent">
 		{% block content %}{% endblock content %}
     </main>
 	
 	<div id="chat">
 
-		{% block chat %}{% endblock chat %}
+		{% include "chatroom.html" %}
 
 	</div>
 
@@ -230,7 +232,7 @@
 			 })
 			 .catch(error => console.error('Error fetching content:', error));
 		  };
-
+{% comment %} 
 		  function loadChat() {
 			fetch("/chat/")
 			.then(response => {
@@ -255,7 +257,7 @@
 			reattachEventListeners();
 			 })
 			 .catch(error => console.error('Error fetching content:', error));
-		  };
+		  }; {% endcomment %}
 
 
 
@@ -870,7 +872,7 @@
 						if (!twoFAResponse.ok)
 							throw new Error("Getting 2FA status failed");
 						const twoFAResponseData = await twoFAResponse.json();
-						if (twoFAResponseData.enable === true) {
+						if (twoFAResponseData.status === true) {
 							console.log("that");
 							window.history.pushState({ path: '/2FA/' }, '', '/2FA/');
 							updateContent("/2FA/");
@@ -881,7 +883,7 @@
 							await getAccessToken(username, password, csrftoken);
 							window.history.pushState({ path: '/home/' }, '', '/home/');
 							updateContent("/home/");
-							loadChat();
+							loadFriends();
 							checkAccessToken();
 						}
 					} catch(error) {
@@ -1474,203 +1476,498 @@
 		}
 	  };
 	
-	  {% comment %} document.addEventListener("DOMContentLoaded", function() {
-		let chatSocket;
-		let selectedFriendId = null;
-	
-		function loadFriends() {
-		  // Fetch the list of friends from the server (replace with your actual endpoint)
-		  fetch('/api/friends/')
+	  document.addEventListener("DOMContentLoaded", async function() {
+		const csrftoken = getCookie("csrftoken");
+		try {
+			const response = await fetch("/api/check_login_status/", {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"X-CSRFToken": csrftoken,
+					"Cache-Control": "no-cache"
+				}
+			});
+
+			if (!response.ok) {
+				throw new Error("Getting login status failed");
+			}
+
+			const responseData = await response.json();
+			if (responseData.status === true) {
+				loadFriends();
+				pendingFriendRequest();
+				
+			}
+		} catch (error) {
+			console.error("Error during fetch:", error);
+		}
+	});
+
+	function loadFriends() {
+		fetch('/api/friends/')
 			.then(response => response.json())
 			.then(data => {
-			  const friendList = document.getElementById('friendList');
-			  friendList.innerHTML = ''; // Clear the list
-			  data.forEach(friend => {
-				const li = document.createElement('li');
-				li.id = `friend-${friend.user_id}`;
-				li.dataset.friendId = friend.user_id;
-	
-				const img = document.createElement('img');
-				img.src = friend.profile_picture_url;
-				img.alt = friend.display_name;
-	
-				const statusText = document.createElement('span');
-				statusText.id = `chat-status-${friend.user_id}`;
-				statusText.className = 'status-text ' + (friend.is_online ? 'online' : 'offline');
-				statusText.textContent = friend.is_online ? 'online' : 'offline';
-	
-				const friendDetails = document.createElement('div');
-				friendDetails.className = 'friend-details';
-				friendDetails.appendChild(img);
-				friendDetails.appendChild(statusText);
-	
-				const friendInfo = document.createElement('div');
-				friendInfo.className = 'friend-info';
-	
-				const nameAndButtons = document.createElement('div');
-				nameAndButtons.className = 'name-and-buttons';
-	
-				const span_name = document.createElement('span');
-				span_name.textContent = friend.display_name;
-	
-				const messageButton = document.createElement('button');
-				messageButton.textContent = 'Message';
-				messageButton.onclick = () => selectFriend(friend.user_id, friend.display_name);
-	
-				const blockButton = document.createElement('button');
-				blockButton.textContent = 'Block';
-				blockButton.onclick = () => blockUser(friend.user_id);
-	
-				const unblockButton = document.createElement('button');
-				unblockButton.textContent = 'Unblock';
-				unblockButton.onclick = () => unblockUser(friend.user_id);
-				unblockButton.style.display = 'none'; // Hide the unblock button initially
-	
-				if (friend.is_blocked) {
-				  messageButton.style.display = 'none';
-				  blockButton.style.display = 'none';
-				  statusText.style.display = 'none';
-				  unblockButton.style.display = 'inline';
-				}
-	
-				if (friend.blocked_by)
-				  statusText.style.display = 'none';
-	
-				nameAndButtons.appendChild(span_name);
-				nameAndButtons.appendChild(messageButton);
-				nameAndButtons.appendChild(blockButton);
-				nameAndButtons.appendChild(unblockButton);
-	
-				friendInfo.appendChild(nameAndButtons);
-	
-				li.appendChild(friendDetails);
-				li.appendChild(friendInfo);
-				friendList.appendChild(li);
-			  });
-			});
-		}
-	
-		function selectFriend(friendId, friendName) {
-		  selectedFriendId = friendId;
-		  document.getElementById('friend-name').textContent = friendName;
-		  document.getElementById('chatRoom').style.display = 'block';
-		  document.getElementById('friendsList').style.display = 'none';
-		  document.getElementById('message').disabled = false;
-		  document.getElementById('send').disabled = false;
-		  loadMessages(friendId);
-		  initializeWebSocket(friendId);
-		}
-	
-		function loadMessages(friendId) {
-		  // Fetch the chat messages from the server (replace with your actual endpoint)
-		  fetch(`/api/messages/${friendId}/`)
-			  .then(response => response.json())
-			  .then(data => {
-				  // Check if the response contains messages
-				  if (data.messages && Array.isArray(data.messages)) {
-					  const messageList = document.getElementById('chat-text');
-					  messageList.innerHTML = ''; // Clear the list
-					  data.messages.forEach(message => {
-						  document.querySelector('#chat-text').value += (message.sender + ': ' + message.content + '\n');
-					  });
-				  } else {
-					  console.error('Unexpected response format:', data);
-				  }
-			  })
-			  .catch(error => console.error('Error loading messages:', error));
-		  }
-	
-		function initializeWebSocket(friendId) {
-		  if (chatSocket) {
+				const friendList = document.getElementById('friendList');
+				friendList.innerHTML = ''; 
+				data.forEach(friend => {
+					const li = document.createElement('li');
+					li.id = `friend-${friend.user_id}`;
+					li.dataset.friendId = friend.user_id;
+
+					const img = document.createElement('img');
+					img.src = friend.profile_picture_url;
+					img.alt = friend.display_name;
+
+					const statusText = document.createElement('span');
+					statusText.id = `chat-status-${friend.user_id}`;
+					statusText.className = 'status-text ' + (friend.is_online ? 'online' : 'offline');
+					statusText.textContent = friend.is_online ? 'online' : 'offline';
+
+					const friendDetails = document.createElement('div');
+					friendDetails.className = 'friend-details';
+					friendDetails.appendChild(img);
+					friendDetails.appendChild(statusText);
+
+					const friendInfo = document.createElement('div');
+					friendInfo.className = 'friend-info';
+
+					const nameAndButtons = document.createElement('div');
+					nameAndButtons.className = 'name-and-buttons';
+
+					const span_name = document.createElement('span');
+					span_name.textContent = friend.display_name;
+
+					const messageButton = document.createElement('button');
+					messageButton.textContent = 'Message';
+					messageButton.onclick = () => selectFriend(friend.user_id, friend.display_name);
+
+					const blockButton = document.createElement('button');
+					blockButton.textContent = 'Block';
+					blockButton.onclick = () => blockUser(friend.user_id);
+
+					const unblockButton = document.createElement('button');
+					unblockButton.textContent = 'Unblock';
+					unblockButton.onclick = () => unblockUser(friend.user_id);
+					unblockButton.style.display = 'none';
+
+					if (friend.is_blocked) {
+						messageButton.style.display = 'none';
+						blockButton.style.display = 'none';
+						statusText.style.display = 'none';
+						unblockButton.style.display = 'inline';
+					}
+
+					if (friend.blocked_by) {
+						statusText.style.display = 'none';
+					}
+
+					nameAndButtons.appendChild(span_name);
+					nameAndButtons.appendChild(messageButton);
+					nameAndButtons.appendChild(blockButton);
+					nameAndButtons.appendChild(unblockButton);
+
+					friendInfo.appendChild(nameAndButtons);
+
+					li.appendChild(friendDetails);
+					li.appendChild(friendInfo);
+					friendList.appendChild(li);
+				});
+			})
+			.catch(error => console.error('Error loading friends:', error));
+	}
+
+	function selectFriend(friendId, friendName) {
+		const selectedFriendId = friendId;
+		document.getElementById('friend-name').textContent = friendName;
+		document.getElementById('chatRoom').style.display = 'block';
+		document.getElementById('friendsList').style.display = 'none';
+		document.getElementById('message').disabled = false;
+		document.getElementById('send').disabled = false;
+		loadMessages(friendId);
+		initializeWebSocket(friendId);
+	}
+
+	function loadMessages(friendId) {
+		fetch(`/api/messages/${friendId}/`)
+			.then(response => response.json())
+			.then(data => {
+				const messageList = document.getElementById('chat-text');
+				messageList.innerHTML = '';
+				data.messages.forEach(message => {
+					messageList.value += `${message.sender}: ${message.content}\n`;
+				});
+			})
+			.catch(error => console.error('Error loading messages:', error));
+	}
+
+	function initializeWebSocket(friendId) {
+		if (chatSocket) {
 			chatSocket.close();
-		  }
-	
-		  const userId = {{ request.user.id }};
-		  chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${userId}/${friendId}/`);
-	
-		  chatSocket.onmessage = function(e) {
+		}
+
+		const userId = '{{ request.user.id }}';  // Correct Django template syntax
+		chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${userId}/${friendId}/`);
+
+		chatSocket.onmessage = function(e) {
 			const data = JSON.parse(e.data);
 			const chatText = document.getElementById('chat-text');
 			chatText.value += `${data.sender}: ${data.message}\n`;
-		  };
-	
-		  chatSocket.onclose = function(e) {
-			console.error('Chat socket closed');
-		  };
-		}
-	
-		const send = document.getElementById('send');
-		if (send)
-			send.onclick = sendMessage;
-		const message = document.getElementById('message');
-		if (message) {
-			message.addEventListener('keypress', function(e) {
-				if (e.key === 'Enter') {
-					sendMessage();
-				}
-			});
-		}
+		};
 
-		function sendMessage() {
-		  const messageInput = document.getElementById('message');
-		  const message = messageInput.value.trim();
-		  if (message && chatSocket.readyState === WebSocket.OPEN) {
+		chatSocket.onclose = function(e) {
+			console.error('Chat socket closed');
+		};
+	}
+
+	const send = document.getElementById('send');
+	if (send) send.onclick = sendMessage;
+
+	const message = document.getElementById('message');
+	if (message) {
+		message.addEventListener('keypress', function(e) {
+			if (e.key === 'Enter') {
+				sendMessage();
+			}
+		});
+	}
+
+	function sendMessage() {
+		const messageInput = document.getElementById('message');
+		const message = messageInput.value.trim();
+		if (message && chatSocket.readyState === WebSocket.OPEN) {
 			chatSocket.send(JSON.stringify({
-			  'message': message,
-			  'friend_id': selectedFriendId
+				'message': message,
+				'friend_id': selectedFriendId
 			}));
 			messageInput.value = '';
-		  }
 		}
-	
-		const leave = document.getElementById('leave')
-		if(leave)
-			leave.onclick = function() {
-		  if (chatSocket) {
-			chatSocket.close();
-		  }
-		  document.getElementById('chatRoom').style.display = 'none';
-		  document.getElementById('friendsList').style.display = 'block';
-		  document.getElementById('message').disabled = true;
-		  document.getElementById('send').disabled = true;
-		  document.getElementById('chat-text').value = '';
-		  document.getElementById('message').value = '';
+	}
+
+	const leave = document.getElementById('leave');
+	if (leave) {
+		leave.onclick = function() {
+			if (chatSocket) {
+				chatSocket.close();
+			}
+			document.getElementById('chatRoom').style.display = 'none';
+			document.getElementById('friendsList').style.display = 'block';
+			document.getElementById('message').disabled = true;
+			document.getElementById('send').disabled = true;
+			document.getElementById('chat-text').value = '';
+			document.getElementById('message').value = '';
 		};
-	
-		function blockUser(userId) {
-		  fetch(`/api/block/${userId}/`, {
+	}
+
+	function blockUser(userId) {
+		fetch(`/api/block/${userId}/`, {
 			method: 'POST',
 			headers: {
-			  'Content-Type': 'application/json',
-			  'X-CSRFToken': '{{ csrf_token }}'
+				'Content-Type': 'application/json',
+				'X-CSRFToken': getCookie('csrftoken')  // Correct CSRF token handling
 			},
 			body: JSON.stringify({})
-		  })
+		})
 			.then(response => response.json())
 			.then(data => {
-			  updateFriendDropdown();
-			  loadFriends(); // Reload the friend list to update the button states
-			});
-		}
-	
-		function unblockUser(userId) {
-		  fetch(`/api/unblock/${userId}/`, {
+				updateFriendDropdown();
+				loadFriends();
+			})
+			.catch(error => console.error('Error blocking user:', error));
+	}
+
+	function unblockUser(userId) {
+		fetch(`/api/unblock/${userId}/`, {
 			method: 'POST',
 			headers: {
-			  'Content-Type': 'application/json',
-			  'X-CSRFToken': '{{ csrf_token }}'
+				'Content-Type': 'application/json',
+				'X-CSRFToken': getCookie('csrftoken')  // Correct CSRF token handling
 			},
 			body: JSON.stringify({})
-		  })
+		})
 			.then(response => response.json())
 			.then(data => {
-			  updateFriendDropdown();
-			  loadFriends(); // Reload the friend list to update the button states
-			});
-		}
+				updateFriendDropdown();
+				loadFriends();
+			})
+			.catch(error => console.error('Error unblocking user:', error));
+	}
+
+ 	const userId = {{ request.user.id }};
+ 	const friendSocket = new WebSocket(
+		'ws://' + window.location.host + '/ws/online/'
+ 	);
+
+  friendSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    console.log(data);
+    if (data.type === 'friend_request_accepted')
+      updateFriendDropdown(data.friend_profile_picture_url, data.friend_name, data.friend_id);
+    else if (data.type === 'user_status')
+      updateUserStatus();
+    else if (data.type === 'friend_request_notification')
+      displayAlert(data.friend_name, data.friend_id);
+  };
+
+  friendSocket.onclose = function(e) {
+    console.error('Online socket closed');
+  };	
+
+  function displayAlert(friendName, requestId) {
+    const alertsContainer = document.getElementById('alerts-container');
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-primary d-flex align-items-center';
+    alertDiv.role = 'alert';
+
+    alertDiv.innerHTML = `
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
+            <use xlink:href="#info-fill"/>
+        </svg>
+        ${friendName} sent you a friend request!
+        <a class="btn btn-success btn-sm ms-2" onclick="acceptRequest(${requestId}, this)">Accept</a>
+        <a class="btn btn-danger btn-sm ms-2" onclick="denyRequest(${requestId}, this)">Deny</a>
+    `;
+
+    alertsContainer.appendChild(alertDiv);
+  }
+
+  function updateFriendDropdown() {
+    fetch('/api/friends/')
+    .then(response => response.json())
+    .then(data => {
+      const friendsMenu = document.getElementById('friends-list');
+      friendsMenu.innerHTML = ''; // Clear existing content
+
+      if (data.length === 0) {
+        const noFriendsElement = document.createElement('li');
+        noFriendsElement.id = 'no-friends';
+        noFriendsElement.innerHTML = `<span class="dropdown-item">No friends found</span>`;
+        friendsMenu.appendChild(noFriendsElement);
+      } else {
+        data.forEach(friend => {
+          const friendItem = document.createElement('li');
+          var onlineStatus = '<span style="visibility: hidden;" class="status-dot offline"></span>';
+
+          if (!friend.blocked_by && !friend.is_blocked)
+            onlineStatus = '<span class="status-dot offline"></span>';
+          friendItem.className = 'friend-item d-flex align-items-center justify-content-between px-2 py-1';
+          friendItem.id = `friend-${friend.user_id}`;
+          friendItem.innerHTML = `
+            <div class="d-flex align-items-center">
+              ${onlineStatus}
+              <img src="${friend.profile_picture_url}" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 8px;">
+              <span>${friend.display_name}</span>
+            </div>
+            <div class="dropdown">
+              <a class="dropdown-toggle" style="margin-right: 5px;" role="button" id="dropdownMenuButton${friend.user_id}" onclick="stopPropagation(event)" data-bs-toggle="dropdown" aria-expanded="false"></a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton${friend.user_id}">
+                <li>
+                  <button class="dropdown-item text-danger" onclick="deleteFriend(${friend.user_id}, this)">'Remove Friend</button>
+                </li>
+              </ul>
+            </div>
+          `;
+          friendsMenu.appendChild(friendItem);
+        });
+      }
+      updateUserStatus();
+    });
+  }
+
+  function updateUserStatus() {
+    fetch('/api/friends_online_status/')
+      .then(response => response.json())
+      .then(data => {
+        Object.keys(data).forEach(userId => {
+          const status = data[userId] ? 'online' : 'offline';
+          const friendItem = document.getElementById(`friend-${userId}`);
+          const chatStatusText = document.getElementById(`chat-status-${userId}`);
+
+          if (friendItem) {
+            const statusDot = friendItem.querySelector('.status-dot');
+            if (status === 'online') {
+              statusDot.classList.add('online');
+              statusDot.classList.remove('offline');
+            } else {
+              statusDot.classList.add('offline');
+              statusDot.classList.remove('online');
+            }
+          }
+
+          if (chatStatusText) {
+            if (status === 'online') {
+              chatStatusText.classList.add('online');
+              chatStatusText.classList.remove('offline');
+              chatStatusText.textContent = 'online';
+            } else {
+              chatStatusText.classList.add('offline');
+              chatStatusText.classList.remove('online');
+              chatStatusText.textContent = 'offline';
+            }
+          }
+        });
+      })
+      .catch(error => console.error('Error fetching friends or online status:', error));
+}
+
+  function acceptRequest(requestId, element) {
+    if (friendSocket.readyState === WebSocket.OPEN) {
+      friendSocket.send(JSON.stringify({
+        'action': 'accept',
+        'request_id': requestId
+      }));
+      if (element.id != 'accept_button_offline')
+        removeAlert(element);
+      else {
+        element.closest('.friend-request-item').remove();
+        checkFriendRequests();
+      }
+    } else {
+      alert('Error Websocket not open');
+    }
+  }
+
+  function denyRequest(requestId, element) {
+    if (friendSocket.readyState === WebSocket.OPEN) {
+      friendSocket.send(JSON.stringify({
+        'action': 'deny',
+        'request_id': requestId
+      }));
+      if (element.id != 'deny_button_offline')
+        removeAlert(element);
+      else {
+        element.closest('.friend-request-item').remove();
+        checkFriendRequests();
+      }
+    } else {
+      alert('Error Websocket not open');
+    }
+  }
+
+  function checkFriendRequests() {
+    const friendRequestsContainer = document.getElementById('friend-requests');
+    const friendRequestItems = friendRequestsContainer.getElementsByClassName('friend-request-item');
+
+    if (friendRequestItems.length === 0) {
+      friendRequestsContainer.remove();
+    }
+  }
+
+  function removeAlert(element) {
+    const alertDiv = element.closest('.alert');
+    alertDiv.remove();
+  }
+
+
+  function stopPropagation(event) {
+    event.stopPropagation();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+	const searchFriends = document.getElementById('search-friends');
 	
-		loadFriends();
-	  }); {% endcomment %}
+	searchFriends.addEventListener('input', function() {
+	  const query = this.value;
+	  const resultsContainer = document.getElementById('search-results');
+	  
+	  if (query.length > 2) {
+		fetch(`/search_friends/?q=${query}`)
+		  .then(response => response.json())
+		  .then(data => {
+			resultsContainer.innerHTML = '';
+			data.results.forEach(friend => {
+			  const resultItem = document.createElement('li');
+			  resultItem.className = 'dropdown-item mt-2';
+			  resultItem.innerHTML = `
+				<img src="${friend.profile_picture_url}" class="rounded-circle search-result" style="width: 30px; height: 30px; margin-right: 8px;">
+				${friend.display_name}
+				<button class="btn btn-sm btn-primary ms-2 search-result" onclick="sendFriendRequest(${friend.id})">Add Friend</button>
+			  `;
+			  resultsContainer.appendChild(resultItem);
+			});
+		  });
+	  } else {
+		resultsContainer.innerHTML = '';
+	  }
+	});
+  });
+
+
+  function sendFriendRequest(userId) {
+    fetch('/send_friend_request/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ user_id: userId })
+    }).then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        document.getElementById('search-friends').value = '';
+        document.getElementById('search-results').innerHTML = '';
+      });
+  }
+
+  function deleteFriend(friendId, element) {
+    fetch('/delete_friend/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ friend_id: friendId })
+    }).then(response => response.json())
+      .then(data => {
+        if (data.success) {
+            // Remove the friend item from the dropdown
+            const friendItem = element.closest('.friend-item');
+            friendItem.remove();
+            // Check if no friends left and show "No friends found" message
+            const friendsMenu = document.getElementById('friends-list');
+            if (friendsMenu.children.length === 0) {
+                const noFriendsElement = document.createElement('li');
+                noFriendsElement.id = 'no-friends';
+                noFriendsElement.innerHTML = `<span class="dropdown-item">No friends found</span>`;
+                friendsMenu.appendChild(noFriendsElement);
+            }
+        } else {
+            alert(data.message);
+        }
+      });
+  }
+
+  async function pendingFriendRequest() {
+    // Fetch friend requests first
+    fetch('/api/pending_friend_requests/')
+      .then(response => response.json())
+      .then(data => {
+        const friendRequestsDiv = document.getElementById('friend-requests');
+        friendRequestsDiv.innerHTML = ''; // Clear existing content
+
+        if (data.length > 0) {
+          friendRequestsDiv.innerHTML = `
+            <div class="dropdown-divider"></div>
+            <h5 class="dropdown-header">Friend Requests</h5>
+          `;
+          data.forEach(request => {
+            const requestItem = document.createElement('div');
+            requestItem.className = 'friend-request-item d-flex align-items-center justify-content-between px-2 py-1';
+            requestItem.innerHTML = `
+              <div class="d-flex align-items-center">
+                <img src="${request.profile_picture_url}" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 8px;">
+                <span>${request.from_user_name}</span>
+              </div>
+              <div>
+                <button class="btn btn-success btn-sm" id="accept_button_offline" onclick="acceptRequest(${request.from_user_id}, this)">Accept</button>
+                <button class="btn btn-danger btn-sm" id="deny_button_offline" onclick="denyRequest(${request.from_user_id}, this)">Deny</button>
+              </div>
+            `;
+            friendRequestsDiv.appendChild(requestItem);
+          });
+        }
+    });
+  };
+
 
 
 	</script>
