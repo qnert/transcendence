@@ -73,9 +73,12 @@ def deactivate_two_FA(request):
 	except User.DoesNotExist:
 		return JsonResponse({'message': 'failed'})
 
+def check_login_status(request):
+	login_status = request.user.is_logged_in
+	return JsonResponse({'status': login_status})
 
 
-
+@login_required
 def friends_list(request):
     user_profile = UserProfile.objects.get(user=request.user)
     user_id = user_profile.user_id
@@ -108,7 +111,7 @@ def friends_list(request):
         response_data.append(friend_data)
     return JsonResponse(response_data, safe=False)
 
-
+@login_required
 def friends_online_status(request):
     user = request.user
     # Get all friends where the user is either user1 or user2
@@ -127,7 +130,7 @@ def friends_online_status(request):
 
     return JsonResponse(online_status)
 
-
+@login_required
 def pending_friend_requests(request):
     pending_requests = FriendRequest.objects.filter(to_user=request.user, accepted=False)
     requests_data = [
@@ -141,7 +144,7 @@ def pending_friend_requests(request):
     ]
     return JsonResponse(requests_data, safe=False)
 
-
+@login_required
 def get_chat_messages(request, friend_id):
     try:
         current_user = request.user
@@ -172,18 +175,18 @@ def get_chat_messages(request, friend_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-
+@login_required
 def block_user(request, user_id):
     user_to_block = get_object_or_404(User, id=user_id)
     BlockedUser.objects.get_or_create(blocker=request.user, blocked=user_to_block)
     return JsonResponse({'status': 'success', 'message': f'You have blocked {user_to_block.username}'})
 
-
+@login_required
 def unblock_user(request, user_id):
     user_to_unblock = get_object_or_404(User, id=user_id)
     BlockedUser.objects.filter(blocker=request.user, blocked=user_to_unblock).delete()
     return JsonResponse({'status': 'success', 'message': f'You have unblocked {user_to_unblock.username}'})
-
+@login_required
 def search_friends(request):
     query = request.GET.get('q', '')
     if query:
@@ -195,7 +198,7 @@ def search_friends(request):
         } for user in users]
         return JsonResponse({'results': results})
     return JsonResponse({'results': []})
-
+@login_required
 def send_friend_request(request):
     data = json.loads(request.body)
     user_id = data.get('user_id')
@@ -218,7 +221,7 @@ def send_friend_request(request):
 
         return JsonResponse({'message': 'Friend request sent successfully'})
     return JsonResponse({'message': 'Friend request already sent'}, status=400)
-
+@login_required
 def delete_friend(request):
     data = json.loads(request.body)
     friend_id = data.get('friend_id')
@@ -392,7 +395,7 @@ def Get_2FA_Status(request):
 		user = request.user
 		if user.is_authenticated:
 			is_2fa_enabled = user.is_2fa_enabled
-			return JsonResponse({'enable': is_2fa_enabled})
+			return JsonResponse({'status': is_2fa_enabled})
 		else:
 			return JsonResponse({'error': 'User is not authenticated'})
 	else:
@@ -447,6 +450,7 @@ def LogoutView(request):
 			token = RefreshToken(refresh_token)
 			token.blacklist()
 			request.user.completed_2fa = False
+			request.user.is_logged_in = False
 			return JsonResponse({'logout': True})
 	
 		except (TokenError, InvalidToken) as e:
@@ -464,6 +468,7 @@ class LoginView(APIView):
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			login(request ,user)
+			user.is_logged_in = True
 			return JsonResponse({'message': 'successful'}, status=200)
 		else:
 			return JsonResponse({'error': 'Invalid credentials'}, status=401)
