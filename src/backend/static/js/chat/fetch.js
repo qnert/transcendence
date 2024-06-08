@@ -2,11 +2,12 @@ import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch.js";
 
 function blockUser(userId) {
+	const csrftoken = getCookie("csrftoken")
   fetch(`/api/block/${userId}/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': getCookie('csrftoken')  // Correct CSRF token handling
+      'X-CSRFToken': csrftoken,
     },
     body: JSON.stringify({})
   })
@@ -19,11 +20,12 @@ function blockUser(userId) {
 }
 
 function unblockUser(userId) {
+	const csrftoken = getCookie("csrftoken");
   fetch(`/api/unblock/${userId}/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': getCookie('csrftoken')  // Correct CSRF token handling
+      'X-CSRFToken': csrftoken  
     },
     body: JSON.stringify({})
   })

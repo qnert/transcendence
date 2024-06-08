@@ -57,7 +57,6 @@ export function oauth() {
           return response.json();
         })
         .then(data => {
-          console.log("hello")
           window.location.href = data.url;
         })
         .catch(error => {

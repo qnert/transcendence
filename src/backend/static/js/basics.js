@@ -69,3 +69,12 @@ import { checkLoginStatus } from './login_check.js';
     	searchFriends()
 		checkLoginStatus()
 	}
+
+
+
+	window.onload = function(){
+		loadFriends();
+	}
+
+	export let chatSocket;
+	export let selectedFriendId  = null;

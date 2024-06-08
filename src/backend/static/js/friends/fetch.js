@@ -1,3 +1,5 @@
+import { getCookie } from "../security/csrft";
+
 export function loadFriends() {
   fetch('/api/friends/')
     .then(response => response.json())
@@ -108,11 +110,12 @@ function updateUserStatus() {
 }
 
 function sendFriendRequest(userId) {
-  fetch('/send_friend_request/', {
+	const csrftoken = getCookie("csrftoken");
+  fetch('/api/send_friend_request/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': '{{ csrf_token }}'
+      'X-CSRFToken': csrftoken,
     },
     body: JSON.stringify({ user_id: userId })
   }).then(response => response.json())
@@ -124,11 +127,12 @@ function sendFriendRequest(userId) {
 }
 
 function deleteFriend(friendId, element) {
-  fetch('/delete_friend/', {
+	const csrftoken = getCookie("csrftoken");
+  fetch('/api/delete_friend/', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': '{{ csrf_token }}'
+          'X-CSRFToken': csrftoken,
       },
       body: JSON.stringify({ friend_id: friendId })
   }).then(response => response.json())
