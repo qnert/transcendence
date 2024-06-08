@@ -14,17 +14,31 @@
     </head>
     <body>
         <h1 style="text-align: center">Tournament Game</h1>
-        <button
-            type="button"
-            id="createTournamentButton"
-            onClick="createTournament()"
-            class="btn btn-primary"
-        >
-            Primary
-        </button>
 
-        {% comment %} Fetch method for create Tournament {% endcomment %}
+        <!-- used to update content in a SPA -->
+        <div id="newContent">
+
+            <form id="tournament-form">
+                <div class="form-group">
+                    <label></label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="tournament-name-field"
+                        placeholder="Enter Tournament Name"
+                        aria-describedby="tournament-name-helper"
+                    />
+                    <small id="tournament-name-helper" class="form-text text-muted"
+                        >Only a-z A-Z 0-9 _ - allowed
+                    </small>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+
+        </div>
+
         <script src="{% static 'js/tournament/tournament.js' %}"></script>
+
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
