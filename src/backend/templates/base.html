@@ -196,15 +196,16 @@
 		{% block content %}{% endblock content %}
     </main>
 	
-	<div id="chatRoom">
+	<div id="chat">
 
-		{% include "chatroom.html" %}
+		{% block chat %}{% endblock chat %}
 
 	</div>
 
 	<script>	
 	
 		function updateContent(path) {
+			//check if path is default path because of navigation in Browser. If default then oldContent is empty!
 			fetch(path)
 			.then(response => {
 				if (!response.ok) {
@@ -229,6 +230,36 @@
 			 })
 			 .catch(error => console.error('Error fetching content:', error));
 		  };
+
+		  function loadChat() {
+			fetch("/chat/")
+			.then(response => {
+				if (!response.ok) {
+				  if (response.status === 401) {
+					updateContent("/login/");
+				  } else if (response.status === 403) {
+					updateContent("/login/");
+				  } else {
+					throw new Error("Unexpected Error");
+				  }
+				}
+				return response.text();
+			})
+			.then(html => {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(html, "text/html");
+			const newContent = doc.querySelector("#renderedChat"); 
+			const oldContent = document.getElementById("chat");
+			oldContent.innerHTML = ""; 
+			oldContent.appendChild(newContent);
+			reattachEventListeners();
+			 })
+			 .catch(error => console.error('Error fetching content:', error));
+		  };
+
+
+
+
 
 		function handleRoute(event, path) {
 			event.preventDefault();
@@ -484,22 +515,23 @@
 				reattachEventListeners();
 			};
 		
-			// Function to display UI for logged-out state
 			const showLoggedOutState = () => {
 				navButtons.innerHTML = `
-				<button class="nav-button" id="defaultButton">Transcendence</button>
-				<li class="nav-item">
-					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-				</li>
-				<li class="nav-item">
-					<button class="nav-button login-button" id="login">Login</button>
-				</li>
-				<li class="nav-item">
-					<button class="nav-button" id="register" >Authenticate with 42</button>
-				</li>
-			`;
+					<li class="nav-item">
+						<button class="nav-button" id="defaultButton">Transcendence</button>
+					</li>
+					<li class="nav-item">
+						<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+							<span class="navbar-toggler-icon"></span>
+						</button>
+					</li>
+					<li class="nav-item">
+						<button class="nav-button login-button" id="login">Login</button>
+					</li>
+					<li class="nav-item">
+						<button class="nav-button" id="registerButton">Authenticate with 42</button>
+					</li>
+				`;
 				reattachEventListeners();
 			};
 
@@ -701,11 +733,11 @@
 			}
 		}
 
-			window.onload = function(){
+			{% comment %} window.onload = function(){
 				const registration = document.getElementById("passwordForm");
 				if (registration) {
 					const currentUrl = window.location.href;
-					if (currentUrl.includes('/set_')) {
+					if (currentUrl.includes('/set_passwd')) {
 							fetch("/api/fetch_user_data/")
 								.then(response => response.json())
 								.then(data => {
@@ -721,22 +753,50 @@
 								});
 						}
 					}
-			}
+			} {% endcomment %}
 
+			document.addEventListener("DOMContentLoaded", function() {
+				const registration = document.getElementById("passwordForm");
+				if (registration) {
+					const currentUrl = window.location.href;
+					if (currentUrl.includes('/set_passwd')) {
+						fetch("/api/fetch_user_data/")
+							.then(response => response.json())
+							.then(data => {
+								if (data.error) {
+									alert("Already logged in");
+									window.history.pushState({ path: '/login/' }, '', '/login/');
+									updateContent("/login/");
+								}
+								console.log("Getting User data successful");
+							})
+							.catch(error => {
+								console.error('Error during fetch:', error);
+							});
+					}
+				}
+			});
+
+
+
+		let counter = 0;
 		function oauth() {
-			const registerButton = document.getElementById("register");
-			if (registerButton) {
-				registerButton.addEventListener("click", () => {
+			const registerButton = document.getElementById("registerButton");
+			if (registerButton && counter < 1) {
+				counter++;
+				registerButton.addEventListener("click", (event) => {
+					event.preventDefault();
 					fetch("/api/oauth/")
 						.then(response => {
 							if (!response.ok) {
 								return response.text().then(text => {
-									throw new Error(`Network response was not ok: ${response.statusText}\n${text}`);
+									throw new Error(`Network response was not ok`);
 								});
 							}
 							return response.json();
 						})
 						.then(data => {
+							console.log("hello")
 							window.location.href = data.url;
 						})
 						.catch(error => {
@@ -784,7 +844,6 @@
 			if (Login) {
 				Login.addEventListener("submit", async function(event) {
 					event.preventDefault();
-					console.log("test");
 					const username = document.getElementById("username").value;
 					const password = document.getElementById("password").value;
 					const csrftoken = getCookie("csrftoken");
@@ -822,9 +881,9 @@
 						else{
 							console.log("this");
 							await getAccessToken(username, password, csrftoken);
-							setLoginStatus('true');
 							window.history.pushState({ path: '/home/' }, '', '/home/');
 							updateContent("/home/");
+							loadChat();
 							checkAccessToken();
 						}
 					} catch(error) {
@@ -1417,7 +1476,7 @@
 		}
 	  };
 	
-	  document.addEventListener("DOMContentLoaded", function() {
+	  {% comment %} document.addEventListener("DOMContentLoaded", function() {
 		let chatSocket;
 		let selectedFriendId = null;
 	
@@ -1542,13 +1601,18 @@
 		  };
 		}
 	
-		document.getElementById('send').onclick = sendMessage;
-		document.getElementById('message').addEventListener('keypress', function(e) {
-		  if (e.key === 'Enter') {
-			sendMessage();
-		  }
-		});
-	
+		const send = document.getElementById('send');
+		if (send)
+			send.onclick = sendMessage;
+		const message = document.getElementById('message');
+		if (message) {
+			message.addEventListener('keypress', function(e) {
+				if (e.key === 'Enter') {
+					sendMessage();
+				}
+			});
+		}
+
 		function sendMessage() {
 		  const messageInput = document.getElementById('message');
 		  const message = messageInput.value.trim();
@@ -1561,7 +1625,9 @@
 		  }
 		}
 	
-		document.getElementById('leave').onclick = function() {
+		const leave = document.getElementById('leave')
+		if(leave)
+			leave.onclick = function() {
 		  if (chatSocket) {
 			chatSocket.close();
 		  }
@@ -1606,7 +1672,7 @@
 		}
 	
 		loadFriends();
-	  });
+	  }); {% endcomment %}
 
 
 	</script>
