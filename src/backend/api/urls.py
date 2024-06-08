@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('register/', views.RegisterView.as_view()),
+  path('register/', views.RegisterView.as_view()),
 	path('login/', views.LoginView.as_view()),
 	path('logout/', views.LogoutView),
 	path('setup-2fa/', views.Setup_2FA),
@@ -19,9 +19,10 @@ urlpatterns = [
 	path('get_profile/', views.get_profile),
 	path('save_changes/', views.save_changes),
 	path('search_friends/', views.search_friends, name='search_friends'),
-    path('send_friend_request/', views.send_friend_request, name='send_friend_request'),
-    path('delete_friend/', views.delete_friend, name='delete_friend'),
+  path('send_friend_request/', views.send_friend_request, name='send_friend_request'),
+  path('delete_friend/', views.delete_friend, name='delete_friend'),
 	path('get_username/', views.get_username),
+  path('get_user_id/', views.get_user_id),
 	path('activate_two_FA/', views.activate_two_FA),
 	path('deactivate_two_FA/', views.deactivate_two_FA),
 	path('friends/', views.friends_list, name='friends_list'),

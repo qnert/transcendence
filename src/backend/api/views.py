@@ -198,6 +198,7 @@ def search_friends(request):
         } for user in users]
         return JsonResponse({'results': results})
     return JsonResponse({'results': []})
+
 @login_required
 def send_friend_request(request):
     data = json.loads(request.body)
@@ -221,6 +222,7 @@ def send_friend_request(request):
 
         return JsonResponse({'message': 'Friend request sent successfully'})
     return JsonResponse({'message': 'Friend request already sent'}, status=400)
+
 @login_required
 def delete_friend(request):
     data = json.loads(request.body)
@@ -316,7 +318,7 @@ def auth_callback(request):
 	# 	return JsonResponse({'error': 'Unauthoriazed access detected'}, status=401)
 	request.session['auth_code'] = code
 	return redirect('set_passwd')
-	
+
 
 def SetPasswd(request):
 	# password security for example atleast 8 characters long
@@ -332,7 +334,7 @@ def SetPasswd(request):
 		return JsonResponse({'success': 'User registered successfully'}, status=201)
 	except Exception:
 		return JsonResponse({'error': 'User does not exist'}, status=201)
- 
+
 
 def fetch_user_data(request):
 	code = request.session.get('auth_code')
@@ -348,14 +350,14 @@ def fetch_user_data(request):
 
 	if token_response.status_code != 200:
 		return JsonResponse({'error': 'Unable to retrie the access token'}, status=400)
-	
+
 	token_data = token_response.json()
 	access_token = token_data.get('access_token')
 	#maybe test if access_token is there?
 	user_info = get_user_data(access_token)
 	if not user_info:
 		return JsonResponse({'error': 'could not fetch user data'}, status=401)
-	
+
 	username = user_info['login']
 	email = user_info.get('email', '')
 	first_name = user_info.get('first_name', '')
@@ -409,7 +411,7 @@ def Update_2FA_Status(request):
 		user.is_2fa_enabled = new_2fa_status
 		user.save()
 		return JsonResponse({'success': True})
-	
+
 	else:
 		return JsonResponse({'error': 'Method not allowed'}, status=405)
 
@@ -442,7 +444,7 @@ def Setup_2FA(request):
 	return JsonResponse({'qr_code': img_str})
 
 
-def LogoutView(request):		
+def LogoutView(request):
 	body = json.loads(request.body)
 	refresh_token = body.get("refresh_token")
 	if refresh_token:
@@ -452,11 +454,11 @@ def LogoutView(request):
 			request.user.completed_2fa = False
 			request.user.is_logged_in = False
 			return JsonResponse({'logout': True})
-	
+
 		except (TokenError, InvalidToken) as e:
 			return JsonResponse({'error': 'Invalid or expired token'}, status=400)
 	else:
-		return JsonResponse({'error': 'Refresh token not provided'}, status=400)	
+		return JsonResponse({'error': 'Refresh token not provided'}, status=400)
 
 # add that the user needs to set a password, if not set, then he gets redirected to set_passwd
 class LoginView(APIView):
@@ -485,7 +487,9 @@ class RegisterView(APIView):
 			return JsonResponse({'error': 'User with this username already exists.'}, status=410)
 		user = User.objects.create_user(username=username, email=email, password=password)
 		return JsonResponse({'success': 'User registered successfully'}, status=201)
-	
+
+def get_user_id(request):
+	id = request.user.id
+	return JsonResponse({'id': id})
 
 
-		
