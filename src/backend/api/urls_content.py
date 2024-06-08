@@ -8,4 +8,5 @@ urlpatterns = [
 	path('2FA/', views_content.twoFAView),
 	path('set_passwd/', views_content.set_passwd, name="set_passwd"),
 	path('profile/', views_content.profileView),
+	path('chat/', views_content.chatView),
 ]
