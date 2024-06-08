@@ -22,9 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // @note abstract code a little
 async function createTournament(tournamentName) {
-    const URL = "/create-tournament/";
+    const createURL = "/tournament/api/create/";
     try {
-        const response = await fetch(URL, {
+        const response = await fetch(createURL, {
             method: "POST",
             body: JSON.stringify({ tournament_name: tournamentName }),
             headers: {
@@ -36,7 +36,7 @@ async function createTournament(tournamentName) {
             // @note do i even need the processedResponse?
             const processedResponse = await response.json();
 
-            const lobbyURL = "/tournament-lobby/";
+            const lobbyURL = "/tournament/lobby/";
             const lobbyResponse = await fetch(lobbyURL, {
                 method: "GET",
             });
@@ -44,7 +44,7 @@ async function createTournament(tournamentName) {
             if (lobbyResponse.ok) {
                 const lobbyHTML = await lobbyResponse.text();
                 document.getElementById("newContent").innerHTML = lobbyHTML;
-                const newURL = "/tournament-lobby/";
+                const newURL = "/tournament/lobby/";
                 history.pushState({ path: newURL }, "", newURL);
             } else {
                 alert("Failed to load the tournament lobby.");
