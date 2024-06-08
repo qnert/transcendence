@@ -1,3 +1,11 @@
+import { handleRoute } from "../basics.js";
+import { fetchProfileData } from "./fetch.js";
+import { getCookie } from "../security/csrft.js";
+
+
+
+
+
 window.onload = function () {
   const currentUrl = window.location.href;
   console.log(currentUrl);
@@ -18,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
   bindProfileButton();
 });
 
-async function saveChanges() {
+export async function saveChanges() {
   const picture_url = document.getElementById("profile-picture_url").value;
   const display_name = document.getElementById("profile-display_name").value;
   const csrftoken = getCookie("csrftoken")
@@ -43,7 +51,7 @@ async function saveChanges() {
   }
 }
 
-function bindSaveChangesButton() {
+export function bindSaveChangesButton() {
   const saveChangesButton = document.getElementById("saveChangesButton");
   if (saveChangesButton) {
     saveChangesButton.addEventListener("click", function(event) {
@@ -53,7 +61,7 @@ function bindSaveChangesButton() {
   }
 }
 
-function bindProfileButton() {
+export function bindProfileButton() {
   const profileButton = document.getElementById("profile");
   if (profileButton) {
     profileButton.addEventListener("click", function(event) {

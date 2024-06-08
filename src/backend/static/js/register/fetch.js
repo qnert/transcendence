@@ -1,3 +1,6 @@
+import { updateContent } from "../basics.js";
+
+
 document.addEventListener("DOMContentLoaded", function() {
   const registration = document.getElementById("passwordForm");
   if (registration) {

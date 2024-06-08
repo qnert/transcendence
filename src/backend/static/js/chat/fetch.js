@@ -1,3 +1,6 @@
+import { getCookie } from "../security/csrft.js";
+import { loadFriends } from "../friends/fetch.js";
+
 function blockUser(userId) {
   fetch(`/api/block/${userId}/`, {
     method: 'POST',
@@ -31,3 +34,5 @@ function unblockUser(userId) {
     })
     .catch(error => console.error('Error unblocking user:', error));
 }
+
+  

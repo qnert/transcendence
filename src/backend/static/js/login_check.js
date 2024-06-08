@@ -1,6 +1,9 @@
+import { getCookie } from "./security/csrft.js";
+import { loadFriends } from "./friends/fetch.js";
 
-document.addEventListener("DOMContentLoaded", async function() {
-  const csrftoken = getCookie("csrftoken");
+export async function checkLoginStatus() {
+	const currentUrl = window.location.href;
+	const csrftoken = getCookie("csrftoken");
   try {
     const response = await fetch("/api/check_login_status/", {
       method: "GET",
@@ -23,4 +26,4 @@ document.addEventListener("DOMContentLoaded", async function() {
   } catch (error) {
     console.error("Error during fetch:", error);
   }
-});
+};

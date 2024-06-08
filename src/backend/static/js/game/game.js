@@ -13,7 +13,7 @@ function reset(){
   }
   }
 
-  function start_game() {
+  export function start_game() {
   //board vars
   let board;
   let context;

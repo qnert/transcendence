@@ -1,4 +1,6 @@
-function fetchProfileData() {
+
+
+export function fetchProfileData() {
   fetch('/api/get_profile/', {
     method: 'GET',
     headers: {

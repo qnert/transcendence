@@ -1,5 +1,11 @@
-function set_passwd(){
-  const passwd = document.getElementById("passwordForm");
+import { checkAccessToken } from "../profile/profile.js";
+import { getAccessToken } from "../security/jwt.js";
+import { updateContent } from "../basics.js";
+import { getCookie } from "../security/csrft.js";
+import { loadFriends } from "../friends/fetch.js";
+
+export function set_passwd(){
+  const passwd = document.getElementById("set_passwd");
   if (passwd) {
     passwd.addEventListener("click", async function(event){
       event.preventDefault();
@@ -36,7 +42,7 @@ function set_passwd(){
   }
 }
 
-function oauth() {
+export function oauth() {
   const registerButton = document.getElementById("registerButton");
   if (registerButton) {
     registerButton.addEventListener("click", (event) => {
@@ -61,7 +67,7 @@ function oauth() {
   }
 }
 
-function logout() {
+export function logout() {
   const logoutButton = document.getElementById("logout");
   if (logoutButton) {
     logoutButton.addEventListener("click", async function(event) {
@@ -94,7 +100,7 @@ function logout() {
   }
 }
 
-function login() {
+export function login() {
   const Login = document.getElementById("loginFormContent");
   if (Login) {
     Login.addEventListener("submit", async function(event) {
@@ -148,3 +154,4 @@ function login() {
     });
   }
 }
+  

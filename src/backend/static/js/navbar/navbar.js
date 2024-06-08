@@ -1,7 +1,14 @@
+
+import { checkAccessToken } from "../profile/profile.js";
+import { reattachEventListeners } from "../basics.js";
+import { getCookie } from "../security/csrft.js";
+
+  
+
 document.addEventListener("DOMContentLoaded", checkAccessToken);
 
 
-    const showLoggedInState = (username) => {
+    export const showLoggedInState = (username) => {
       navButtons.innerHTML = `
       <button class="nav-button" id="homeButton">Transcendence</button>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +51,7 @@ document.addEventListener("DOMContentLoaded", checkAccessToken);
     };
 
 
-    const showLoggedOutState = () => {
+    export const showLoggedOutState = () => {
       navButtons.innerHTML = `
         <li class="nav-item">
           <button class="nav-button" id="defaultButton">Transcendence</button>

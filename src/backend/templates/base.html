@@ -24,6 +24,8 @@
     <link rel="stylesheet" href="{% static 'css/chat.css' %}">
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'css/multiplayer.css' %}">
+
+
   </head>
   <body>
 
@@ -40,74 +42,7 @@
 		{% include "chatroom.html" %}
 
 	</div>
-
-	<script type="module">
-    import {searchFriends} from '{% static "js/friends/action_friends.js" %}';
-
-    window.addEventListener('popstate', function(event) {
-			if (event.state && event.state.path) {
-				updateContent(event.state.path);
-			}
-		});
-
-    document.addEventListener("DOMContentLoaded", function() {
-      reattachEventListeners();
-    });
-
-		function updateContent(path) {
-			//check if path is default path because of navigation in Browser. If default then oldContent is empty!
-			fetch(path)
-			.then(response => {
-				if (!response.ok) {
-				  if (response.status === 401) {
-					updateContent("/login/");
-				  } else if (response.status === 403) {
-					updateContent("/login/");
-				  } else {
-					throw new Error("Unexpected Error");
-				  }
-				}
-				return response.text();
-			})
-			.then(html => {
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(html, "text/html");
-			const newContent = doc.querySelector("#newContent");
-			const oldContent = document.getElementById("oldContent");
-			oldContent.innerHTML = "";
-			oldContent.appendChild(newContent);
-			reattachEventListeners();
-			 })
-			 .catch(error => console.error('Error fetching content:', error));
-		};
-
-		function handleRoute(event, path) {
-			event.preventDefault();
-			if (window.location.pathname !== path) {
-				window.history.pushState({path: path}, '', path);
-				updateContent(path);
-			}
-		}
-
-		export function reattachEventListeners(){
-			loginButton()
-			login()
-			logout()
-			generateQRCode()
-			validateOTP()
-			oauth()
-			homeButton()
-			defaultButton()
-			bindProfileButton()
-			soloGame()
-			multiplayerGame()
-			handleCheckbox()
-			checkBox()
-			setNewPasswd()
-      searchFriends()
-		}
-  </script>
-
+    
   {% comment %} MODULE {% endcomment %}
   <script type="module" src="{% static "js/module.js" %}"></script>
 
@@ -121,10 +56,10 @@
       - getUsernameFromBackend()
       - checkAccessToken()
   {% endcomment %}
-  <script src="{% static "js/profile/2FA.js" %}"></script>
-  <script src="{% static "js/profile/profile.js" %}"></script>
-  <script src="{% static "js/profile/buttons.js" %}"></script>
-  <script src="{% static "js/profile/fetch.js" %}"></script>
+  <script type="module" src="{% static "js/profile/2FA.js" %}"></script>
+  <script type="module" src="{% static "js/profile/profile.js" %}"></script>
+  <script type="module" src="{% static "js/profile/buttons.js" %}"></script>
+  <script type="module" src="{% static "js/profile/fetch.js" %}"></script>
 
   {% comment %}
     @Navbar
@@ -141,14 +76,14 @@
       - login()
       - logout()
   {% endcomment %}
-  <script src="{% static "js/navbar/navbar.js" %}"></script>
-  <script src="{% static "js/navbar/buttons.js" %}"></script>
-  <script src="{% static "js/navbar/logging.js" %}"></script>
+  <script type="module" src="{% static "js/navbar/navbar.js" %}"></script>
+  <script type="module" src="{% static "js/navbar/buttons.js" %}"></script>
+  <script type="module" src="{% static "js/navbar/logging.js" %}"></script>
 
   {% comment %}
     @Functions:
   {% endcomment %}
-  <script src="{% static "js/register/fetch.js" %}"></script>
+  <script type="module" src="{% static "js/register/fetch.js" %}"></script>
 
   {% comment %}
     @Functions:
@@ -156,7 +91,7 @@
       - start_game()
       - window.onload
   {% endcomment %}
-  <script src="{% static "js/game/game.js" %}"></script>
+  <script type="module" src="{% static "js/game/game.js" %}"></script>
 
   {% comment %}
     @Functions:
@@ -168,7 +103,7 @@
       - pendingFriendRequest()
       - updateUserStatus()
   {% endcomment %}
-  <script src="{% static "js/friends/fetch.js" %}"></script>
+  <script type="module" src="{% static "js/friends/fetch.js" %}"></script>
   <script type="module" src="{% static "js/friends/action_friends.js" %}"></script>
 
   {% comment %}
@@ -176,16 +111,17 @@
         - blockUser()
         - unblockUser()
   {% endcomment %}
-  <script src="{% static "js/chat/fetch.js" %}"></script>
-  <script src="{% static "js/chat/action_chat.js" %}"></script>
+  <scripttype="module" src="{% static "js/chat/fetch.js" %}"></scripttype=>
+  <scripttype="module" src="{% static "js/chat/action_chat.js" %}"></scripttype=>
 
 
   {% comment %} 1 {% endcomment %}
-  <script src="{% static "js/security/csrft.js" %}"></script>
-  <script src="{% static "js/security/jwt.js" %}"></script>
+  <script type="module" src="{% static "js/security/csrft.js" %}"></script>
+  <script type="module" src="{% static "js/security/jwt.js" %}"></script>
 
   {% comment %}  {% endcomment %}
-  <script src="{% static "js/login_check.js" %}"></script>
+  <script type="module" src="{% static "js/login_check.js" %}"></script>
+  <script type="module" src="{% static "js/basics.js" %}"></script>
 
 	</body>
 	</html>

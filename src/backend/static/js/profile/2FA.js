@@ -1,3 +1,11 @@
+import { checkAccessToken } from "../profile/profile.js";
+import { updateContent } from "../basics.js";
+import { getCookie } from "../security/csrft.js";
+
+
+
+
+
 async function activatetwoFA(){
   try {
     const csrftoken = getCookie("csrftoken");
@@ -46,7 +54,7 @@ async function deactivatetwoFA(){
 }
 
 
-async function checkBox() {
+export async function checkBox() {
   const checkBox = document.getElementById('checkBox');
   if (checkBox) {
     try {
@@ -79,7 +87,7 @@ async function checkBox() {
   };
 
 
-function handleCheckbox(){
+export function handleCheckbox(){
   const checkBox = document.getElementById("checkBox");
   if(checkBox){
     checkBox.addEventListener("change", function(){
@@ -92,7 +100,7 @@ function handleCheckbox(){
   }
 }
 
-function validateOTP() {
+export function validateOTP() {
   const validateButton = document.getElementById("validateOTP");
   if (validateButton) {
       validateButton.addEventListener("click", function(event) {
@@ -126,7 +134,7 @@ function validateOTP() {
   }
 }
 
-function generateQRCode() {
+export function generateQRCode() {
   const qrcodeButton = document.getElementById("generateQRCode");
   if (qrcodeButton) {
     qrcodeButton.addEventListener("click", function(event) {

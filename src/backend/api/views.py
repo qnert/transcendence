@@ -74,8 +74,11 @@ def deactivate_two_FA(request):
 		return JsonResponse({'message': 'failed'})
 
 def check_login_status(request):
-	login_status = request.user.is_logged_in
-	return JsonResponse({'status': login_status})
+	if request.user.is_authenticated:
+		login_status = request.user.is_logged_in
+		return JsonResponse({'status': login_status})
+	else:
+		return JsonResponse({'error': 'user is not logged in'})
 
 
 @login_required

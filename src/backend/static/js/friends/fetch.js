@@ -1,4 +1,4 @@
-function loadFriends() {
+export function loadFriends() {
   fetch('/api/friends/')
     .then(response => response.json())
     .then(data => {
