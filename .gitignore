@@ -9,3 +9,4 @@ env/
 *.env
 .vscode
 clear_db.sh
+src/backend/staticfiles
