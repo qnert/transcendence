@@ -37,6 +37,8 @@ class UserProfile(models.Model):
 	profile_picture_url = models.URLField(max_length=5000, blank=True, default='')
 	needs_password_set = models.BooleanField(default=True)
 	registered = models.BooleanField(default=False)
+	is_online = models.BooleanField(default=False)
+
 	# access_token = models.CharField(max_length=255, blank=True, null=True)
 	# token_expiration = models.DateTimeField(null=True, blank=True
 	def save(self, *args, **kwargs):
