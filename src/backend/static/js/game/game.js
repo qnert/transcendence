@@ -13,6 +13,21 @@ function reset(){
   }
   }
 
+  export function startGameButton(){
+	const gameButton = document.getElementById("startGameButton");
+	if (gameButton){
+		gameButton.addEventListener("click", start_game);
+	}
+  }
+
+  export function resetGameButton(){
+	const resetButton = document.getElementById("resetGameButton");
+	if (resetButton){
+		resetButton.addEventListener("click", reset);
+	}
+  }
+
+
   export function start_game() {
   //board vars
   let board;
