@@ -7,3 +7,4 @@ media
 env/
 .DS_store
 *.env
+.vscode
