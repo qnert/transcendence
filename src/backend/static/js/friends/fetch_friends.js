@@ -1,4 +1,7 @@
 import { getCookie } from "../security/csrft.js";
+import { updateFriendDropdown } from "./action_friends.js";
+import { selectFriend } from "../chat/action_chat.js";
+
 
 export function loadFriends() {
     fetch("/api/friends/")
@@ -73,7 +76,7 @@ export function loadFriends() {
         .catch((error) => console.error("Error loading friends:", error));
 }
 
-function updateUserStatus() {
+export function updateUserStatus() {
     fetch("/api/friends_online_status/")
         .then((response) => response.json())
         .then((data) => {
@@ -109,7 +112,22 @@ function updateUserStatus() {
         .catch((error) => console.error("Error fetching friends or online status:", error));
 }
 
-
+export function sendFriendRequest(userId) {
+	const csrftoken = getCookie("csrftoken");
+  fetch('/api/send_friend_request/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken,
+    },
+    body: JSON.stringify({ user_id: userId })
+  }).then(response => response.json())
+    .then(data => {
+      alert(data.message);
+      document.getElementById('search-friends').value = '';
+      document.getElementById('search-results').innerHTML = '';
+    });
+}
 
 function deleteFriend(friendId, element) {
     const csrftoken = getCookie("csrftoken");
@@ -173,5 +191,6 @@ export async function pendingFriendRequest() {
                     });
                 }
             });
+        updateFriendDropdown();
     }
 }

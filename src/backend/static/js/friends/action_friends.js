@@ -1,8 +1,28 @@
-import { getUsernameFromBackend } from "../module.js";
+import { sendFriendRequest, updateUserStatus } from './fetch_friends.js';
 
+  window.sendFriendRequest = sendFriendRequest;
+  window.acceptRequest = acceptRequest;
+  window.denyRequest = denyRequest;
+  window.stopPropagation = stopPropagation;
 
-const userId = getUsernameFromBackend();
-const friendSocket = new WebSocket("ws://" + window.location.host + "/ws/online/");
+  let userId = null;
+  getUsernameFromBackend()
+
+  function getUsernameFromBackend() {
+    return fetch('/api/get_user_id/')
+      .then(response => response.json())
+      .then(data => {
+        userId = data.id;
+      })
+      .catch(error => {
+        console.error('Error loading user ID:', error);
+        throw error;
+      });
+  }
+
+  const friendSocket = new WebSocket(
+   'ws://' + window.location.host + '/ws/online/'
+  );
 
 friendSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
@@ -34,7 +54,7 @@ function displayAlert(friendName, requestId) {
     alertsContainer.appendChild(alertDiv);
 }
 
-function updateFriendDropdown() {
+export function updateFriendDropdown() {
     fetch("/api/friends/")
         .then((response) => response.json())
         .then((data) => {
