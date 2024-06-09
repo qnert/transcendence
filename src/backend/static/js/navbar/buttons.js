@@ -1,4 +1,7 @@
-function soloGame(){
+import { handleRoute } from "../basics.js";
+import { updateContent } from "../basics.js";
+
+export function soloGame(){
   const soloGameButton = document.getElementById("game");
   if (soloGameButton) {
     soloGameButton.addEventListener("click", function(event) {
@@ -8,7 +11,7 @@ function soloGame(){
   }
 }
 
-function multiplayerGame(){
+export function multiplayerGame(){
   const multiplayerGame = document.getElementById("multiplayerGame");
   if (multiplayerGame) {
     multiplayerGame.addEventListener("click", function(event) {
@@ -18,7 +21,7 @@ function multiplayerGame(){
   }
 }
 
-function loginButton(){
+export function loginButton(){
   const loginButton = document.getElementById("login");
   if(loginButton){
     loginButton.addEventListener("click", function(event) {
@@ -28,7 +31,7 @@ function loginButton(){
 }
 }
 
-function defaultButton(){
+export function defaultButton(){
   const defaultButton = document.getElementById("defaultButton");
   if(defaultButton){
     defaultButton.addEventListener("click", function(event) {
@@ -42,7 +45,7 @@ function defaultButton(){
 }
 }
 
-function homeButton(){
+export function homeButton(){
   const homeButton = document.getElementById("homeButton");
   if(homeButton){
     homeButton.addEventListener("click", function(event) {

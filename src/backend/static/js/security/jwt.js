@@ -1,3 +1,7 @@
+import { updateContent } from "../basics.js";
+
+
+
 function checkJWTToken(){
   const access_token = localStorage.getItem('access_token')
   if (access_token === null && isLoggedIn()){
@@ -8,7 +12,7 @@ function checkJWTToken(){
 
 }
 
-async function getAccessToken(username, password, csrftoken) {
+export async function getAccessToken(username, password, csrftoken) {
   try {
       const response = await fetch("/token/", {
           method: "POST",

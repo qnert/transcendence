@@ -1,3 +1,6 @@
+import { updateContent } from "../basics.js";
+
+
 document.addEventListener("DOMContentLoaded", function() {
   const registration = document.getElementById("passwordForm");
   if (registration) {
@@ -7,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
           if (data.error) {
-            alert("Already logged in");
+            alert("Already registered in");
             window.history.pushState({ path: '/login/' }, '', '/login/');
             updateContent("/login/");
           }

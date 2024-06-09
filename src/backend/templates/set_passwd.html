@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
 <div id="newContent">
     <form id="passwordForm" method="POST">
@@ -10,10 +10,8 @@
         <input type="password" id="confirmPassword" name="confirmPassword" required>
         <br><br>
 		{% csrf_token %}
-        <button type="button" onclick="set_passwd()">Create</button>
+        <button type="button" id="">Create</button>
     </form>
 </div>
-
-
-
+<script type="module" src="{% static "js/navbar/logging.js" %}"></script>
 {% endblock content %}

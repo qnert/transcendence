@@ -1,4 +1,7 @@
-function setNewPasswd(){
+import { showLoggedOutState, showLoggedInState } from "../navbar/navbar.js";
+import { getCookie } from "../security/csrft.js";
+
+export function setNewPasswd(){
   const passwd = document.getElementById("newPasswdButton");
   if (passwd) {
     passwd.addEventListener("click", async function(event){
@@ -58,7 +61,7 @@ async function getUsernameFromBackend(token) {
 }
 
 
-async function checkAccessToken() {
+export async function checkAccessToken() {
   const token = localStorage.getItem("access_token");
   if (token) {
     try {
