@@ -6,6 +6,7 @@ import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton } fro
 import { login, logout, oauth, set_passwd } from './navbar/logging.js';
 import { checkLoginStatus } from './login_check.js';
 import { startGameButton, resetGameButton } from './game/game.js';
+// import { createGameButton } from './game/multiplayer.js';
 
     window.addEventListener('popstate', function(event) {
 			if (event.state && event.state.path) {
@@ -72,6 +73,7 @@ import { startGameButton, resetGameButton } from './game/game.js';
 		searchFriends()
 		startGameButton()
 		resetGameButton()
+		// createGameButton()
 	}
 
 
