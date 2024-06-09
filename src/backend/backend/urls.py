@@ -37,5 +37,5 @@ urlpatterns = [
     path('matches/', matches, name='matches'),
     # path('rosetta/', include('rosetta.urls')),
     path('api/', include('api.urls')),
-    path('', include('tournament.urls')),
+    path('tournament/', include('tournament.urls')),
 ]
