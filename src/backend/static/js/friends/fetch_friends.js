@@ -1,4 +1,5 @@
-import { getCookie } from "../security/csrft";
+import { getCookie } from "../security/csrft.js";
+
 
 export function loadFriends() {
   fetch('/api/friends/')

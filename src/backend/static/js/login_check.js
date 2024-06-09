@@ -1,5 +1,5 @@
 import { getCookie } from "./security/csrft.js";
-import { loadFriends } from "./friends/fetch.js";
+import { loadFriends } from "./friends/fetch_friends.js";
 
 export async function checkLoginStatus() {
 	const currentUrl = window.location.href;
@@ -27,3 +27,7 @@ export async function checkLoginStatus() {
     console.error("Error during fetch:", error);
   }
 };
+
+
+
+  

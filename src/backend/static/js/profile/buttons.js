@@ -1,5 +1,5 @@
 import { handleRoute } from "../basics.js";
-import { fetchProfileData } from "./fetch.js";
+import { fetchProfileData } from "./fetch_profile.js";
 import { getCookie } from "../security/csrft.js";
 
 

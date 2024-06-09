@@ -2,7 +2,7 @@ import { checkAccessToken } from "../profile/profile.js";
 import { getAccessToken } from "../security/jwt.js";
 import { updateContent } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
-import { loadFriends } from "../friends/fetch.js";
+import { loadFriends } from "../friends/fetch_friends.js";
 
 export function set_passwd(){
   const passwd = document.getElementById("set_passwd");

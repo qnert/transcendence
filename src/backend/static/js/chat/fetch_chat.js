@@ -1,5 +1,5 @@
 import { getCookie } from "../security/csrft.js";
-import { loadFriends } from "../friends/fetch.js";
+import { loadFriends } from "../friends/fetch_friends.js";
 
 function blockUser(userId) {
 	const csrftoken = getCookie("csrftoken")
@@ -37,4 +37,4 @@ function unblockUser(userId) {
     .catch(error => console.error('Error unblocking user:', error));
 }
 
-  
+

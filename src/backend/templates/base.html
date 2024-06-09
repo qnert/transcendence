@@ -59,7 +59,7 @@
   <script type="module" src="{% static "js/profile/2FA.js" %}"></script>
   <script type="module" src="{% static "js/profile/profile.js" %}"></script>
   <script type="module" src="{% static "js/profile/buttons.js" %}"></script>
-  <script type="module" src="{% static "js/profile/fetch.js" %}"></script>
+  <script type="module" src="{% static "js/profile/fetch_profile.js" %}"></script>
 
   {% comment %}
     @Navbar
@@ -103,7 +103,7 @@
       - pendingFriendRequest()
       - updateUserStatus()
   {% endcomment %}
-  <script type="module" src="{% static "js/friends/fetch.js" %}"></script>
+  <script type="module" src="{% static "js/friends/fetch_friends.js" %}"></script>
   <script type="module" src="{% static "js/friends/action_friends.js" %}"></script>
 
   {% comment %}
@@ -111,7 +111,7 @@
         - blockUser()
         - unblockUser()
   {% endcomment %}
-  <scripttype="module" src="{% static "js/chat/fetch.js" %}"></scripttype=>
+  <scripttype="module" src="{% static "js/chat/fetch_chat.js" %}"></scripttype=>
   <scripttype="module" src="{% static "js/chat/action_chat.js" %}"></scripttype=>
 
 

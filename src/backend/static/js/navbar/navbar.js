@@ -3,7 +3,6 @@ import { checkAccessToken } from "../profile/profile.js";
 import { reattachEventListeners } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 
-  
 
 document.addEventListener("DOMContentLoaded", checkAccessToken);
 
