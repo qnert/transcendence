@@ -5,7 +5,7 @@ import { setNewPasswd } from './profile/profile.js';
 import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton } from './navbar/buttons.js';
 import { login, logout, oauth, set_passwd } from './navbar/logging.js';
 import { checkLoginStatus } from './login_check.js';
-
+import { startGameButton, resetGameButton } from './game/game.js';
 
     window.addEventListener('popstate', function(event) {
 			if (event.state && event.state.path) {
@@ -70,6 +70,8 @@ import { checkLoginStatus } from './login_check.js';
     	searchFriends()
 		checkLoginStatus()
 		searchFriends()
+		startGameButton()
+		resetGameButton()
 	}
 
 
