@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block title %}
 Pong Game
 {% endblock %}
@@ -49,11 +49,11 @@ Pong Game
     <input id="powerUps" type="checkbox" required/><br/><br/>
 
     <p>Please enter values between 4 and 12 and leave no field empty!</p>
-    <input id="startGameButton" type="button" value="Start Game" onclick="start_game()" /><br><br>
+    <input id="startGameButton" type="button" value="Start Game" /><br><br>
   </form>
   <div id="gameContainer">
     <canvas id="board" style="display: none"></canvas>
-    <input id="resetGameButton" type="button" value="Reset Game" onclick="reset()" style="display: none"/><br/><br/>
+    <input id="resetGameButton" type="button" value="Reset Game" style="display: none"/><br/><br/>
     <p>Control the left player by using W and S keys and control the right player by using Up and Down arrow keys</p>
   </div>
 </div>
