@@ -87,7 +87,6 @@ export function logout() {
           throw new Error("Logout fail");
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        setLoginStatus('false');
         checkAccessToken();
         window.history.pushState({ path: '/login/' }, '', '/login/');
         updateContent("/login/");

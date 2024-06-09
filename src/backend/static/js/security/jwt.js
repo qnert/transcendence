@@ -5,7 +5,6 @@ import { updateContent } from "../basics.js";
 function checkJWTToken(){
   const access_token = localStorage.getItem('access_token')
   if (access_token === null && isLoggedIn()){
-    setLoginStatus('false')
     window.history.pushState({ path: '/home/' }, '', '/home/');
     updateContent("/home/");
   }

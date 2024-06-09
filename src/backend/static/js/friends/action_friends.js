@@ -93,31 +93,31 @@ import { getUsernameFromBackend } from '../module.js';
 
 export function searchFriends() {
 	const searchFriends = document.getElementById('search-friends');
-  if (searchFriends) {
-    searchFriends.addEventListener('input', function() {
-      const query = this.value;
-      const resultsContainer = document.getElementById('search-results');
+	if (searchFriends) {
+    	searchFriends.addEventListener('input', function() {
+    	  const query = this.value;
+    	  const resultsContainer = document.getElementById('search-results');
 
-      if (query.length > 2) {
-      fetch(`/search_friends/?q=${query}`)
-        .then(response => response.json())
-        .then(data => {
-        resultsContainer.innerHTML = '';
-        data.results.forEach(friend => {
-          const resultItem = document.createElement('li');
-          resultItem.className = 'dropdown-item mt-2';
-          resultItem.innerHTML = `
-          <img src="${friend.profile_picture_url}" class="rounded-circle search-result" style="width: 30px; height: 30px; margin-right: 8px;">
-          ${friend.display_name}
-          <button class="btn btn-sm btn-primary ms-2 search-result" onclick="sendFriendRequest(${friend.id})">Add Friend</button>
-          `;
-          resultsContainer.appendChild(resultItem);
-        });
-        });
-      } else {
-      resultsContainer.innerHTML = '';
-      }
-    });
+    	  if (query.length > 2) {
+    	  fetch(`/api/search_friends/?q=${query}`)
+    	    .then(response => response.json())
+    	    .then(data => {
+    	    resultsContainer.innerHTML = '';
+    	    data.results.forEach(friend => {
+    	      const resultItem = document.createElement('li');
+    	      resultItem.className = 'dropdown-item mt-2';
+    	      resultItem.innerHTML = `
+    	      <img src="${friend.profile_picture_url}" class="rounded-circle search-result" style="width: 30px; height: 30px; margin-right: 8px;">
+    	      ${friend.display_name}
+    	      <button class="btn btn-sm btn-primary ms-2 search-result" onclick="sendFriendRequest(${friend.id})">Add Friend</button>
+    	      `;
+    	      resultsContainer.appendChild(resultItem);
+    	    });
+    	    });
+    	  } else {
+    	  resultsContainer.innerHTML = '';
+    	  }
+    	});
 	}
 };
 
