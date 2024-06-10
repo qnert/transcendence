@@ -3,10 +3,11 @@ import { generateQRCode, validateOTP, handleCheckbox, checkBox} from './profile/
 import { bindProfileButton, bindSaveChangesButton,saveChanges } from './profile/buttons.js';
 import { setNewPasswd } from './profile/profile.js';
 import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton } from './navbar/buttons.js';
-import { login, logout, oauth, set_passwd } from './navbar/logging.js';
+import { login, logout, oauth, setPasswd } from './navbar/logging.js';
 import { checkLoginStatus } from './login_check.js';
 import { startGameButton, resetGameButton } from './game/game.js';
 // import { createGameButton } from './game/multiplayer.js';
+import { loadFriends } from './friends/fetch_friends.js';
 
     window.addEventListener('popstate', function(event) {
 			if (event.state && event.state.path) {
@@ -73,6 +74,7 @@ import { startGameButton, resetGameButton } from './game/game.js';
 		searchFriends()
 		startGameButton()
 		resetGameButton()
+		setPasswd()
 		// createGameButton()
 	}
 
