@@ -465,6 +465,7 @@ def LogoutView(request):
 			token.blacklist()
 			request.user.completed_2fa = False
 			request.user.is_logged_in = False
+			request.user.save()
 			return JsonResponse({'logout': True})
 
 		except (TokenError, InvalidToken) as e:
