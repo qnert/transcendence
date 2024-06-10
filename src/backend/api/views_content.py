@@ -8,6 +8,7 @@ def baseView(request):
 def loginFormView(request):
 	return render(request, 'login.html')
 
+@own_login_required
 def homeView(request):
 	return render(request, 'home.html')
 
