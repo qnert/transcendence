@@ -42,7 +42,7 @@ from django.db import transaction
 from django.shortcuts import render, get_object_or_404
 from api.models import UserProfile, Friendship, FriendRequest
 from chat.models import Message, BlockedUser
-
+from django.conf import settings
 
 
 
@@ -324,19 +324,22 @@ def auth_callback(request):
 
 
 def SetPasswd(request):
-	# password security for example atleast 8 characters long
+    # password security for example at least 8 characters long
 	username = request.session.get('username')
 	data = json.loads(request.body)
 	password = data.get('password')
-	try:
-		user = User.objects.get(username=username)
+	user = User.objects.get(username=username)
+	if user is not None:
 		user.set_password(password)
+		if hasattr(user, 'profile'):
+				user.profile.needs_password_set = False
+				user.profile.save()
 		user.save()
 		if 'username' in request.session:
-			del request.session.get['username']
-		return JsonResponse({'success': 'User registered successfully'}, status=201)
-	except Exception:
-		return JsonResponse({'error': 'User does not exist'}, status=201)
+			del request.session['username']
+		return JsonResponse({'success': 'User registered successfully'}, status=200)
+	else:
+		return JsonResponse({'error': 'User does not exist'}, status=404)
 
 
 def fetch_user_data(request):
@@ -352,7 +355,7 @@ def fetch_user_data(request):
 		del request.session['auth_code']
 
 	if token_response.status_code != 200:
-		return JsonResponse({'error': 'Unable to retrie the access token'}, status=400)
+		return JsonResponse({'error': 'Unable to retrie the access token'}, status=500)
 
 	token_data = token_response.json()
 	access_token = token_data.get('access_token')
@@ -366,10 +369,17 @@ def fetch_user_data(request):
 	first_name = user_info.get('first_name', '')
 	last_name = user_info.get('last_name', '')
 	profile_picture_url =  user_info['image']['versions']['large']
-
+	request.session['username'] = username
 	try:
 		user = User.objects.get(username=username)
-		return JsonResponse({'error': 'User already registerd'}, status=400)
+		if user is not None:
+			if hasattr(user, 'profile'):
+				user_profile = user.profile
+				if not user_profile.needs_password_set:
+					return JsonResponse({'error': 'User already registered'}, status=400)
+				else:
+					return JsonResponse({'error': 'Password needs to be set'}, status=403)
+
 	except User.DoesNotExist:
 		user = User.objects.create(username=username,
 			first_name= first_name,
@@ -383,7 +393,6 @@ def fetch_user_data(request):
 		registered=True,
 		display_name=username,
 	)
-	request.session['username'] = username
 	return JsonResponse({'success': 'success'}, status=200)
 
 
@@ -467,13 +476,14 @@ def LogoutView(request):
 class LoginView(APIView):
 	def post(self, request):
 		username = request.data.get('username')
-		print(username)
 		password = request.data.get('password')
+		print(username)
 		print(password)
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			login(request ,user)
 			user.is_logged_in = True
+			user.save()
 			return JsonResponse({'message': 'successful'}, status=200)
 		else:
 			return JsonResponse({'error': 'Invalid credentials'}, status=401)
