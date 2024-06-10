@@ -1,3 +1,16 @@
+const ballSpeedVar = document.getElementById("ballSpeed");
+if (ballSpeedVar){
+	const test = ballSpeedVar.value;
+}
+
+export function createGameButton(){
+	const createMultiplayer = document.getElementById("createMultiplayer");
+	if (createMultiplayer){
+		createMultiplayer.addEventListener("click", create_join_game);
+	}
+  }
+
+
 let chatSocket;
   let context;
       //board vars
@@ -15,7 +28,7 @@ let chatSocket;
   //ball vars
   let ballWidth = 10;
   let ballHeight = 10;
-  let ballSpeed = document.getElementById("ballSpeed").value;
+  let ballSpeed = test;
   let random = Math.random() > 0.5 ? 1 : -1;
   let ballAngle = random * Math.PI / 4;
   random = Math.random() > 0.5 ? 1 : -1;
@@ -625,9 +638,4 @@ let chatSocket;
   }
 
 
-  export function createGameButton(){
-	const createButton = document.getElementById("createMultiplayer");
-	if (createButton){
-		createButton.addEventListener("click", create_join_game);
-	}
-  }
+
