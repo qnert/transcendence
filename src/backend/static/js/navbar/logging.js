@@ -4,9 +4,11 @@ import { updateContent } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
 
-export function set_passwd(){
-  const passwd = document.getElementById("set_passwd");
+
+export function setPasswd(){
+  const passwd = document.getElementById("setPasswd");
   if (passwd) {
+	console.log("Hello");
     passwd.addEventListener("click", async function(event){
       event.preventDefault();
       const password = document.getElementById('password').value;
