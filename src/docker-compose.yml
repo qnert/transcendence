@@ -79,6 +79,22 @@ services:
       - transcendence
     restart: unless-stopped
 
+  nginx:
+    container_name: nginx
+    build:
+      context: ./Docker
+      dockerfile: Dockerfile_nginx
+    ports:
+      - 80:80
+    networks:
+      - transcendence
+    depends_on:
+      - prometheus
+      - grafana
+      - adminer
+      - redis
+      - database
+      - backend
 
 volumes:
   frontend:
