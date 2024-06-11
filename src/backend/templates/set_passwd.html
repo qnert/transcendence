@@ -2,16 +2,20 @@
 {% load static %}
 {% block content %}
 <div id="newContent">
-    <form id="passwordForm" method="POST">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br><br>
-        <label for="confirmPassword">Confirm Password:</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" required>
-        <br><br>
-		{% csrf_token %}
-        <button type="button" id="setPasswd">Create</button>
-    </form>
+    <div id="passwordFormContent">
+        <form id="passwordForm" method="POST">
+            <div class="mb-3">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="mb-3">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            {% csrf_token %}
+            <button type="button" id="setPasswd">Create</button>
+        </form>
+    </div>
 </div>
 <script type="module" src="{% static "js/navbar/logging.js" %}"></script>
 {% endblock content %}
