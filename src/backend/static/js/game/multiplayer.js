@@ -1,6 +1,8 @@
+let ballSpeed;
+
 const ballSpeedVar = document.getElementById("ballSpeed");
 if (ballSpeedVar){
-	const test = ballSpeedVar.value;
+	ballSpeed = ballSpeedVar.value;
 }
 
 export function createGameButton(){
@@ -28,7 +30,6 @@ let chatSocket;
   //ball vars
   let ballWidth = 10;
   let ballHeight = 10;
-  let ballSpeed = test;
   let random = Math.random() > 0.5 ? 1 : -1;
   let ballAngle = random * Math.PI / 4;
   random = Math.random() > 0.5 ? 1 : -1;
@@ -108,7 +109,7 @@ let chatSocket;
       alert('Please enter only alphabetical characters !');
       return;
     }
-    fetch('/username/')
+    fetch('/api/get_username/')
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -116,7 +117,7 @@ let chatSocket;
         return response.json();
     })
     .then(data => {
-      username = data.username;
+      let username = data.username;
       chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
       chatSocket.onopen = function(e) {
       console.log("Websocket connection opened!");
@@ -124,7 +125,7 @@ let chatSocket;
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         if (data.type === 'connected_users') {
-            connected_users = JSON.parse(data.connected_users)[room_name];
+            let connected_users = JSON.parse(data.connected_users)[room_name];
               document.getElementById('roomInfo').textContent = `Welcome to Room ${data.room_name}!`;
               if (connected_users.length == 2){
                 let html_tag = document.getElementById("player1");
@@ -139,7 +140,7 @@ let chatSocket;
                 html_tag_2.textContent = "waiting...";
             }
             if (connected_users[0] == username)
-              document.getElementById("startGame").style.display = "block";
+              document.getElementById("startRemoteGame").style.display = "block";
         }
         else if (data.type === 'connect_error'){
             alert("Room is full!");
@@ -224,12 +225,26 @@ let chatSocket;
         document.getElementById("versusScreen").style.display = "block";
         document.getElementById("myForm").style.visibility = "hidden";
         document.getElementById("board").style.display = "none";
-        document.getElementById("resetGameButton").style.display = "none";
+        document.getElementById("resetRemoteGameButton").style.display = "none";
     };
     })
     .catch(error => {
         console.error('Error fetching username:', error);
     });
+  }
+
+  export function resetRemoteGameButton(){
+	const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
+	if (resetRemoteGameButton){
+		resetRemoteGameButton.addEventListener("click", remote_start);
+	}
+  }
+
+  export function startRemoteGame(){
+	const startRemoteGame = document.getElementById("startRemoteGame");
+	if (startRemoteGame){
+		startRemoteGame.addEventListener("click", remote_start);
+	}
   }
 
   function remote_start(){
@@ -257,7 +272,7 @@ let chatSocket;
     document.getElementById("myForm").style.visibility = "visible";
     document.getElementById("myForm").style.display = "block";
     document.getElementById("board").style.display = "none";
-    document.getElementById("resetGameButton").style.display = "none";
+    document.getElementById("resetRemoteGameButton").style.display = "none";
     chatSocket.close();
   }
 
@@ -275,7 +290,7 @@ let chatSocket;
     document.getElementById("roomInfo").style.display = "none";
     document.getElementById("versusScreen").style.display = "none";
     document.getElementById("board").style.display = "block";
-    document.getElementById("resetGameButton").style.display = "none";
+    document.getElementById("resetRemoteGameButton").style.display = "none";
     //board vars
     if (check_input_froms() == -1){
       alert("The host entered wrong settings for the game!");
