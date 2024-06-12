@@ -3,32 +3,21 @@ from functools import wraps
 from django.shortcuts import render
 from django.contrib.auth.models import AnonymousUser
 
+
 def own_login_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
-             return JsonResponse("You are not logged in!")
-        elif isinstance(request.user, AnonymousUser):
-             return JsonResponse("You are not logged in!")
+            if request.headers.get('Accept') == 'application/json':
+                return JsonResponse({'error': 'You are not logged in'}, status=401)
+            else:
+                return render(request, 'base.html')
         elif not request.user.is_logged_in:
-            return JsonResponse("You are not logged in!")
+            if request.headers.get('Accept') == 'application/json':
+                return JsonResponse({'error': 'You are not logged in!'}, status=403)
+            else:
+                return render(request, 'base.html')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
-
-
-# def own_login_required(view_func):
-#     def _wrapped_view(request, *args, **kwargs):
-#         if not request.user.is_authenticated:
-#             if request.headers.get('Accept') == 'application/json':
-#                 return JsonResponse({'error': 'You are not logged in'}, status=401)
-#             else:
-#                 return redirect('/login/')
-#         elif not request.user.is_logged_in:
-#             if request.headers.get('Accept') == 'application/json':
-#                 return JsonResponse({'error': 'You are not logged in!'}, status=403)
-#             else:
-#                 return redirect('/login/')
-#         return view_func(request, *args, **kwargs)
-#     return _wrapped_view
 
 
 def OTP_required(view_func):
