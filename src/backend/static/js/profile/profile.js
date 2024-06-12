@@ -1,3 +1,4 @@
+import { logout } from "../navbar/logging.js";
 import { showLoggedOutState, showLoggedInState } from "../navbar/navbar.js";
 import { getCookie } from "../security/csrft.js";
 
@@ -78,7 +79,7 @@ export async function checkAccessToken() {
         showLoggedInState(username);
       } else {
         showLoggedOutState();
-        console.log("hello");
+		logout();
       }
     } catch (error) {
       console.error("Error verifying token:", error);
@@ -86,5 +87,6 @@ export async function checkAccessToken() {
     }
   } else {
     showLoggedOutState();
+	logout();
   }
 };
