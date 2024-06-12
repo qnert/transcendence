@@ -1,5 +1,5 @@
 import { getCookie } from "./security/csrft.js";
-import { loadFriends } from "./friends/fetch_friends.js";
+import { loadFriends, pendingFriendRequest } from "./friends/fetch_friends.js";
 
 export async function checkLoginStatus() {
 	const currentUrl = window.location.href;
