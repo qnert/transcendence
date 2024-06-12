@@ -6,7 +6,7 @@ import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton } fro
 import { login, logout, oauth, setPasswd } from './navbar/logging.js';
 import { checkLoginStatus } from './login_check.js';
 import { startGameButton, resetGameButton } from './game/game.js';
-// import { createGameButton } from './game/multiplayer.js';
+import { createGameButton, startRemoteGame } from './game/multiplayer.js';
 import { loadFriends } from './friends/fetch_friends.js';
 
     window.addEventListener('popstate', function(event) {
@@ -75,7 +75,8 @@ import { loadFriends } from './friends/fetch_friends.js';
 		startGameButton()
 		resetGameButton()
 		setPasswd()
-		// createGameButton()
+		createGameButton()
+		startRemoteGame()
 	}
 
 	window.onload = function(){
