@@ -156,34 +156,37 @@ function deleteFriend(friendId, element) {
     });
 }
 
-async function pendingFriendRequest() {
+export async function pendingFriendRequest() {
   // Fetch friend requests first
-  fetch('/api/pending_friend_requests/')
-    .then(response => response.json())
-    .then(data => {
-      const friendRequestsDiv = document.getElementById('friend-requests');
-      friendRequestsDiv.innerHTML = ''; // Clear existing content
-
-      if (data.length > 0) {
-        friendRequestsDiv.innerHTML = `
-          <div class="dropdown-divider"></div>
-          <h5 class="dropdown-header">Friend Requests</h5>
-        `;
-        data.forEach(request => {
-          const requestItem = document.createElement('div');
-          requestItem.className = 'friend-request-item d-flex align-items-center justify-content-between px-2 py-1';
-          requestItem.innerHTML = `
-            <div class="d-flex align-items-center">
-              <img src="${request.profile_picture_url}" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 8px;">
-              <span>${request.from_user_name}</span>
-            </div>
-            <div>
-              <button class="btn btn-success btn-sm" id="accept_button_offline" onclick="acceptRequest(${request.from_user_id}, this)">Accept</button>
-              <button class="btn btn-danger btn-sm" id="deny_button_offline" onclick="denyRequest(${request.from_user_id}, this)">Deny</button>
-            </div>
-          `;
-          friendRequestsDiv.appendChild(requestItem);
-        });
-      }
-  });
+  const friendRequest = document.getElementById('friend-requests');
+  if(friendRequest){
+	  fetch('/api/pending_friend_requests/')
+		.then(response => response.json())
+		.then(data => {
+		  const friendRequestsDiv = document.getElementById('friend-requests');
+		  friendRequestsDiv.innerHTML = ''; // Clear existing content
+	
+		  if (data.length > 0) {
+			friendRequestsDiv.innerHTML = `
+			  <div class="dropdown-divider"></div>
+			  <h5 class="dropdown-header">Friend Requests</h5>
+			`;
+			data.forEach(request => {
+			  const requestItem = document.createElement('div');
+			  requestItem.className = 'friend-request-item d-flex align-items-center justify-content-between px-2 py-1';
+			  requestItem.innerHTML = `
+				<div class="d-flex align-items-center">
+				  <img src="${request.profile_picture_url}" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 8px;">
+				  <span>${request.from_user_name}</span>
+				</div>
+				<div>
+				  <button class="btn btn-success btn-sm" id="accept_button_offline" onclick="acceptRequest(${request.from_user_id}, this)">Accept</button>
+				  <button class="btn btn-danger btn-sm" id="deny_button_offline" onclick="denyRequest(${request.from_user_id}, this)">Deny</button>
+				</div>
+			  `;
+			  friendRequestsDiv.appendChild(requestItem);
+			});
+		  }
+	  });
+  }
 };
