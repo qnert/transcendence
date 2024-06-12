@@ -78,8 +78,6 @@ import { loadFriends } from './friends/fetch_friends.js';
 		// createGameButton()
 	}
 
-
-
 	window.onload = function(){
 		loadFriends();
 	}
