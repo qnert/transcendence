@@ -12,3 +12,4 @@ class CSRFMiddleware(CsrfViewMiddleware):
                 return JsonResponse({'error': 'CSRF token mismatch'}, status=403)
 
         return None
+
