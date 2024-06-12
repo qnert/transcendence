@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", checkAccessToken);
 
     export const showLoggedInState = (username) => {
       navButtons.innerHTML = `
-      <button class="nav-button" id="homeButton">Transcendence</button>
+      <button class="nav-button" id="homeButton">Home</button>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -33,18 +33,18 @@ document.addEventListener("DOMContentLoaded", checkAccessToken);
           </ul>
         </li>
         <li class="nav-item">
-          <button class="nav-button" id="multiplayerGame" >Play Multiplayer</button>
-        </li>
-        <li class="nav-item dropdown">
-          <button class="nav-button dropdown-toggle" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-            ${username}
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-            <li><button class="dropdown-item" id="profile" >View Profile</button></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><button class="dropdown-item" id="logout">Logout</button></li>
-          </ul>
-        </li>
+            <button class="nav-button" id="multiplayerGame">Play Multiplayer</button>
+          </li>
+          <li class="nav-item dropdown">
+            <button class="nav-button dropdown-toggle" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+              ${username}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+              <li><button class="dropdown-item" id="profile">View Profile</button></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item" id="logout">Logout</button></li>
+        </ul>
+      </li>
       `;
       reattachEventListeners();
     };
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", checkAccessToken);
     export const showLoggedOutState = () => {
       navButtons.innerHTML = `
         <li class="nav-item">
-          <button class="nav-button" id="defaultButton">Transcendence</button>
+          <button class="nav-button" id="defaultButton">Home</button>
         </li>
         <li class="nav-item">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
