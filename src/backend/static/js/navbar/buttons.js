@@ -48,10 +48,12 @@ export function defaultButton(){
 export function homeButton(){
   const homeButton = document.getElementById("homeButton");
   if(homeButton){
-    homeButton.addEventListener("click", function(event) {
+	const newHomeButton = homeButton.cloneNode(true);
+    homeButton.parentNode.replaceChild(newHomeButton, homeButton);
+    newHomeButton.addEventListener("click", function(event) {
       event.preventDefault();
       window.history.pushState({ path: '/home/' }, '', '/home/');
       updateContent("/home/");
   });
-}
+	}
 }
