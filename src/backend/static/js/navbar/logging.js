@@ -71,7 +71,9 @@ export function oauth() {
 export function logout() {
   const logoutButton = document.getElementById("logout");
   if (logoutButton) {
-    logoutButton.addEventListener("click", async function(event) {
+	const newLogoutButton = logoutButton.cloneNode(true);
+    logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+    newLogoutButton.addEventListener("click", async function(event) {
       event.preventDefault();
       const refreshToken = localStorage.getItem("refresh_token");
       const csrftoken = getCookie("csrftoken");
