@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
   path('register/', views.RegisterView.as_view()),
-	path('login/', views.LoginView.as_view()),
+	path('login/', views.LoginView),
 	path('logout/', views.LogoutView),
 	path('setup-2fa/', views.Setup_2FA),
 	path('Update_2FA_Status/', views.Update_2FA_Status),
