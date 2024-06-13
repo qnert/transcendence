@@ -1,3 +1,5 @@
+import { checkAccessToken } from "../profile/profile.js";
+
 
 export function getCookie(name) {
   let cookieValue = null;
@@ -13,3 +15,6 @@ export function getCookie(name) {
   }
   return cookieValue;
 }
+
+
+// setInterval(checkAccessToken, 3000);
