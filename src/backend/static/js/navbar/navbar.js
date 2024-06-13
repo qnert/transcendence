@@ -1,14 +1,11 @@
-
 import { checkAccessToken } from "../profile/profile.js";
 import { reattachEventListeners } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 
-
 document.addEventListener("DOMContentLoaded", checkAccessToken);
 
-
-    export const showLoggedInState = (username) => {
-      navButtons.innerHTML = `
+export const showLoggedInState = (username) => {
+    navButtons.innerHTML = `
       <button class="nav-button" id="homeButton">Home</button>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -46,12 +43,11 @@ document.addEventListener("DOMContentLoaded", checkAccessToken);
         </ul>
       </li>
       `;
-      reattachEventListeners();
-    };
+    reattachEventListeners();
+};
 
-
-    export const showLoggedOutState = () => {
-      navButtons.innerHTML = `
+export const showLoggedOutState = () => {
+    navButtons.innerHTML = `
         <li class="nav-item">
           <button class="nav-button" id="defaultButton">Home</button>
         </li>
@@ -67,5 +63,5 @@ document.addEventListener("DOMContentLoaded", checkAccessToken);
           <button class="nav-button" id="registerButton">Authenticate with 42</button>
         </li>
       `;
-      reattachEventListeners();
-    };
+    reattachEventListeners();
+};
