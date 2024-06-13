@@ -1,3 +1,10 @@
+const tournamentLobbySocket = new WebSocket(`ws://${window.location.host}/ws/socket-server/`)
+
+tournamentLobbySocket.onmessage = function(e){
+    let data = JSON.parse(e.data);
+    console.log('Data:', data);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("tournament-form");
     const tournamentNameField = document.getElementById(
