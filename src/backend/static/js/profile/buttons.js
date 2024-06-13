@@ -30,12 +30,14 @@ export async function saveChanges() {
   const picture_url = document.getElementById("profile-picture_url").value;
   const display_name = document.getElementById("profile-display_name").value;
   const csrftoken = getCookie("csrftoken")
+  const token = localStorage.getItem("access_token");
   try {
     const response = await fetch("/api/save_changes/", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": csrftoken,
+		'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ display_name: display_name, picture_url: picture_url })
     });

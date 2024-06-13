@@ -43,6 +43,7 @@ export function setNewPasswd(){
 
 async function getUsernameFromBackend(token) {
   try {
+	token = localStorage.getItem("access_token");
     const response = await fetch("/api/get_username", {
       method: "GET",
       headers: {
