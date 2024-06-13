@@ -13,16 +13,14 @@
 
         {% load static %}
         <!-- load static files served by Django -->
-        <link href="{% static 'css/tournament.css' %}" rel="stylesheet" />
+        <link href="{% static 'tournament_creation.css' %}" rel="stylesheet" />
 
         <!-- suppresses GET error of favicon -->
         <link rel="shortcut icon" href="#" />
     </head>
     <body>
-
         <!-- newContent div used to update content in a SPA -->
         <div id="newContent">
-
             <h1>Tournament Game Creation</h1>
             <form id="tournament-form">
                 <div class="form-group">
@@ -38,22 +36,18 @@
                         id="tournament-form-name-field-helper"
                         class="form-text text-muted"
                     >
-                        <strong>Note:</strong> Only use letters (A-Z, a-z),
-                        numbers (0-9), underscores (_), and hyphens (-). <br />
-                        <em
-                            >Spaces are not allowed and the name must contain at
-                            least one letter.</em
-                        >
+                        <strong>Note:</strong> [ A-Z ] [ a-z ] [ 0-9 ] [ -_ ]
+                        <em> must contain at least one letter, no spaces </em>
+                        <br />
                     </small>
                 </div>
                 <button type="submit" class="btn btn-primary">
                     Create Tournament Lobby
                 </button>
             </form>
-
         </div>
 
-        <script src="{% static 'js/tournament/tournament.js' %}"></script>
+        <script src="{% static 'tournament.js' %}"></script>
 
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
