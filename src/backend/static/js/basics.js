@@ -20,9 +20,14 @@ import { loadFriends } from './friends/fetch_friends.js';
     });
 
 	export function updateContent(path) {
-		//check if path is default path because of navigation in Browser. If default then oldContent is empty!
-		fetch(path)
-		.then(response => {
+		const token = localStorage.getItem("access_token");
+		fetch(path, {
+		  headers: {
+			"Content-Type": "application/json",
+			"Authorization": `Bearer ${token}`,
+		  }
+		})
+		  .then(response => {
 			if (!response.ok) {
 			  if (response.status === 401) {
 				updateContent("/login/");
@@ -33,18 +38,19 @@ import { loadFriends } from './friends/fetch_friends.js';
 			  }
 			}
 			return response.text();
-		})
-		.then(html => {
-		const parser = new DOMParser();
-		const doc = parser.parseFromString(html, "text/html");
-		const newContent = doc.querySelector("#newContent");
-		const oldContent = document.getElementById("oldContent");
-		oldContent.innerHTML = "";
-		oldContent.appendChild(newContent);
-		reattachEventListeners();
-		 })
-		 .catch(error => console.error('Error fetching content:', error));
-	};
+		  })
+		  .then(html => {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(html, "text/html");
+			const newContent = doc.querySelector("#newContent");
+			const oldContent = document.getElementById("oldContent");
+			oldContent.innerHTML = "";
+			oldContent.appendChild(newContent);
+			reattachEventListeners();
+		  })
+		  .catch(error => console.error('Error fetching content:', error));
+	  };
+	  
 
 	export function handleRoute(event, path) {
 		event.preventDefault();

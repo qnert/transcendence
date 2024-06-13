@@ -1,10 +1,12 @@
 
 
 export function fetchProfileData() {
+	const token = localStorage.getItem("access_token");
   fetch('/api/get_profile/', {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+	  'Authorization': `Bearer ${token}`,
     }
   })
   .then(response => {

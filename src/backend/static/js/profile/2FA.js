@@ -9,11 +9,12 @@ import { getCookie } from "../security/csrft.js";
 async function activatetwoFA(){
   try {
     const csrftoken = getCookie("csrftoken");
+	const token = localStorage.getItem("access_token");
     const response = await fetch("/api/Update_2FA_Status/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        'Cache-Control': 'no-cache',
+		"Authorization": `Bearer ${token}`,
         "X-CSRFToken": csrftoken,
       },
       body: JSON.stringify({ enable: true })
@@ -33,11 +34,12 @@ async function activatetwoFA(){
 async function deactivatetwoFA(){
   try {
     const csrftoken = getCookie("csrftoken");
+	const token = localStorage.getItem("access_token");
     const response = await fetch("/api/Update_2FA_Status/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        'Cache-Control': 'no-cache',
+		"Authorization": `Bearer ${token}`,
         "X-CSRFToken": csrftoken,
       },
       body: JSON.stringify({ enable: false })
@@ -59,13 +61,14 @@ export async function checkBox() {
   if (checkBox) {
     try {
     const csrftoken = getCookie("csrftoken");
+	const token = localStorage.getItem("access_token");
     const twoFAResponse = await fetch("/api/get_2fa_status/", {
       method: "GET",
       headers: {
       "Content-Type": "application/json",
       "X-CSRFToken": csrftoken,
-      'Cache-Control': 'no-cache'
-      },
+	  "Authorization": `Bearer ${token}`,
+	},
     });
     if (!twoFAResponse.ok) throw new Error("Getting 2FA status failed");
 
@@ -107,12 +110,13 @@ export function validateOTP() {
           event.preventDefault();
           const otp = document.getElementById("otpInput").value;
           const csrftoken = getCookie("csrftoken");
+		  const token = localStorage.getItem("access_token");
           fetch("/api/validateOTP/", {
               method: "POST",
               headers: {
                   "Content-Type": "application/json",
                   "X-CSRFToken": csrftoken,
-                  'Cache-Control': 'no-cache'
+				  "Authorization": `Bearer ${token}`,
               },
               body: JSON.stringify({otp: otp })
           })
@@ -139,11 +143,12 @@ export function generateQRCode() {
   if (qrcodeButton) {
     qrcodeButton.addEventListener("click", function(event) {
       event.preventDefault();
+	  const token = localStorage.getItem("access_token");
       fetch("/api/setup-2fa", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          'Cache-Control': 'no-cache'
+		  "Authorization": `Bearer ${token}`,
         }
       })
       .then(response => {

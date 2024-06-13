@@ -4,13 +4,14 @@ import { loadFriends, pendingFriendRequest } from "./friends/fetch_friends.js";
 export async function checkLoginStatus() {
 	const currentUrl = window.location.href;
 	const csrftoken = getCookie("csrftoken");
+	const token = localStorage.getItem("access_token");
   try {
     const response = await fetch("/api/check_login_status/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": csrftoken,
-        "Cache-Control": "no-cache"
+		"Authorization": `Bearer ${token}`,
       }
     });
 

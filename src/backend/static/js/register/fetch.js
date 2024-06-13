@@ -5,11 +5,13 @@ document.addEventListener("DOMContentLoaded", function() {
 	const currentUrl = window.location.href;
 	if (currentUrl.includes('/set_passwd')) {
 	  const csrftoken = getCookie("csrftoken");
+	  const token = localStorage.getItem("access_token");
 	  fetch("/api/fetch_user_data/", {
 		method: 'GET',
 		headers: {
 		  'Content-Type': 'application/json',
 		  'Authorization': csrftoken,
+		  'Authorization': `Bearer ${token}`,
 		}
 	  })
 	  .then(response => {

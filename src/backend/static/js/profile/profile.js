@@ -13,17 +13,18 @@ export function setNewPasswd(){
       const confirmPassword = document.getElementById('confirmPassword').value;
 
       if(password !== confirmPassword){
-        alert("Passwords do not match! Try again!")
+        alert("Passwords do not match! Try again!");
       }
       else{
-        const csrftoken = getCookie("csrftoken")
+        const csrftoken = getCookie("csrftoken");
+		const token = localStorage.getItem("access_token"); 
         try{
           const response = await fetch("/api/set_new_passwd/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "X-CSRFToken": csrftoken,
-              'Cache-Control': 'no-cache'
+              'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify({password:confirmPassword, old_passwd:oldPassword})
           });
@@ -47,6 +48,7 @@ async function getUsernameFromBackend(token) {
     const response = await fetch("/api/get_username", {
       method: "GET",
       headers: {
+		"Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
       }
     });

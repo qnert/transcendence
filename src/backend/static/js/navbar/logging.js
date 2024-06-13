@@ -8,7 +8,6 @@ import { loadFriends } from "../friends/fetch_friends.js";
 export function setPasswd(){
   const passwd = document.getElementById("setPasswd");
   if (passwd) {
-	console.log("Hello");
     passwd.addEventListener("click", async function(event){
       event.preventDefault();
       const password = document.getElementById('password').value;
@@ -19,13 +18,15 @@ export function setPasswd(){
       }
       else{
         const csrftoken = getCookie("csrftoken")
+		const token = localStorage.getItem("access_token");
         try{
           const response = await fetch("/api/set_passwd/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "X-CSRFToken": csrftoken,
-              'Cache-Control': 'no-cache'
+			  "Authorization": `Bearer ${token}`,
+
             },
             body: JSON.stringify({password:confirmPassword})
           });
@@ -45,28 +46,36 @@ export function setPasswd(){
 }
 
 export function oauth() {
-  const registerButton = document.getElementById("registerButton");
-  if (registerButton) {
-    registerButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      fetch("/api/oauth/")
-        .then(response => {
-          if (!response.ok) {
-            return response.text().then(text => {
-              throw new Error(`Network response was not ok`);
-            });
-          }
-          return response.json();
-        })
-        .then(data => {
-          window.location.href = data.url;
-        })
-        .catch(error => {
-          console.error('Error during fetch:', error);
-        });
-    });
+	const registerButton = document.getElementById("registerButton");
+	if (registerButton) {
+	  registerButton.addEventListener("click", (event) => {
+		event.preventDefault();
+		const token = localStorage.getItem("access_token");
+		fetch("/api/oauth/", {
+		  method: "GET",
+		  headers: {
+			"Content-Type": "application/json",
+			"Authorization": `Bearer ${token}`,
+		  }
+		})
+		  .then(response => {
+			if (!response.ok) {
+			  return response.text().then(text => {
+				throw new Error(`Network response was not ok`);
+			  });
+			}
+			return response.json();
+		  })
+		  .then(data => {
+			window.location.href = data.url;
+		  })
+		  .catch(error => {
+			console.error('Error during fetch:', error);
+		  });
+	  });
+	}
   }
-}
+  
 
 export function logout() {
   const logoutButton = document.getElementById("logout");
@@ -77,13 +86,15 @@ export function logout() {
       event.preventDefault();
       const refreshToken = localStorage.getItem("refresh_token");
       const csrftoken = getCookie("csrftoken");
+	  const token = localStorage.getItem("access_token");
       try {
         const response = await fetch("/api/logout/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": csrftoken,
-            'Cache-Control': 'no-cache'
+			"Authorization": `Bearer ${token}`,
+
           },
           body: JSON.stringify({ refresh_token: refreshToken })
         });
@@ -110,15 +121,16 @@ export function login() {
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
       const csrftoken = getCookie("csrftoken");
-
+		const token = localStorage.getItem("access_token");
       try {
+
         const response = await fetch("/api/login/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": csrftoken,
-            'Cache-Control': 'no-cache'
-          },
+			"Authorization": `Bearer ${token}`,
+		},
           body: JSON.stringify({ username, password }),
         });
         if (!response.ok)
@@ -129,8 +141,8 @@ export function login() {
           headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": csrftoken,
-            'Cache-Control': 'no-cache'
-          },
+			"Authorization": `Bearer ${token}`,
+		},
         });
         if (!twoFAResponse.ok)
           throw new Error("Getting 2FA status failed");
