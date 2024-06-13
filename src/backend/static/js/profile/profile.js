@@ -1,3 +1,4 @@
+import { updateContent } from "../basics.js";
 import { logout } from "../navbar/logging.js";
 import { showLoggedOutState, showLoggedInState } from "../navbar/navbar.js";
 import { getCookie } from "../security/csrft.js";
@@ -63,30 +64,39 @@ async function getUsernameFromBackend(token) {
 
 
 export async function checkAccessToken() {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    try {
-      const response = await fetch("/token/verify/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ token: token }),
-      });
-      if (response.ok) {
-        const username = await getUsernameFromBackend(token);
-        showLoggedInState(username);
-      } else {
-        showLoggedOutState();
+	const token = localStorage.getItem("access_token");
+	if (token) {
+	  try {
+		const response = await fetch("/token/verify/", {
+		  method: "POST",
+		  headers: {
+			"Content-Type": "application/json",
+			"Authorization": `Bearer ${token}`,
+		  },
+		  body: JSON.stringify({ token: token }),
+		});
+		if (response.ok) {
+		  const username = await getUsernameFromBackend(token);
+		  showLoggedInState(username);
+		} else {
+		  console.log("Token verification failed. Logging out.");
+		  showLoggedOutState();
+		  logout();
+		  window.history.pushState({ path: '/login/' }, '', '/login/');
+		  updateContent("/login/");
+		}
+	  } catch (error) {
+		console.error("Error verifying token:", error);
+		showLoggedOutState();
 		logout();
-      }
-    } catch (error) {
-      console.error("Error verifying token:", error);
-      showLoggedOutState();
-    }
-  } else {
-    showLoggedOutState();
-	logout();
+		window.history.pushState({ path: '/login/' }, '', '/login/');
+        updateContent("/login/");
+	  }
+	} else {
+	  console.log("No token found. Logging out.");
+	  showLoggedOutState();
+	  logout();
+	  window.history.pushState({ path: '/login/' }, '', '/login/');
+	  updateContent("/login/");
+	}
   }
-};
