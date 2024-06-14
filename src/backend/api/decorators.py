@@ -7,12 +7,12 @@ from django.contrib.auth.models import AnonymousUser
 def own_login_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
-            if request.headers.get('Accept') == 'application/json':
+            if request.headers.get('Content-Type') == 'application/json':
                 return JsonResponse({'error': 'You are not logged in'}, status=401)
             else:
                 return render(request, 'base.html')
         elif not request.user.is_logged_in:
-            if request.headers.get('Accept') == 'application/json':
+            if request.headers.get('Content-Type') == 'application/json':
                 return JsonResponse({'error': 'You are not logged in!'}, status=401)
             else:
                 return render(request, 'base.html')

@@ -19,6 +19,8 @@ import mimetypes
 
 load_dotenv()
 
+ASGI_APPLICATION = 'backend.asgi.application'
+
 mimetypes.add_type("application/javascript", ".js", True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -49,7 +51,7 @@ INSTALLED_APPS = [
 	'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
     'corsheaders',
-	'api',
+ 	'api',
 	'game',
 	'chat',
 	'django_otp',
@@ -68,7 +70,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+	'backend.middleware.jwt_middleware'
 ]
+
+
 
 REST_FRAMEWORK = {
      'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -186,7 +191,6 @@ AUTH_USER_MODEL = 'api.User'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWS_CREDENTIALS = True
 
-ASGI_APPLICATION = 'backend.asgi.application'
 
 CHANNEL_LAYERS = {
     "default": {

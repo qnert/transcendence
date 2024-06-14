@@ -1,6 +1,6 @@
 import { checkAccessToken } from "../profile/profile.js";
 import { getAccessToken } from "../security/jwt.js";
-import { updateContent } from "../basics.js";
+import { updateContent, updateContentToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
 
@@ -28,6 +28,8 @@ export function setPasswd() {
                         body: JSON.stringify({ password: confirmPassword }),
                     });
                     if (!response.ok) {
+						if(response. status === 401){
+						}
                         alert(response.error);
                     }
                     alert("Setting your passwd was successful!");
@@ -81,14 +83,14 @@ export function logout() {
             event.preventDefault();
             const refreshToken = localStorage.getItem("refresh_token");
             const csrftoken = getCookie("csrftoken");
-            const token = localStorage.getItem("access_token");
+            // const token = localStorage.getItem("access_token");
             try {
                 const response = await fetch("/api/logout/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": csrftoken,
-                        Authorization: `Bearer ${token}`,
+                        // Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({ refresh_token: refreshToken }),
                 });
@@ -113,14 +115,12 @@ export function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
             const csrftoken = getCookie("csrftoken");
-            const token = localStorage.getItem("access_token");
             try {
                 const response = await fetch("/api/login/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": csrftoken,
-                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({ username, password }),
                 });
@@ -131,21 +131,18 @@ export function login() {
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": csrftoken,
-                        Authorization: `Bearer ${token}`,
                     },
                 });
                 if (!twoFAResponse.ok) throw new Error("Getting 2FA status failed");
                 const twoFAResponseData = await twoFAResponse.json();
                 if (twoFAResponseData.status === true) {
-                    console.log("that");
                     window.history.pushState({ path: "/2FA/" }, "", "/2FA/");
-                    updateContent("/2FA/");
+                    updateContentToken("/2FA/");
                     await getAccessToken(username, password, csrftoken);
                 } else {
-                    console.log("this");
                     await getAccessToken(username, password, csrftoken);
                     window.history.pushState({ path: "/home/" }, "", "/home/");
-                    updateContent("/home/");
+                    updateContentToken("/home/");
                     loadFriends();
                     checkAccessToken();
                 }

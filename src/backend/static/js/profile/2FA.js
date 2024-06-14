@@ -1,5 +1,5 @@
 import { checkAccessToken } from "../profile/profile.js";
-import { updateContent } from "../basics.js";
+import { updateContentToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 
 async function activatetwoFA() {
@@ -114,7 +114,7 @@ export function validateOTP() {
                     if (data.valid) {
                         window.history.pushState({ path: "/home/" }, "", "/home/");
                         checkAccessToken();
-                        updateContent("/home/");
+                        updateContentToken("/home/");
                     } else {
                         alert("Validation failed: Invalid OTP");
                     }

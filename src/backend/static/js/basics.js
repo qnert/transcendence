@@ -10,6 +10,7 @@ import { createGameButton, startRemoteGame } from "./game/multiplayer.js";
 import { loadFriends } from "./friends/fetch_friends.js";
 
 window.addEventListener("popstate", function (event) {
+	//differentiate between routes 
     if (event.state && event.state.path) {
         updateContent(event.state.path);
     }
@@ -19,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
 });
 
-export function updateContent(path) {
+export function updateContentToken(path) {
     const token = localStorage.getItem("access_token");
     fetch(path, {
         headers: {
@@ -30,12 +31,37 @@ export function updateContent(path) {
         .then((response) => {
             if (!response.ok) {
                 if (response.status === 401) {
-                    updateContent("/login/");
-                } else if (response.status === 403) {
-                    updateContent("/login/");
+                    handle401Error();
                 } else {
                     throw new Error("Unexpected Error");
                 }
+            }
+            return response.text();
+        })
+        .then((html) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const newContent = doc.querySelector("#newContent");
+            const oldContent = document.getElementById("oldContent");
+            oldContent.innerHTML = "";
+            oldContent.appendChild(newContent);
+            reattachEventListeners();
+        })
+        .catch((error) => console.error("Error fetching content:", error));
+}
+
+
+
+export function updateContent(path) {
+    const token = localStorage.getItem("access_token");
+    fetch(path, {
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Unexpected Error");
             }
             return response.text();
         })
@@ -90,3 +116,48 @@ window.onload = function () {
 
 export let chatSocket;
 export let selectedFriendId = null;
+
+
+export function getUsername() {
+        fetch("/api/get_username", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (response.ok) {
+            const username = response.username;
+            return username;
+        } else {
+            throw new Error("Failed to get username from backend");
+        }
+    }
+
+
+export function getLoginStatus(){
+	fetch("/api/login_status", {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
+	if (response.ok) {
+		const username = response.username;
+		return username;
+	} else {
+		throw new Error("Failed to get username from backend");
+	}
+}
+
+
+export function handle401Error(){
+	if(logigetLoginStatus === true){
+		logout();
+		window.history.pushState({ path: path }, "", path);
+		updateContent("/login/");
+	}
+	else{
+		window.history.pushState({ path: path }, "", path);
+		updateContent("/login/");
+	}
+}

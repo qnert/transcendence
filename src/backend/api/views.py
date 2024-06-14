@@ -53,6 +53,13 @@ code = ''
 state = ''
 
 
+def login_status(request):
+	if request.method == "GET":
+		loginStatus = request.user.is_logged_in
+		return JsonResponse({'loginStatus': loginStatus}, status=200)
+	else:
+		return JsonResponse({'error': 'Method not allowed'}, status=405)
+
 def activate_two_FA(request):
     if request.method == "POST":
         try:
@@ -584,7 +591,7 @@ class RegisterView(APIView):
 
 
 def get_user_id(request):
-    if request.method == "POST":
+    if request.method == "GET":
         id = request.user.id
         return JsonResponse({'id': id})
     else:

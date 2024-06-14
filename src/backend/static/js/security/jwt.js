@@ -1,10 +1,10 @@
-import { updateContent } from "../basics.js";
+import { updateContentToken, updateContent } from "../basics.js";
 
 function checkJWTToken() {
     const access_token = localStorage.getItem("access_token");
     if (access_token === null && isLoggedIn()) {
         window.history.pushState({ path: "/home/" }, "", "/home/");
-        updateContent("/home/");
+        updateContentToken("/home/");
     }
 }
 
@@ -54,6 +54,6 @@ async function refreshToken() {
         console.error("Token refresh error:", error);
         alert("Token refresh failed. Please login again.");
         window.history.pushState({ path: "/home/" }, "", "/home/");
-        updateContent("/home/");
+        updateContentToken("/home/");
     }
 }

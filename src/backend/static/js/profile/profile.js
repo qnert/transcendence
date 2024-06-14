@@ -39,14 +39,12 @@ export function setNewPasswd() {
     }
 }
 
-async function getUsernameFromBackend(token) {
+async function getUsernameFromBackend() {
     try {
-        token = localStorage.getItem("access_token");
         const response = await fetch("/api/get_username", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
             },
         });
         if (response.ok) {
@@ -62,6 +60,7 @@ async function getUsernameFromBackend(token) {
     }
 }
 
+
 export async function checkAccessToken() {
     const token = localStorage.getItem("access_token");
     if (token) {
@@ -75,7 +74,7 @@ export async function checkAccessToken() {
                 body: JSON.stringify({ token: token }),
             });
             if (response.ok) {
-                const username = await getUsernameFromBackend(token);
+                const username = await getUsernameFromBackend();
                 showLoggedInState(username);
             } else {
                 console.log("Token verification failed. Logging out.");

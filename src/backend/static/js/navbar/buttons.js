@@ -1,5 +1,4 @@
-import { handleRoute } from "../basics.js";
-import { updateContent } from "../basics.js";
+import { handleRoute, updateContentToken, updateContent } from "../basics.js";
 
 export function soloGame() {
     const soloGameButton = document.getElementById("game");
@@ -53,7 +52,7 @@ export function homeButton() {
         newHomeButton.addEventListener("click", function (event) {
             event.preventDefault();
             window.history.pushState({ path: "/home/" }, "", "/home/");
-            updateContent("/home/");
+            updateContentToken("/home/");
         });
     }
 }
