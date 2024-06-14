@@ -11,7 +11,23 @@ def tournament_creation(request):
     return render(request, 'tournament_creation.html')
 
 
-@csrf_exempt  # @note
+def tournament_lobby(request, room_name):
+    if not Tournament.objects.filter(name=room_name).exists():
+        return JsonResponse({"error:" "Tournament name is not existing"}, status=400)
+    return render(request, 'tournament_lobby.html', {"room-name": room_name})
+
+
+def get_tournaments(request):
+    if request.method == 'GET':
+        data = list(Tournament.objects.all().values())
+        #  safe == false because we are returning a list, not a dict
+        return JsonResponse(data, safe=False)
+    else:
+        return JsonResponse({"message": "failure!"})
+
+
+@csrf_exempt
+# TODO check if error handling is actually required because parsing is mostly done in frontend already
 def create_tournament(request):
     try:
         request_json = json.loads(request.body)
