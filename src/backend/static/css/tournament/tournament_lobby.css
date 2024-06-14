@@ -1,20 +1,14 @@
-* {
-    box-sizing: border-box;
-}
-
-h1 {
-    text-align: center;
-}
-
-#content {
+#tournament_lobby {
     display: block;
     margin-left: 25%;
     margin-right: 25%;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-button {
-    margin-top: 10px;
+    h1 {
+        text-align: center;
+    }
+    button {
+        margin-top: 10px;
+    }
 }

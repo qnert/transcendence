@@ -1,23 +1,37 @@
-* { 
+* {
     box-sizing: border-box;
-}
-
-h1 {
-    text-align: center;
 }
 
 #tournament-form {
     display: block;
     margin-left: 25%;
     margin-right: 25%;
+    margin-bottom: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    h1 {
+        text-align: center;
+    }
     button {
         margin-top: 10px;
     }
+    #tournament-form-name-field-helper {
+        margin-top: 0.5rem;
+    }
 }
 
-#tournament-form-name-field-helper {
-    margin-top: 0.5rem;
+#join-field-group {
+    display: block;
+    margin-left: 25%;
+    margin-right: 25%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    h1 {
+        text-align: center;
+    }
+    button {
+        margin-top: 10px;
+    }
 }
