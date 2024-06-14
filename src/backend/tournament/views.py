@@ -31,7 +31,3 @@ def create_tournament(request):
     Tournament.objects.create(name=tournament_name, created_by=user_profile)
 
     return JsonResponse({"message": "success"}, status=201)
-
-
-def tournament_lobby(request):
-    return render(request, 'tournament_lobby.html')
