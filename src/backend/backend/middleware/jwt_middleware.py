@@ -19,7 +19,7 @@ class JWTMiddleware:
             response = verify_view(verify_request)
 
             if response.status_code != status.HTTP_200_OK:
-                return Response({'error': 'Invalid token'}, status=response.status_code)
+                return Response({'error': 'Invalid token'}, status=401)
 
         return None
 

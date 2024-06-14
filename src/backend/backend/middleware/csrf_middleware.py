@@ -9,7 +9,7 @@ class CSRFMiddleware(CsrfViewMiddleware):
             csrf_token = self._sanitize_token(request.COOKIES.get(settings.CSRF_COOKIE_NAME))
             csrf_token_from_header = request.headers.get('X-CSRFToken')
             if not constant_time_compare(csrf_token, csrf_token_from_header):
-                return JsonResponse({'error': 'CSRF token mismatch'}, status=403)
+                return JsonResponse({'error': 'CSRF token mismatch'}, status=401)
 
         return None
 
