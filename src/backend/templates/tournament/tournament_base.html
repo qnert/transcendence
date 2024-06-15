@@ -13,8 +13,7 @@
         />
         {% load static %}
         <link rel="stylesheet" href="{% static 'tournament_base.css' %}" />
-        <link rel="stylesheet" href="{% static 'tournament_creation.css' %}" />
-        {% block additional_css %}{% endblock %}
+        <link rel="stylesheet" href="{% static 'tournament_hub.css' %}" />
     </head>
 
     <body>
@@ -26,14 +25,12 @@
         </div>
 
         <!-- Main content -->
-        <div id="newContent" class="container mt-4">
-            {% block content %} {% endblock %}
-        </div>
+        <div id="newContent"></div>
 
         <script>
             async function viewTournament() {
                 const newContent = document.getElementById("newContent");
-                const fetchTournamentsURL = "/tournament/creation";
+                const fetchTournamentsURL = "/tournament/hub/";
                 const fetchTournamentsResponse = await fetch(
                     fetchTournamentsURL,
                     {
@@ -42,6 +39,7 @@
                 );
                 const html = await fetchTournamentsResponse.text();
                 newContent.innerHTML = html;
+                initTournamentEventLoop();
             }
         </script>
 
@@ -52,6 +50,6 @@
             crossorigin="anonymous"
         ></script>
 
-        {% block additional_js %}{% endblock %}
+        <script src="{% static 'tournament_hub.js' %}"></script>
     </body>
 </html>
