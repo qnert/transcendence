@@ -1,0 +1,13 @@
+* {
+    box-sizing: border-box;
+}
+
+#header {
+    h1 {
+        text-align: center;
+    }
+    button {
+        margin-left: 20px;
+        align-items: center;
+    }
+}
