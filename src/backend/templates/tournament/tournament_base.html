@@ -31,6 +31,10 @@
 
         <script>
             async function viewTournament() {
+                window.addEventListener('popstate', function(event) {
+                    newContent.innerHTML = "";
+                    history.pushState({}, "", "/tournament/");
+                });
                 const newContent = document.getElementById("newContent");
                 const fetchTournamentsURL = "/tournament/hub/";
                 const fetchTournamentsResponse = await fetch(
@@ -41,7 +45,8 @@
                 );
                 const html = await fetchTournamentsResponse.text();
                 newContent.innerHTML = html;
-                initTournamentEventLoop();
+                history.pushState({}, "", "/tournament/hub/");
+                initTournamentHubEventLoop();
             }
         </script>
 
