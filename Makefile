@@ -45,8 +45,8 @@ bash:
 showmigrations:
 	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py showmigrations
 
-.PHONY: createsuperuser
-createsuperuser:
+.PHONY: superuser
+superuser:
 	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py createsuperuser
 
 .PHONY: logs
