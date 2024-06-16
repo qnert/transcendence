@@ -80,6 +80,24 @@ async function joinTournament() {
 }
 
 async function enterTournamentLobby(tournamentName) {
+    async function postParticipant(tournamentName) {
+        const response = await fetch("/tournament/api/join/", {
+            method: "POST",
+            body: JSON.stringify({ tournament_name: tournamentName }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (response.ok) {
+            console.log("User added");
+        } else {
+            const responseError = await response.json();
+            alert(responseError.error);
+        }
+    }
+
+    postParticipant(tournamentName);
+
     const newContent = document.getElementById("newContent");
     const pathname = "/tournament/lobby/" + tournamentName + "/";
     const tournamentLobby = await fetch(pathname, {

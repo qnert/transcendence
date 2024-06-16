@@ -28,6 +28,15 @@ def tournament_api_get_list(request):
         return render(request, 'tournament_list.html', {'tag': 'option', 'tournaments': tournaments})
 
 
+def tournament_api_get_state(request):
+    if (request.method == "GET"):
+        tournament_name = request.GET.get("tournament_name")
+        tournament = Tournament.objects.get(name=tournament_name)
+        tournament_state = tournament.state
+        return JsonResponse({"state": tournament_state}, status=200)
+    return JsonResponse({"error": "Internal error"}, status=400)
+
+
 @csrf_exempt
 def tournament_api_create(request):
     if (request.method == "POST"):
@@ -41,10 +50,13 @@ def tournament_api_create(request):
             return JsonResponse({"message": "Success"}, status=201)
 
 
-def tournament_api_get_state(request):
-    if (request.method == "GET"):
-        tournament_name = request.GET.get("tournament_name")
+@csrf_exempt
+def tournament_api_join(request):
+    if (request.method == "POST"):
+        tournament_name = json.loads(request.body).get("tournament_name")
         tournament = Tournament.objects.get(name=tournament_name)
-        tournament_state = tournament.state
-        return JsonResponse({"state": tournament_state}, status=200)
-    return JsonResponse({"error": "Internal error"})
+
+        user_profile = UserProfile.objects.get(user=request.user)
+        tournament.add_participant(user_profile=user_profile)
+        return JsonResponse({"message": "Success"}, status=201)
+    return JsonResponse({"error": "Internal error"}, status=400)
