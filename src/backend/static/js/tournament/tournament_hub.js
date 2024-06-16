@@ -1,3 +1,5 @@
+import { initializeLobby } from './tournament_lobby.js'
+
 console.log("< tournament_hub.js > loaded successfully");
 
 const msgInvalidName = "Invalid tournament name!";
@@ -30,6 +32,8 @@ function initTournamentEventLoop() {
         updateTournamentList(dropdownMenu);
     });
 }
+
+window.initTournamentEventLoop = initTournamentEventLoop;
 
 async function updateTournamentList(dropdownMenu) {
     const tournamentList = await fetch("/tournament/api/get_list/", {
@@ -76,12 +80,20 @@ async function joinTournament() {
     }
 }
 
-function enterTournamentLobby(tournamentName) {
+async function enterTournamentLobby(tournamentName) {
     console.log("joined Tournament " + tournamentName);
+    const newContent = document.getElementById("newContent");
+    const pathname = '/tournament/lobby/' + tournamentName + '/';
+    const tournamentList = await fetch(pathname, {
+        method: "GET",
+    });
+    const html = await tournamentList.text();
+    newContent.innerHTML = html;
+    initializeLobby();
 }
 
 function getBack() {
-    newContent = document.getElementById("newContent");
+    const newContent = document.getElementById("newContent");
     newContent.innerHTML = "";
 }
 

@@ -27,6 +27,8 @@
         <!-- Main content -->
         <div id="newContent"></div>
 
+        <script type="module" src="{% static 'tournament_hub.js' %}"></script>
+
         <script>
             async function viewTournament() {
                 const newContent = document.getElementById("newContent");
@@ -50,6 +52,5 @@
             crossorigin="anonymous"
         ></script>
 
-        <script src="{% static 'tournament_hub.js' %}"></script>
     </body>
 </html>

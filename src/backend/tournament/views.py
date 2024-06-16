@@ -23,6 +23,10 @@ def tournament_api_get_list(request):
         return render(request, 'tournament_list.html', {'tag': 'option', 'tournaments': tournaments})
 
 
+def tournament_lobby(request, lobby_name):
+    return render(request, "tournament_lobby.html", {"room_name": lobby_name})
+
+
 @csrf_exempt
 def tournament_api_create(request):
     if (request.method == "POST"):
