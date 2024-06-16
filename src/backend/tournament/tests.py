@@ -61,6 +61,10 @@ class TournamentModelTest(TestCase):
         print(self.tournament)
         print()
 
+    def test_get_participants(self):
+        print("All participants:")
+        print(self.tournament.get_participants())
+
 
 class TournamentEndPointTest(TestCase):
 

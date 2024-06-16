@@ -28,6 +28,14 @@ def tournament_api_get_list(request):
         return render(request, 'tournament_list.html', {'tag': 'option', 'tournaments': tournaments})
 
 
+def tournament_api_get_participants(request):
+    if (request.method == "GET"):
+        tournament_name = request.GET.get("tournament_name")
+        tournament = Tournament.objects.get(name=tournament_name)
+        participants = tournament.get_participants()
+        return render(request, 'tournament_participants.html', {'participants': participants})
+
+
 def tournament_api_get_state(request):
     if (request.method == "GET"):
         tournament_name = request.GET.get("tournament_name")

@@ -4,6 +4,7 @@ export async function initTournamentLobbyEventLoop() {
     );
 
     updateState(lobbyName);
+    updateParticipants(lobbyName);
 
     const lobbySocket = new WebSocket(
         "ws://" +
@@ -47,7 +48,7 @@ export async function initTournamentLobbyEventLoop() {
     };
 }
 
-async function updateState(lobbyName){
+async function updateState(lobbyName) {
     const response = await fetch(
         `/tournament/api/get_state?tournament_name=${lobbyName}`,
         {
@@ -62,4 +63,20 @@ async function updateState(lobbyName){
     const lobbyState = jsonData.state;
     const lobbyStateHeader = document.getElementById("tournament-lobby-state");
     lobbyStateHeader.innerHTML = "Phase: " + lobbyState;
+}
+
+async function updateParticipants(lobbyName) {
+    const response = await fetch(
+        `/tournament/api/get_participants?tournament_name=${lobbyName}`,
+        {
+            method: "GET",
+            tournament_name: lobbyName,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
+    const html = await response.text();
+    const participantsList = document.getElementById("lobby-participants-list");
+    participantsList.innerHTML = html;
 }

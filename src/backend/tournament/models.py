@@ -56,3 +56,9 @@ class Tournament(models.Model):
             self.participants.remove(user_profile)
         else:
             raise ValidationError("Unnecessary removal of participant!")
+
+    def get_participants(self):
+        obj = []
+        for participant in self.participants.all():
+            obj.append(participant.display_name)
+        return obj
