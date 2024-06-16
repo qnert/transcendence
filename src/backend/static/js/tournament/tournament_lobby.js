@@ -4,8 +4,9 @@ export function initializeLobby() {
     );
     console.log(`Lobby ${roomName} initialized`);
 
+    console.log(window.location.host);
     const chatSocket = new WebSocket(
-        "ws://" + window.location.host + "/ws/lobby/" + roomName + "/"
+        "ws://" + window.location.host + "/ws/tournament/lobby/" + roomName + "/"
     );
 
     chatSocket.onmessage = function (e) {
