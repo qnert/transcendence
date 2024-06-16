@@ -1,4 +1,4 @@
-import { initializeLobby } from "./tournament_lobby.js";
+import { initTournamentLobbyEventLoop } from "./tournament_lobby.js";
 
 console.log("< tournament_hub.js > loaded successfully");
 
@@ -91,7 +91,7 @@ async function enterTournamentLobby(tournamentName) {
     const html = await tournamentList.text();
     newContent.innerHTML = html;
     history.pushState({ tournamentName: tournamentName }, "", pathname);
-    initializeLobby();
+    initTournamentLobbyEventLoop();
 }
 
 function getBack() {

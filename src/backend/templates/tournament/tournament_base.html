@@ -19,6 +19,7 @@
     <body>
         <div id="header">
             <h1>Tournament Base</h1>
+            <button onclick="viewHome()" class="btn btn-primary">Home</button>
             <button onclick="viewTournament()" class="btn btn-primary">
                 Tournament Page
             </button>
@@ -31,10 +32,6 @@
 
         <script>
             async function viewTournament() {
-                window.addEventListener('popstate', function(event) {
-                    newContent.innerHTML = "";
-                    history.pushState({}, "", "/tournament/");
-                });
                 const newContent = document.getElementById("newContent");
                 const fetchTournamentsURL = "/tournament/hub/";
                 const fetchTournamentsResponse = await fetch(
@@ -48,6 +45,11 @@
                 history.pushState({}, "", "/tournament/hub/");
                 initTournamentHubEventLoop();
             }
+
+            function viewHome() {
+                newContent.innerHTML = "";
+                history.pushState({}, "", "/tournament/");
+            }
         </script>
 
         <!-- Bootstrap -->
@@ -56,6 +58,5 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"
         ></script>
-
     </body>
 </html>
