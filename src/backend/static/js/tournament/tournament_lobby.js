@@ -1,8 +1,10 @@
 export async function initTournamentLobbyEventLoop() {
+
     const lobbyName = JSON.parse(
         document.getElementById("lobby_name").textContent
     );
 
+    // TODO need to add routines to update both
     updateState(lobbyName);
     updateParticipants(lobbyName);
 
@@ -16,7 +18,15 @@ export async function initTournamentLobbyEventLoop() {
 
     lobbySocket.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        document.querySelector("#lobby-chat-log").value += data.message + "\n";
+        let message = "";
+        console.log(data.username);
+        console.log(data);
+        if (data.username) {
+            message = `${data.username}: ${data.message}`;
+        } else {
+            message = `${data.message}`;
+        }
+        document.querySelector("#lobby-chat-log").value += message + "\n";
     };
 
     lobbySocket.onclose = function (event) {
@@ -79,4 +89,11 @@ async function updateParticipants(lobbyName) {
     const html = await response.text();
     const participantsList = document.getElementById("lobby-participants-list");
     participantsList.innerHTML = html;
+}
+
+function closeSocket(socket) {
+    if (socket !== null) {
+        socket.close();
+        socket = null;
+    }
 }
