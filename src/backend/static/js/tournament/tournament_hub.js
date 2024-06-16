@@ -82,7 +82,6 @@ async function joinTournament() {
 }
 
 async function enterTournamentLobby(tournamentName) {
-    console.log("joined Tournament " + tournamentName);
     const newContent = document.getElementById("newContent");
     const pathname = "/tournament/lobby/" + tournamentName + "/";
     const tournamentList = await fetch(pathname, {
