@@ -14,13 +14,22 @@ from api.models import UserProfile
 # @note not sure if i want an exception
 # @note remove created_by?
 
+MAX_PARTICIPANTS = 4
+
 
 class Tournament(models.Model):
+
     created_at = models.DateField(default=date.today)
     name = models.CharField(max_length=50, unique=True)
     participants = models.ManyToManyField(UserProfile, related_name='active_tournament')
     created_by = models.ForeignKey(UserProfile, related_name='created_tournaments',
                                    null=True, on_delete=models.CASCADE)
+    STATE_CHOICES = [
+        ('setup', 'Setup'),
+        ('playing', 'Playing'),
+        ('finished', 'Finished'),
+    ]
+    state = models.CharField(max_length=10, choices=STATE_CHOICES, default='setup')
 
     class Meta:
         ordering = ['name']
@@ -37,7 +46,7 @@ class Tournament(models.Model):
     def add_participant(self, user_profile: UserProfile):
         if user_profile in self.participants.all():
             return
-        if self.participants.count() < 8:
+        if self.participants.count() < MAX_PARTICIPANTS:
             self.participants.add(user_profile)
         else:
             raise ValidationError("Maximum amount of participants reached!")
