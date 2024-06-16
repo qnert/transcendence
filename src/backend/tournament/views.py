@@ -34,7 +34,6 @@ def tournament_api_get_state(request):
         tournament = Tournament.objects.get(name=tournament_name)
         tournament_state = tournament.state
         return JsonResponse({"state": tournament_state}, status=200)
-    return JsonResponse({"error": "Internal error"}, status=400)
 
 
 @csrf_exempt
@@ -59,4 +58,3 @@ def tournament_api_join(request):
         user_profile = UserProfile.objects.get(user=request.user)
         tournament.add_participant(user_profile=user_profile)
         return JsonResponse({"message": "Success"}, status=201)
-    return JsonResponse({"error": "Internal error"}, status=400)
