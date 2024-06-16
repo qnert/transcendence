@@ -1,12 +1,12 @@
 export function initializeLobby() {
-    const roomName = JSON.parse(
-        document.getElementById("room-name").textContent
+    const lobbyName = JSON.parse(
+        document.getElementById("lobby-name").textContent
     );
-    console.log(`Lobby ${roomName} initialized`);
+    console.log(`Lobby ${lobbyName} initialized`);
 
     console.log(window.location.host);
     const chatSocket = new WebSocket(
-        "ws://" + window.location.host + "/ws/tournament/lobby/" + roomName + "/"
+        "ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/"
     );
 
     chatSocket.onmessage = function (e) {

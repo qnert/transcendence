@@ -8,7 +8,8 @@ import json
 
 
 def tournament(request):
-    return render(request, 'tournament_base.html')
+    if (request.method == "GET"):
+        return render(request, 'tournament_base.html')
 
 
 def tournament_hub(request):
@@ -24,7 +25,8 @@ def tournament_api_get_list(request):
 
 
 def tournament_lobby(request, lobby_name):
-    return render(request, "tournament_lobby.html", {"room_name": lobby_name})
+    if (request.method == "GET"):
+        return render(request, "tournament_lobby.html", {"lobby_name": lobby_name})
 
 
 @csrf_exempt
