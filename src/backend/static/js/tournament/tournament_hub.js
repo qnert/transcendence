@@ -33,8 +33,6 @@ function initTournamentHubEventLoop() {
     });
 }
 
-window.initTournamentHubEventLoop = initTournamentHubEventLoop;
-
 async function updateTournamentList(dropdownMenu) {
     const tournamentList = await fetch("/tournament/api/get_list/", {
         method: "GET",
@@ -98,6 +96,8 @@ function getBack() {
     newContent.innerHTML = "";
     history.pushState({}, "", "/tournament/");
 }
+
+window.initTournamentHubEventLoop = initTournamentHubEventLoop;
 
 // // TODO make this a global object / array
 // // sth usable like ...
