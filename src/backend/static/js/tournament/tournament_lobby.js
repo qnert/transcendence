@@ -3,9 +3,7 @@ export async function initTournamentLobbyEventLoop() {
         document.getElementById("lobby_name").textContent
     );
 
-    const lobbyState = await getState(lobbyName);
-    const lobbyStateHeader = document.getElementById("tournament-lobby-state");
-    lobbyStateHeader.innerHTML = "Phase: " + lobbyState;
+    updateState(lobbyName);
 
     const lobbySocket = new WebSocket(
         "ws://" +
@@ -49,7 +47,7 @@ export async function initTournamentLobbyEventLoop() {
     };
 }
 
-async function getState(lobbyName) {
+async function updateState(lobbyName){
     const response = await fetch(
         `/tournament/api/get_state?tournament_name=${lobbyName}`,
         {
@@ -60,7 +58,8 @@ async function getState(lobbyName) {
             },
         }
     );
-
     const jsonData = await response.json();
-    return jsonData.state;
+    const lobbyState = jsonData.state;
+    const lobbyStateHeader = document.getElementById("tournament-lobby-state");
+    lobbyStateHeader.innerHTML = "Phase: " + lobbyState;
 }
