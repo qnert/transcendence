@@ -1,6 +1,23 @@
-<div id="tournament_lobby">
-    <textarea id="lobby-chat-log" cols="100" rows="20"></textarea><br>
-    <input id="lobby-chat-message-input" type="text" size="100"><br>
-    <input id="lobby-chat-message-submit" type="button" value="Send">
+<div id="tournament-lobby-chat">
+    <textarea
+        class="form-control"
+        id="lobby-chat-log"
+        cols="100"
+        rows="20"
+        readonly
+    ></textarea
+    ><br />
+    <input
+        class="form-control"
+        id="lobby-chat-message-input"
+        type="text"
+        size="100"
+    /><br />
+    <input
+        class="btn btn-primary"
+        id="lobby-chat-message-submit"
+        type="button"
+        value="Send"
+    />
     {{ lobby_name|json_script:"lobby_name" }}
 </div>

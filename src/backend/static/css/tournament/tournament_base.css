@@ -29,4 +29,13 @@
             margin: 5px;
         }
     }
+    #tournament-lobby-chat {
+        #lobby-chat-log {
+            height: 40%;
+            width: 80%;
+        }
+        #lobby-chat-message-input {
+            width: 80%;
+        }
+    }
 }
