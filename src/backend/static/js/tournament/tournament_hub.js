@@ -3,6 +3,7 @@ import { initTournamentLobbyEventLoop } from "./tournament_lobby.js";
 console.log("< tournament_hub.js > loaded successfully");
 
 const msgInvalidName = "Invalid tournament name!";
+const msgInvalidOption = "Please select an existing Tournament!";
 
 function initTournamentHubEventLoop() {
     document.addEventListener("click", function (event) {
@@ -50,7 +51,7 @@ async function createTournament() {
     if (regex.test(tournamentName)) {
         postTournament(tournamentName);
     } else {
-        alert(`${msgInvalidName}`);
+        alert(msgInvalidName);
     }
 
     async function postTournament(tournamentName) {
@@ -73,9 +74,12 @@ async function createTournament() {
 async function joinTournament() {
     const dropdownMenu = document.getElementById("join-field-list");
     const selectedOption = dropdownMenu.options[dropdownMenu.selectedIndex];
-    if (selectedOption) {
+    if (selectedOption && selectedOption.innerHTML) {
         const tournamentName = selectedOption.innerHTML;
         enterTournamentLobby(tournamentName);
+    }
+    else{
+        alert(msgInvalidOption);
     }
 }
 
