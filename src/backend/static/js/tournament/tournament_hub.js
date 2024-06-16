@@ -82,10 +82,10 @@ async function joinTournament() {
 async function enterTournamentLobby(tournamentName) {
     const newContent = document.getElementById("newContent");
     const pathname = "/tournament/lobby/" + tournamentName + "/";
-    const tournamentList = await fetch(pathname, {
+    const tournamentLobby = await fetch(pathname, {
         method: "GET",
     });
-    const html = await tournamentList.text();
+    const html = await tournamentLobby.text();
     newContent.innerHTML = html;
     history.pushState({ tournamentName: tournamentName }, "", pathname);
     initTournamentLobbyEventLoop();

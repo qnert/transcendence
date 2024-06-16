@@ -39,3 +39,12 @@ def tournament_api_create(request):
 
             Tournament.objects.create(name=tournament_name, created_by=user_profile)
             return JsonResponse({"message": "Success"}, status=201)
+
+
+def tournament_api_get_state(request):
+    if (request.method == "GET"):
+        tournament_name = request.GET.get("tournament_name")
+        tournament = Tournament.objects.get(name=tournament_name)
+        tournament_state = tournament.state
+        return JsonResponse({"state": tournament_state}, status=200)
+    return JsonResponse({"error": "Internal error"})

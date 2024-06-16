@@ -1,7 +1,11 @@
-export function initTournamentLobbyEventLoop() {
+export async function initTournamentLobbyEventLoop() {
     const lobbyName = JSON.parse(
         document.getElementById("lobby_name").textContent
     );
+
+    const lobbyState = await getState(lobbyName);
+    const lobbyStateHeader = document.getElementById("tournament-lobby-state");
+    lobbyStateHeader.innerHTML = "Phase: " + lobbyState;
 
     const lobbySocket = new WebSocket(
         "ws://" +
@@ -43,4 +47,20 @@ export function initTournamentLobbyEventLoop() {
         );
         lobbyChatInput.value = "";
     };
+}
+
+async function getState(lobbyName) {
+    const response = await fetch(
+        `/tournament/api/get_state?tournament_name=${lobbyName}`,
+        {
+            method: "GET",
+            tournament_name: lobbyName,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
+
+    const jsonData = await response.json();
+    return jsonData.state;
 }
