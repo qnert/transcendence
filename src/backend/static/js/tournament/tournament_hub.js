@@ -48,7 +48,7 @@ async function createTournament() {
         "tournament-form-name-field"
     ).value;
 
-    if (/^(?=.*[a-zA-Z])[a-zA-Z0-9_-]+$/.test(tournamentName)) {
+    if (/^(?=.*[a-zA-Z])[a-zA-Z0-9.-]+$/.test(tournamentName)) {
         postTournament(tournamentName);
     } else {
         alert(`${msgInvalidName}`);
