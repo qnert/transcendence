@@ -17,14 +17,14 @@ def tournament_hub(request):
         return render(request, 'tournament_hub.html', {'tournaments': tournaments})
 
 
-def tournament_get_list(request):
+def tournament_api_get_list(request):
     if (request.method == "GET"):
         tournaments = list(Tournament.objects.all().values())
         return render(request, 'tournament_list.html', {'tag': 'option', 'tournaments': tournaments})
 
 
 @csrf_exempt
-def tournament_create(request):
+def tournament_api_create(request):
     if (request.method == "POST"):
         tournament_name = json.loads(request.body).get("tournament_name")
         user_profile = UserProfile.objects.get(user=request.user)
