@@ -22,6 +22,9 @@ class Tournament(models.Model):
     created_by = models.ForeignKey(UserProfile, related_name='created_tournaments',
                                    null=True, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         names = [participant.user.username for participant in self.participants.all()]
         return (f'Tournament name: {self.name}\nHost: {self.created_by.display_name}\nUsers: {names}')
