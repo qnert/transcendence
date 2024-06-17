@@ -44,13 +44,32 @@ from django.shortcuts import render, get_object_or_404
 from api.models import UserProfile, Friendship, FriendRequest
 from chat.models import Message, BlockedUser
 from django.conf import settings
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.exceptions import AuthenticationFailed
 
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
 UID = "u-s4t2ud-eb4d25721512a1e2da0dcdd30cf8690c975996bfe99fea803547dfdde2556456"
 SECRET = "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"
 code = ''
 state = ''
+
+
+def check_access_token(request):
+    if 'Authorization' not in request.headers:
+        return False
+
+    auth_header = request.headers['Authorization']
+    if not auth_header.startswith('Bearer '):
+        return False
+
+    token = auth_header.split(' ')[1]
+    jwt_authentication = JWTAuthentication()
+
+    try:
+        jwt_authentication.get_validated_token(token)
+        return True
+    except:
+        return False
 
 
 def login_status(request):
@@ -60,13 +79,17 @@ def login_status(request):
 	else:
 		return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+
 def activate_two_FA(request):
     if request.method == "POST":
         try:
-            user = request.user
-            user.is_2fa_enabled = True
-            user.save()
-            return JsonResponse({'message': 'success'})
+            if check_access_token(request):
+                user = request.user
+                user.is_2fa_enabled = True
+                user.save()
+                return JsonResponse({'message': 'success'})
+            else:
+                return JsonResponse({'message': 'success'})
         except User.DoesNotExist:
             return JsonResponse({'message': 'failed'})
     else:
