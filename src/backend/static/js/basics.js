@@ -32,7 +32,9 @@ export function updateContentToken(path) {
     })
         .then((response) => {
             if (!response.ok) {
+				console.log("error1");
                 if (response.status === 401) {
+					console.log("error2");
                     handle401Error();
                 } else {
                     throw new Error("Unexpected Error");
@@ -146,8 +148,8 @@ export function getLoginStatus(){
 		},
 	});
 	if (response.ok) {
-		const username = response.username;
-		return username;
+		const loginStatus = response.loginStatus;
+		return loginStatus;
 	} else {
 		throw new Error("Failed to get username from backend");
 	}
@@ -155,13 +157,13 @@ export function getLoginStatus(){
 
 
 export function handle401Error(){
-	if(logigetLoginStatus === true){
+	if(getLoginStatus === true){
 		logout();
-		window.history.pushState({ path: path }, "", path);
+		window.history.pushState({ path: "/login/" }, "", "/login/");
 		updateContent("/login/");
 	}
 	else{
-		window.history.pushState({ path: path }, "", path);
+		window.history.pushState({ path: "/login/" }, "", "/login/");
 		updateContent("/login/");
 	}
 }

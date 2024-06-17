@@ -25,7 +25,8 @@ export function loginButton() {
     if (loginButton) {
         loginButton.addEventListener("click", function (event) {
             event.preventDefault();
-            handleRoute(event, "/login/");
+            window.history.pushState({ path: "/login/" }, "", "/login/");
+			updateContent("/login/");
         });
     }
 }

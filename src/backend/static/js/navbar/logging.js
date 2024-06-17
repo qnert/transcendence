@@ -136,13 +136,13 @@ export function login() {
                 if (!twoFAResponse.ok) throw new Error("Getting 2FA status failed");
                 const twoFAResponseData = await twoFAResponse.json();
                 if (twoFAResponseData.status === true) {
+                    await getAccessToken(username, password, csrftoken);
                     window.history.pushState({ path: "/2FA/" }, "", "/2FA/");
                     updateContentToken("/2FA/");
-                    await getAccessToken(username, password, csrftoken);
                 } else {
                     await getAccessToken(username, password, csrftoken);
                     window.history.pushState({ path: "/home/" }, "", "/home/");
-                    updateContentToken("/home/");
+                    updateContent("/home/");
                     loadFriends();
                     checkAccessToken();
                 }

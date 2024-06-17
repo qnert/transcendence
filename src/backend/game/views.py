@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required
 from channels.layers import get_channel_layer
 from asgiref.sync import sync_to_async
 from django.http import JsonResponse
-
 channel_layer = get_channel_layer()
 
 # Create your views here.
