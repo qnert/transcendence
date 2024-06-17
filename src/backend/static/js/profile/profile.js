@@ -3,6 +3,8 @@ import { logout } from "../navbar/logging.js";
 import { showLoggedOutState, showLoggedInState } from "../navbar/navbar.js";
 import { getCookie } from "../security/csrft.js";
 
+
+
 export function setNewPasswd() {
     const passwd = document.getElementById("newPasswdButton");
     if (passwd) {
@@ -11,10 +13,11 @@ export function setNewPasswd() {
             const oldPassword = document.getElementById("oldPassword").value;
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
-
             if (password !== confirmPassword) {
-                alert("Passwords do not match! Try again!");
-            } else {
+				alert("Passwords do not match! Try again!");
+				} else {
+				const newPassword = passwd.cloneNode(true);
+				passwd.parentNode.replaceChild(newPassword, passwd);
                 const csrftoken = getCookie("csrftoken");
                 const token = localStorage.getItem("access_token");
                 try {

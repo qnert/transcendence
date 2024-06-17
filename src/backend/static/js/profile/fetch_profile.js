@@ -14,7 +14,6 @@ export function fetchProfileData() {
         .then((rawData) => {
             try {
                 const data = JSON.parse(rawData);
-                console.log("Raw Response Data:", data); // Log raw data
                 if (data) {
                     document.getElementById("profile-name").textContent = data.username;
                     document.getElementById("profile-username").value = data.username;

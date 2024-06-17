@@ -1,6 +1,7 @@
 import { searchFriends } from "./friends/action_friends.js";
 import { generateQRCode, validateOTP, handleCheckbox, checkBox } from "./profile/2FA.js";
-import { bindProfileButton, bindSaveChangesButton, saveChanges } from "./profile/buttons.js";
+import { bindProfileButton} from "./profile/buttons.js";
+import { bindSaveChangesButton } from "./profile/buttons.js";
 import { setNewPasswd } from "./profile/profile.js";
 import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton } from "./navbar/buttons.js";
 import { login, logout, oauth, setPasswd } from "./navbar/logging.js";
@@ -23,6 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
 export function updateContentToken(path) {
     const token = localStorage.getItem("access_token");
     fetch(path, {
+		method: "GET",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -55,6 +57,7 @@ export function updateContentToken(path) {
 export function updateContent(path) {
     const token = localStorage.getItem("access_token");
     fetch(path, {
+		method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
@@ -81,7 +84,7 @@ export function handleRoute(event, path) {
     event.preventDefault();
     if (window.location.pathname !== path) {
         window.history.pushState({ path: path }, "", path);
-        updateContent(path);
+        updateContentToken(path);
     }
 }
 
@@ -95,6 +98,7 @@ export function reattachEventListeners() {
     homeButton();
     defaultButton();
     bindProfileButton();
+	bindSaveChangesButton();
     soloGame();
     multiplayerGame();
     handleCheckbox();
@@ -161,3 +165,4 @@ export function handle401Error(){
 		updateContent("/login/");
 	}
 }
+

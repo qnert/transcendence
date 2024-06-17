@@ -49,8 +49,8 @@ async function deactivatetwoFA() {
 }
 
 export async function checkBox() {
-    const checkBox = document.getElementById("checkBox");
-    if (checkBox) {
+    const checkBox2FA = document.getElementById("checkBox2FA");
+    if (checkBox2FA) {
         try {
             const csrftoken = getCookie("csrftoken");
             const token = localStorage.getItem("access_token");
@@ -62,13 +62,14 @@ export async function checkBox() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            if (!twoFAResponse.ok) throw new Error("Getting 2FA status failed");
-
+            if (!twoFAResponse.ok) {
+                throw new Error("Getting 2FA status failed");
+            }
             const twoFAResponseData = await twoFAResponse.json();
             if (twoFAResponseData.enable === true) {
-                checkBox.checked = true;
-            } else {
-                checkBox.checked = false;
+                checkBox2FA.checked = true;
+				} else {
+                checkBox2FA.checked = false;
             }
         } catch (error) {
             console.error(error);
@@ -76,16 +77,13 @@ export async function checkBox() {
     }
 }
 
-window.onload = async function () {
-    checkBox();
-};
-
 export function handleCheckbox() {
-    const checkBox = document.getElementById("checkBox");
-    if (checkBox) {
-        checkBox.addEventListener("change", function () {
-            if (checkBox.checked) activatetwoFA();
-            else {
+    const checkBox2FA = document.getElementById("checkBox2FA");
+    if (checkBox2FA) {
+        checkBox2FA.addEventListener("change", function () {
+            if (checkBox2FA.checked) {
+                activatetwoFA();
+            } else {
                 deactivatetwoFA();
             }
         });

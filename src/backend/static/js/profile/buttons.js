@@ -1,26 +1,42 @@
 import { handleRoute } from "../basics.js";
 import { fetchProfileData } from "./fetch_profile.js";
 import { getCookie } from "../security/csrft.js";
+import { checkBox } from "./2FA.js";
+
 
 window.onload = function () {
     const currentUrl = window.location.href;
     console.log(currentUrl);
     if (currentUrl.includes("profile")) {
         fetchProfileData();
+    	bindSaveChangesButton();
+    	bindProfileButton();
     }
-    bindSaveChangesButton();
-    bindProfileButton();
 };
 
 document.addEventListener("DOMContentLoaded", function () {
     const currentUrl = window.location.href;
-    console.log(currentUrl);
-    if (currentUrl.includes("profile")) {
+    if (currentUrl.includes("profile/")) {
         fetchProfileData();
+    	bindSaveChangesButton();
+    	bindProfileButton();
     }
-    bindSaveChangesButton();
-    bindProfileButton();
 });
+
+document.addEventListener("DOMContentLoaded", async function () {
+    const currentUrl = window.location.href;
+    if (currentUrl.includes("profile/")) {
+		checkBox();
+    }
+});
+
+window.onload = async function () {
+    const currentUrl = window.location.href;
+    if (currentUrl.includes("profile")) {
+		checkBox();
+    }
+};
+
 
 export async function saveChanges() {
     const picture_url = document.getElementById("profile-picture_url").value;
@@ -29,7 +45,7 @@ export async function saveChanges() {
     const token = localStorage.getItem("access_token");
     try {
         const response = await fetch("/api/save_changes/", {
-            method: "PUT",
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": csrftoken,
@@ -58,6 +74,7 @@ export function bindSaveChangesButton() {
         });
     }
 }
+
 
 export function bindProfileButton() {
     const profileButton = document.getElementById("profile");

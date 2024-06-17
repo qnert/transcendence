@@ -1,29 +1,27 @@
 from rest_framework_simplejwt.views import TokenVerifyView
 from rest_framework.response import Response
 from rest_framework import status
+from django.utils.deprecation import MiddlewareMixin
+from rest_framework.request import Request
+from django.http import HttpRequest
+from django.http import JsonResponse
 
-
-class JWTMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
-        return response
-
+class JWTMiddleware(MiddlewareMixin):
     def process_view(self, request, view_func, view_args, view_kwargs):
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'].split(' ')[1]
             verify_view = TokenVerifyView.as_view()
-            verify_request = request._request
+
+            # Create a new DRF Request object for verification
+            verify_request = Request(request._request)
+            verify_request.data = {'token': token}
+
             response = verify_view(verify_request)
 
             if response.status_code != status.HTTP_200_OK:
-                return Response({'error': 'Invalid token'}, status=401)
+                return JsonResponse({'error': 'Invalid token'}, status=401)
 
         return None
-
-
 
 # import jwt
 # from django.conf import settings
