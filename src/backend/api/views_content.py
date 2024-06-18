@@ -22,7 +22,7 @@ def profileView(request):
     if check_access_token(request):
         return render(request, 'profile.html')
     else:
-        return JsonResponse({'message': 'Token not valid'}, status=401)
+        return JsonResponse({'message': 'Not authorized to access'}, status=401)
 
 def set_passwd(request):
 	return render(request, 'set_passwd.html')
