@@ -355,16 +355,19 @@ def set_new_passwd(request):
 
 def get_profile(request):
     if request.method == "GET":
-        user = request.user
-        profile_picture = user.profile.profile_picture_url
-        profile_data = {
-            'username': user.username,
-            'email': user.email,
-            'profile_picture': profile_picture if profile_picture else None,
-            'picture_url': user.profile.profile_picture_url,
-            'display_name': user.profile.display_name
-        }
-        return JsonResponse(profile_data)
+        if check_access_token(request):
+            user = request.user
+            profile_picture = user.profile.profile_picture_url
+            profile_data = {
+                'username': user.username,
+                'email': user.email,
+                'profile_picture': profile_picture if profile_picture else None,
+                'picture_url': user.profile.profile_picture_url,
+                'display_name': user.profile.display_name
+            }
+            return JsonResponse(profile_data)
+        else:
+            return JsonResponse({'error': 'Not authorized to access'}, status=401)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
