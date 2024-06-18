@@ -74,6 +74,9 @@ export function oauth() {
     }
 }
 
+
+
+
 export function logout() {
     const logoutButton = document.getElementById("logout");
     if (logoutButton) {
@@ -83,20 +86,26 @@ export function logout() {
             event.preventDefault();
             const refreshToken = localStorage.getItem("refresh_token");
             const csrftoken = getCookie("csrftoken");
-            // const token = localStorage.getItem("access_token");
+            const accessToken = localStorage.getItem("access_token");
             try {
                 const response = await fetch("/api/logout/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": csrftoken,
-                        // Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({ refresh_token: refreshToken }),
                 });
-                if (!response.ok) throw new Error("Logout fail");
-                localStorage.removeItem("access_token");
-                localStorage.removeItem("refresh_token");
+                if (!response.ok){
+					throw new Error("Logout fail");
+				} 
+				const access_token = localStorage.getItem("access_token");
+				if(access_token){
+					localStorage.removeItem("access_token");
+				}
+				const refresh_token = localStorage.getItem("refresh_token");
+				if(refresh_token){
+					localStorage.removeItem("refresh_token");
+				}
                 checkAccessToken();
                 window.history.pushState({ path: "/login/" }, "", "/login/");
                 updateContent("/login/");
@@ -106,6 +115,30 @@ export function logout() {
         });
     }
 }
+
+
+async function storeJWT() {
+    const refresh_token = localStorage.getItem("refresh_token");
+	const csrftoken = getCookie("csrftoken");
+
+    try {
+        const response = await fetch("/api/store_jwt/", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+				"X-CSRFToken": csrftoken,
+            },
+            body: JSON.stringify({ refresh_token: refresh_token })
+        });
+
+        if (!response.ok) {
+            throw new Error("Storing JWT failed");
+        }
+    } catch (error) {
+        console.error("Storing JWT error:", error);
+    }
+}
+
 
 export function login() {
     const Login = document.getElementById("loginFormContent");
@@ -135,12 +168,17 @@ export function login() {
                 });
                 if (!twoFAResponse.ok) throw new Error("Getting 2FA status failed");
                 const twoFAResponseData = await twoFAResponse.json();
-                if (twoFAResponseData.status === true) {
+                if (twoFAResponseData.enable === true) {
                     await getAccessToken(username, password, csrftoken);
+					await storeJWT();
                     window.history.pushState({ path: "/2FA/" }, "", "/2FA/");
                     updateContentToken("/2FA/");
-                } else {
-                    await getAccessToken(username, password, csrftoken);
+					loadFriends();
+                    checkAccessToken();
+				}
+				else {
+					await getAccessToken(username, password, csrftoken);
+					await storeJWT();
                     window.history.pushState({ path: "/home/" }, "", "/home/");
                     updateContent("/home/");
                     loadFriends();
