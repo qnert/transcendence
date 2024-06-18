@@ -13,7 +13,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .decorators import *
 from django.contrib.auth import authenticate, login
@@ -55,21 +55,22 @@ state = ''
 
 
 def check_access_token(request):
-    if 'Authorization' not in request.headers:
-        return False
 
-    auth_header = request.headers['Authorization']
-    if not auth_header.startswith('Bearer '):
-        return False
-
-    token = auth_header.split(' ')[1]
-    jwt_authentication = JWTAuthentication()
-
-    try:
-        jwt_authentication.get_validated_token(token)
+    if 'Authorization' not in request.headers:			#need to handle it like that because of refresh of website. Could be handled by a else statement
         return True
-    except:
-        return False
+    if 'Authorization' in request.headers:
+        auth_header = request.headers['Authorization']
+        if not auth_header.startswith('Bearer '):
+            return False
+    
+        token = auth_header.split(' ')[1]
+        jwt_authentication = JWTAuthentication()
+    
+        try:
+            jwt_authentication.get_validated_token(token)
+            return True
+        except:
+            return False
 
 
 def login_status(request):
@@ -556,28 +557,41 @@ def Setup_2FA(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-def LogoutView(request):
+def store_jwt(request):
     if request.method == "POST":
         body = json.loads(request.body)
         refresh_token = body.get("refresh_token")
-        if refresh_token:
-            try:
-                token = RefreshToken(refresh_token)
-                token.blacklist()
-                request.user.completed_2fa = False
-                request.user.is_logged_in = False
-                request.user.save()
-                return JsonResponse({'logout': True})
-
-            except (TokenError, InvalidToken) as e:
-                return JsonResponse({'error': 'Invalid or expired token'}, status=400)
-        else:
-            return JsonResponse({'error': 'Refresh token not provided'}, status=400)
+        access_token = body.get("access_token")
+        user = request.user
+        user.User.access_token = access_token
+        user.User.refresh_token = refresh_token
+        return JsonResponse({'success': 'good job'})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-# add that the user needs to set a password, if not set, then he gets redirected to set_passwd
 
+
+def LogoutView(request):
+    if request.method == "POST":
+        user = request.user
+        access_token = user.User.access_token
+        refresh_token = user.User.refresh_token
+
+        if access_token is not None:
+            access_token = None
+            access_token = AccessToken(access_token)
+            access_token.blacklist()
+        if refresh_token is not None:
+            refresh_token = None
+            refresh_token = AccessToken(refresh_token)
+            refresh_token.blacklist()
+        request.user.completed_2fa = False
+        request.user.is_logged_in = False
+        request.user.save()
+        return JsonResponse({'logout': True}, status=200)
+
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 def LoginView(request):
     if request.method == "POST":
