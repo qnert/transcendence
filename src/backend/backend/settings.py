@@ -55,8 +55,6 @@ INSTALLED_APPS = [
 	'game',
 	'chat',
 	'django_otp',
-    # 'rosetta',
-    # 'parler',
 ]
 
 MIDDLEWARE = [
@@ -70,7 +68,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-	# 'backend.middleware.jwt_middleware.JWTMiddleware',
 ]
 
 
