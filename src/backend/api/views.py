@@ -522,7 +522,6 @@ def Validate_OTP(request):
         user = request.user
         data = json.loads(request.body)
         otp = data.get('otp')
-        print("HELLO FUCKER ", otp)
         user_2fa_data, created = UserTwoFactorAuthData.objects.get_or_create(
             user=user)
         if user_2fa_data.otp_secret:
@@ -561,10 +560,9 @@ def store_jwt(request):
     if request.method == "POST":
         body = json.loads(request.body)
         refresh_token = body.get("refresh_token")
-        access_token = body.get("access_token")
         user = request.user
-        user.User.access_token = access_token
-        user.User.refresh_token = refresh_token
+        user.refresh_token = refresh_token
+        user.save()
         return JsonResponse({'success': 'good job'})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -574,20 +572,16 @@ def store_jwt(request):
 def LogoutView(request):
     if request.method == "POST":
         user = request.user
-        access_token = user.User.access_token
-        refresh_token = user.User.refresh_token
+        refresh_token = user.refresh_token
 
-        if access_token is not None:
-            access_token = None
-            access_token = AccessToken(access_token)
-            access_token.blacklist()
         if refresh_token is not None:
-            refresh_token = None
-            refresh_token = AccessToken(refresh_token)
+            user.refresh_token = None
+            refresh_token = RefreshToken(refresh_token)
             refresh_token.blacklist()
-        request.user.completed_2fa = False
-        request.user.is_logged_in = False
-        request.user.save()
+            
+        user.completed_2fa = False
+        user.is_logged_in = False
+        user.save()
         return JsonResponse({'logout': True}, status=200)
 
     else:
