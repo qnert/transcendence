@@ -4,6 +4,8 @@ from django.shortcuts import render
 from django.contrib.auth.models import AnonymousUser
 from rest_framework_simplejwt.views import TokenVerifyView
 from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 
 def own_login_required(view_func):
     def _wrapped_view(request, *args, **kwargs):

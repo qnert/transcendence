@@ -536,8 +536,8 @@ def Validate_OTP(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-
-def Setup_2FA(request):
+@own_jwt_required
+def setup_2FA(request):
     if request.method == "GET":
         user = request.user
         secret_key = pyotp.random_base32()

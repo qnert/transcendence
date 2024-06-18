@@ -1,5 +1,5 @@
 import { checkAccessToken } from "../profile/profile.js";
-import { updateContentToken } from "../basics.js";
+import { handle401Error, updateContentToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 
 async function activatetwoFA() {
@@ -16,7 +16,13 @@ async function activatetwoFA() {
             body: JSON.stringify({ enable: true }),
         });
         if (!response.ok) {
-            throw new Error("Changing twoFA failed");
+			if (response.status === 401){
+				handle401Error();
+				return;
+			}
+			else{
+				throw new Error("Changing twoFA failed");
+			}
         } else {
             alert("2FA activated");
         }
@@ -39,7 +45,13 @@ async function deactivatetwoFA() {
             body: JSON.stringify({ enable: false }),
         });
         if (!response.ok) {
-            throw new Error("Changing twoFA failed");
+			if (response.status === 401){
+				handle401Error();
+				return;
+			}
+			else{
+				throw new Error("Changing twoFA failed");
+			}
         } else {
             alert("2FA deactivated!");
         }
@@ -54,7 +66,7 @@ export async function checkBox() {
         try {
             const csrftoken = getCookie("csrftoken");
             const token = localStorage.getItem("access_token");
-            const twoFAResponse = await fetch("/api/get_2fa_status/", {
+            const response = await fetch("/api/get_2fa_status/", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -62,15 +74,23 @@ export async function checkBox() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            if (!twoFAResponse.ok) {
-                throw new Error("Getting 2FA status failed");
-            }
-            const twoFAResponseData = await twoFAResponse.json();
-            if (twoFAResponseData.enable === true) {
-                checkBox2FA.checked = true;
-				} else {
-                checkBox2FA.checked = false;
-            }
+			if (!response.ok) {
+				if (response.status === 401){
+					handle401Error();
+					return;
+				}
+				else{
+					throw new Error("Changing twoFA failed");
+				}
+			}
+			else{
+				const responeData = await response.json();
+				if (responeData.enable === true) {
+					checkBox2FA.checked = true;
+					} else {
+					checkBox2FA.checked = false;
+				}
+			}
         } catch (error) {
             console.error(error);
         }
@@ -107,20 +127,26 @@ export function validateOTP() {
                 },
                 body: JSON.stringify({ otp: otp }),
             })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.valid) {
-                        window.history.pushState({ path: "/home/" }, "", "/home/");
-                        checkAccessToken();
-                        updateContentToken("/home/");
-                    } else {
-                        alert("Validation failed: Invalid OTP");
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                    alert("An error occurred while validating the OTP");
-                });
+            .then((response) => {
+                if (response.status === 401) {
+                    handle401Error();
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data.valid) {
+                    window.history.pushState({ path: "/home/" }, "", "/home/");
+                    checkAccessToken();
+                    updateContentToken("/home/");
+                } else {
+                    alert("Validation failed: Invalid OTP");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while validating the OTP");
+            });
         });
     }
 }
@@ -138,20 +164,21 @@ export function generateQRCode() {
                     Authorization: `Bearer ${token}`,
                 },
             })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok");
-                    }
-                    return response.text();
-                })
-                .then((responseText) => {
-                    const data = JSON.parse(responseText);
-                    const qrCodeImg = document.getElementById("qrcode");
-                    qrCodeImg.src = "data:image/png;base64," + data.qr_code;
-                })
-                .catch((error) => {
-                    console.log("Error:", error);
-                });
+            .then((response) => {
+                if (response.status === 401) {
+                    handle401Error();
+                    throw new Error("Unauthorized access, logging out."); //maybe a return?
+                }
+                return response.text();
+            })
+            .then((responseText) => {
+                const data = JSON.parse(responseText);
+                const qrCodeImg = document.getElementById("qrcode");
+                qrCodeImg.src = "data:image/png;base64," + data.qr_code;
+            })
+            .catch((error) => {
+                console.log("Error:", error);
+            });
         });
     }
 }

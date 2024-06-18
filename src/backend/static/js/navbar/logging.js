@@ -49,12 +49,10 @@ export function oauth() {
     if (registerButton) {
         registerButton.addEventListener("click", (event) => {
             event.preventDefault();
-            const token = localStorage.getItem("access_token");
             fetch("/api/oauth/", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
                 },
             })
                 .then((response) => {

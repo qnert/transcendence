@@ -7,7 +7,7 @@ urlpatterns = [
   path('register/', views.RegisterView.as_view()),
 	path('login/', views.LoginView),
 	path('logout/', views.LogoutView),
-	path('setup-2fa/', views.Setup_2FA),
+	path('setup-2fa/', views.setup_2FA),
 	path('Update_2FA_Status/', views.Update_2FA_Status),
 	path('validateOTP/', views.Validate_OTP),
 	path('get_2fa_status/', views.Get_2FA_Status),
