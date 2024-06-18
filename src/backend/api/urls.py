@@ -23,6 +23,7 @@ urlpatterns = [
   	path('delete_friend/', views.delete_friend, name='delete_friend'),
 	path('get_username/', views.get_username),
   	path('get_user_id/', views.get_user_id),
+  	path('store_jwt/', views.store_jwt),
 	path('activate_two_FA/', views.activate_two_FA),
 	path('deactivate_two_FA/', views.deactivate_two_FA),
 	path('login_status/', views.login_status),
