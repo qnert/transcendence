@@ -13,7 +13,6 @@ class User(AbstractUser):
 	last_name = models.CharField(max_length=255)
 	email = models.CharField(max_length=255, unique=True)
 	password = models.CharField(max_length=255)
-	access_token = models.CharField(max_length=255, unique=True, null=True)
 	refresh_token = models.CharField(max_length=255, unique=True, null=True)
 	username = models.CharField(max_length=255, unique=True)
 	is_2fa_enabled = models.BooleanField(default=False)
@@ -41,8 +40,6 @@ class UserProfile(models.Model):
 	registered = models.BooleanField(default=False)
 	is_online = models.BooleanField(default=False)
 
-	# access_token = models.CharField(max_length=255, blank=True, null=True)
-	# token_expiration = models.DateTimeField(null=True, blank=True
 	def save(self, *args, **kwargs):
 		if not self.display_name:
 			self.display_name = self.user.username
