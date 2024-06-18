@@ -1,6 +1,6 @@
 import { checkAccessToken } from "../profile/profile.js";
 import { getAccessToken } from "../security/jwt.js";
-import { updateContent, updateContentToken } from "../basics.js";
+import { handle401Error, updateContent, updateContentToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
 
@@ -29,6 +29,7 @@ export function setPasswd() {
                     });
                     if (!response.ok) {
 						if(response. status === 401){
+							handle401Error();
 						}
                         alert(response.error);
                     }
@@ -166,7 +167,9 @@ export function login() {
                         "X-CSRFToken": csrftoken,
                     },
                 });
-                if (!twoFAResponse.ok) throw new Error("Getting 2FA status failed");
+                if (!twoFAResponse.ok){
+					throw new Error("Getting 2FA status failed");
+				}
                 const twoFAResponseData = await twoFAResponse.json();
                 if (twoFAResponseData.enable === true) {
                     await getAccessToken(username, password, csrftoken);
