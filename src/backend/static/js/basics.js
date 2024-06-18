@@ -2,7 +2,7 @@ import { searchFriends } from "./friends/action_friends.js";
 import { generateQRCode, validateOTP, handleCheckbox, checkBox } from "./profile/2FA.js";
 import { bindProfileButton} from "./profile/buttons.js";
 import { bindSaveChangesButton } from "./profile/buttons.js";
-import { setNewPasswd } from "./profile/profile.js";
+import { checkAccessToken, setNewPasswd } from "./profile/profile.js";
 import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton } from "./navbar/buttons.js";
 import { login, logout, oauth, setPasswd } from "./navbar/logging.js";
 import { checkLoginStatus } from "./login_check.js";
@@ -32,10 +32,9 @@ export function updateContentToken(path) {
     })
         .then((response) => {
             if (!response.ok) {
-				console.log("error1");
                 if (response.status === 401) {
-					console.log("error2");
                     handle401Error();
+					return;
                 } else {
                     throw new Error("Unexpected Error");
                 }
@@ -43,6 +42,7 @@ export function updateContentToken(path) {
             return response.text();
         })
         .then((html) => {
+			if (!html) return;
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
             const newContent = doc.querySelector("#newContent");
@@ -57,7 +57,6 @@ export function updateContentToken(path) {
 
 
 export function updateContent(path) {
-    const token = localStorage.getItem("access_token");
     fetch(path, {
 		method: "GET",
         headers: {
@@ -140,31 +139,34 @@ export function getUsername() {
     }
 
 
-export function getLoginStatus(){
-	fetch("/api/login_status", {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json",
-		},
-	});
-	if (response.ok) {
-		const loginStatus = response.loginStatus;
-		return loginStatus;
-	} else {
-		throw new Error("Failed to get username from backend");
+	export async function getLoginStatus() {
+		try {
+			const response = await fetch("/api/login_status", {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+			if (response.ok) {
+				const data = await response.json();
+				return data.loginStatus;
+			} else {
+				if (response.status === 401) {
+					return false;
+				}
+			}
+		} catch (error) {
+			console.error("Error in getLoginStatus:", error);
+			return false;
+		}
 	}
-}
-
-
-export function handle401Error(){
-	if(getLoginStatus === true){
-		logout();
+	
+	export function handle401Error() {
+		if (getLoginStatus()) {
+			logout();
+		}
 		window.history.pushState({ path: "/login/" }, "", "/login/");
 		updateContent("/login/");
+		checkAccessToken();
 	}
-	else{
-		window.history.pushState({ path: "/login/" }, "", "/login/");
-		updateContent("/login/");
-	}
-}
 
