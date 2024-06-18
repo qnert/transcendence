@@ -54,23 +54,23 @@ code = ''
 state = ''
 
 
-def check_access_token(request):
+# def check_access_token(request):
 
-    if 'Authorization' not in request.headers:			#need to handle it like that because of refresh of website. Could be handled by a else statement
-        return True
-    if 'Authorization' in request.headers:
-        auth_header = request.headers['Authorization']
-        if not auth_header.startswith('Bearer '):
-            return False
+#     if 'Authorization' not in request.headers:			#need to handle it like that because of refresh of website. Could be handled by a else statement
+#         return True
+#     if 'Authorization' in request.headers:
+#         auth_header = request.headers['Authorization']
+#         if not auth_header.startswith('Bearer '):
+#             return False
     
-        token = auth_header.split(' ')[1]
-        jwt_authentication = JWTAuthentication()
+#         token = auth_header.split(' ')[1]
+#         jwt_authentication = JWTAuthentication()
     
-        try:
-            jwt_authentication.get_validated_token(token)
-            return True
-        except:
-            return False
+#         try:
+#             jwt_authentication.get_validated_token(token)
+#             return True
+#         except:
+#             return False
 
 
 def login_status(request):
@@ -352,22 +352,19 @@ def set_new_passwd(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-
+@own_jwt_required
 def get_profile(request):
     if request.method == "GET":
-        if check_access_token(request):
-            user = request.user
-            profile_picture = user.profile.profile_picture_url
-            profile_data = {
-                'username': user.username,
-                'email': user.email,
-                'profile_picture': profile_picture if profile_picture else None,
-                'picture_url': user.profile.profile_picture_url,
-                'display_name': user.profile.display_name
-            }
-            return JsonResponse(profile_data)
-        else:
-            return JsonResponse({'error': 'Not authorized to access'}, status=401)
+        user = request.user
+        profile_picture = user.profile.profile_picture_url
+        profile_data = {
+            'username': user.username,
+            'email': user.email,
+            'profile_picture': profile_picture if profile_picture else None,
+            'picture_url': user.profile.profile_picture_url,
+            'display_name': user.profile.display_name
+        }
+        return JsonResponse(profile_data)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
