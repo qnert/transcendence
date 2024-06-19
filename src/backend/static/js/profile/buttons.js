@@ -7,7 +7,7 @@ import { checkBox } from "./2FA.js";
 window.onload = function () {
     const currentUrl = window.location.href;
     console.log(currentUrl);
-    if (currentUrl.includes("profile")) {
+    if (currentUrl.includes("/profile/")) {
         fetchProfileData();
     	bindSaveChangesButton();
     	bindProfileButton();
@@ -16,7 +16,7 @@ window.onload = function () {
 
 document.addEventListener("DOMContentLoaded", function () {
     const currentUrl = window.location.href;
-    if (currentUrl.includes("profile/")) {
+    if (currentUrl.includes("/profile/")) {
         fetchProfileData();
     	bindSaveChangesButton();
     	bindProfileButton();
