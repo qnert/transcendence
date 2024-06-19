@@ -118,7 +118,8 @@ export function validateOTP() {
             const otp = document.getElementById("otpInput").value;
             const csrftoken = getCookie("csrftoken");
             const token = localStorage.getItem("access_token");
-            fetch("/api/validateOTP/", {
+			console.log(token);
+            fetch("/api/validate_otp/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

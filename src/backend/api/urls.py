@@ -9,7 +9,7 @@ urlpatterns = [
 	path('logout/', views.LogoutView),
 	path('setup-2fa/', views.setup_2FA),
 	path('Update_2FA_Status/', views.Update_2FA_Status),
-	path('validateOTP/', views.Validate_OTP),
+	path('validate_otp/', views.validate_otp),
 	path('get_2fa_status/', views.Get_2FA_Status),
 	path('check_login_status/', views.check_login_status),
 	path('oauth/', views.redirect_to_login, name='oauth'),

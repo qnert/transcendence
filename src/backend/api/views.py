@@ -517,7 +517,7 @@ def Update_2FA_Status(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-def Validate_OTP(request):
+def validate_otp(request):
     if request.method == "POST":
         user = request.user
         data = json.loads(request.body)
@@ -529,6 +529,7 @@ def Validate_OTP(request):
             is_valid = totp.verify(otp)
             if is_valid:
                 user.completed_2fa = True
+                user.save()
                 return JsonResponse({'valid': True})
             return JsonResponse({'valid': False}, status=200)
         else:
