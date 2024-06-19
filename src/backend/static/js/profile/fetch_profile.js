@@ -26,11 +26,24 @@ export function fetchProfileData() {
 	})
     .then((data) => {
         if (data) {
-            document.getElementById("profile-name").textContent = data.username;
-            document.getElementById("profile-username").value = data.username;
-            document.getElementById("profile-email").value = data.email;
-            document.getElementById("profile-display_name").value = data.display_name;
-            document.getElementById("profile-picture_url").value = data.picture_url;
+            const profileName = document.getElementById("profile-name");
+			if(profileName)
+				document.getElementById("profile-name").textContent = data.username;
+			const username = document.getElementById("profile-name");
+			if(username)
+            	document.getElementById("profile-name").textContent = data.username;
+			const profileUsername = document.getElementById("profile-username");
+			if(profileUsername)
+            	document.getElementById("profile-username").value = data.username;
+			const profileEmail = document.getElementById("profile-email");
+			if(profileEmail)
+            	document.getElementById("profile-email").value = data.email;
+			const displayName = document.getElementById("profile-display_name");
+			if(displayName)
+            	document.getElementById("profile-display_name").value = data.display_name;
+			const profilePicture = document.getElementById("profile-picture_url");
+			if(profilePicture)
+            	document.getElementById("profile-picture_url").value = data.picture_url;
             const profilePictureUrl = data.profile_picture;
             if (profilePictureUrl) {
                 const profilePicture = document.getElementById("profile-picture");
