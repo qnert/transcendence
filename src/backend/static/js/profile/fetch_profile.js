@@ -24,32 +24,33 @@ export function fetchProfileData() {
 		}
 		return response.json();
 	})
-    .then((data) => {
-        if (data) {
-            const profileName = document.getElementById("profile-name");
-			if(profileName)
-				document.getElementById("profile-name").textContent = data.username;
-			const username = document.getElementById("profile-name");
-			if(username)
-            	document.getElementById("profile-name").textContent = data.username;
+	.then((data) => {
+		if (data) {
+			const profileName = document.getElementById("profile-name");
+			if (profileName)
+				profileName.textContent = data.username;
+	
 			const profileUsername = document.getElementById("profile-username");
-			if(profileUsername)
-            	document.getElementById("profile-username").value = data.username;
+			if (profileUsername)
+				profileUsername.value = data.username;
+	
 			const profileEmail = document.getElementById("profile-email");
-			if(profileEmail)
-            	document.getElementById("profile-email").value = data.email;
+			if (profileEmail)
+				profileEmail.value = data.email;
+	
 			const displayName = document.getElementById("profile-display_name");
-			if(displayName)
-            	document.getElementById("profile-display_name").value = data.display_name;
-			const profilePicture = document.getElementById("profile-picture_url");
-			if(profilePicture)
-            	document.getElementById("profile-picture_url").value = data.picture_url;
-            const profilePictureUrl = data.profile_picture;
-            if (profilePictureUrl) {
-                const profilePicture = document.getElementById("profile-picture");
-                profilePicture.setAttribute("src", profilePictureUrl);
-            }
-        }
+			if (displayName)
+				displayName.value = data.display_name;
+	
+			const profilePictureURL = document.getElementById("profile-picture_url");
+			if (profilePictureURL)
+				profilePictureURL.value = data.picture_url;
+	
+			const profilePicture = document.getElementById("profile-picture");
+			if (profilePicture && data.profile_picture) {
+				profilePicture.setAttribute("src", data.profile_picture);
+			}
+		}
     })
     .catch((error) => {
         console.error("Error fetching profile data:", error);
