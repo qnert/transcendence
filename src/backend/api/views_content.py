@@ -11,7 +11,7 @@ def baseView(request):
 def loginFormView(request):
 	return render(request, 'login.html')
 
-# @own_jwt_required
+@own_jwt_required
 @twoFA_required
 @own_login_required
 def homeView(request):
@@ -20,12 +20,17 @@ def homeView(request):
 def twoFAView(request):
 	return render(request, '2FA.html')
 
+@own_jwt_required
+@twoFA_required
 @own_login_required
 def profileView(request):
     return render(request, 'profile.html')
 
+
+
 def set_passwd(request):
 	return render(request, 'set_passwd.html')
+
 
 def chatView(request):
 	return render(request, 'chatroom.html')
