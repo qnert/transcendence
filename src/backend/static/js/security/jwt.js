@@ -15,7 +15,6 @@ export async function getAccessToken(username, password, csrftoken) {
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": csrftoken,
-                "Cache-Control": "no-cache",
             },
             body: JSON.stringify({ username, password }),
         });

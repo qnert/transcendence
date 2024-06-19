@@ -1,4 +1,4 @@
-import { updateContent } from "../basics.js";
+import { handle401Error, updateContent } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -26,7 +26,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         updateContent("/login/");
                     } else if (response.status === 403) {
                         alert("You need to set a password");
-                    } else {
+                    } else if(response.status === 401){
+						handle401Error();
+						return;
+					}else {
                         throw new Error("Fetching data failed");
                     }
                 }

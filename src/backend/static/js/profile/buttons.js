@@ -1,4 +1,4 @@
-import { handleRoute } from "../basics.js";
+import { handle401Error, handleRoute } from "../basics.js";
 import { fetchProfileData } from "./fetch_profile.js";
 import { getCookie } from "../security/csrft.js";
 import { checkBox } from "./2FA.js";
@@ -54,6 +54,10 @@ export async function saveChanges() {
             body: JSON.stringify({ display_name: display_name, picture_url: picture_url }),
         });
         if (!response.ok) {
+			if(response.status === 401){
+				handle401Error();
+				return;
+			}
             const errorData = await response.json();
             alert(errorData.error);
         } else {

@@ -1,4 +1,4 @@
-import { updateContent } from "../basics.js";
+import { handle401Error, updateContent } from "../basics.js";
 import { logout } from "../navbar/logging.js";
 import { showLoggedOutState, showLoggedInState } from "../navbar/navbar.js";
 import { getCookie } from "../security/csrft.js";
@@ -31,7 +31,11 @@ export function setNewPasswd() {
                         body: JSON.stringify({ password: confirmPassword, old_passwd: oldPassword }),
                     });
                     if (!response.ok) {
-                        alert(response.error);
+						if(response.status === 401){
+							handle401Error();
+							alert(response.error);
+							return;
+						}
                     }
                     alert("Setting your new password was successful!");
                 } catch (error) {
@@ -55,7 +59,10 @@ async function getUsernameFromBackend() {
             const username = userData.username;
             return username;
         } else {
-            throw new Error("Failed to get username from backend");
+			if(response.status === 401){
+				handle401Error()
+				return ;
+			}
         }
     } catch (error) {
         console.error("Error getting username from backend:", error);
