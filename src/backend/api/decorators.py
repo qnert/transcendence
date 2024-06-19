@@ -58,5 +58,5 @@ def own_jwt_required(view_func):
         	except:
         	    return JsonResponse({'error': 'Invalid access token'}, status=401)
 	
-        	return view_func(request, *args, **kwargs)
+        return view_func(request, *args, **kwargs)
     return wrapper
