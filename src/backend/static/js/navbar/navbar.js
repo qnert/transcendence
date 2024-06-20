@@ -39,6 +39,8 @@ export const showLoggedInState = (username) => {
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
               <li><button class="dropdown-item" id="profile">View Profile</button></li>
               <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item" id="matchHistory">Match History</button></li>
+              <li><hr class="dropdown-divider"></li>
               <li><button class="dropdown-item" id="logout">Logout</button></li>
         </ul>
       </li>
