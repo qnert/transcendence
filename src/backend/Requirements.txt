@@ -23,3 +23,6 @@ Pillow
 asyncpg
 channels
 channels_redis
+django-prometheus
+numpy
+matplotlib
