@@ -202,7 +202,9 @@ export function start_game() {
     let id = requestAnimationFrame(update);
     context.clearRect(0, 0, board.width, board.height); // Clear the canvas
 
-    context.fillStyle = document.getElementById("borders").value;
+	const borders = document.getElementById("borders");
+	if (borders)
+    	context.fillStyle = document.getElementById("borders").value;
 
     context.fillStyle = document.getElementById("ballColor").value;
     check_and_change_dir_ball();

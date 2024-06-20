@@ -100,6 +100,8 @@ export function createGameButton() {
   let countdown = 6;
   let intervalID = 0;
   let items_pushed = 0;
+  let username;
+  let connected_users;
 
   function create_join_game(){
     border_color = document.getElementById("borders").value;
@@ -114,7 +116,7 @@ export function createGameButton() {
       alert('Please enter only alphabetical characters !');
       return;
     }
-    fetch('/username/')
+    fetch("/username/")
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -145,7 +147,7 @@ export function createGameButton() {
                 html_tag_2.textContent = "waiting...";
             }
             if (connected_users[0] == username)
-              document.getElementById("startGame").style.display = "block";
+              document.getElementById("startRemoteGame").style.display = "block";
         }
         else if (data.type === 'connect_error'){
             alert("Room is full!");
@@ -235,7 +237,7 @@ export function createGameButton() {
           return;
         }
         else if (data.type == 'disconnected'){
-          document.getElementById("startGame").style.display = "none";
+          document.getElementById("startRemoteGame").style.display = "none";
           if (id !== 0){
             cancelAnimationFrame(id);
             if (username == connected_users[0])
@@ -258,7 +260,7 @@ export function createGameButton() {
         document.getElementById("board").style.display = "none";
         document.getElementById("left_player").style.display = "none";
         document.getElementById("right_player").style.display = "none";
-        document.getElementById("resetGameButton").style.display = "none";
+        document.getElementById("resetRemoteGameButton").style.display = "none";
     };
     })
     .catch(error => {
@@ -269,7 +271,7 @@ export function createGameButton() {
 export function resetRemoteGameButton() {
     const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
     if (resetRemoteGameButton) {
-        resetRemoteGameButton.addEventListener("click", remote_start);
+        resetRemoteGameButton.addEventListener("click", reset);
     }
 }
 
@@ -335,7 +337,7 @@ function start_game() {
     }
     document.getElementById("left_player").style.display = "block";
     document.getElementById("right_player").style.display = "block";
-    document.getElementById("resetGameButton").style.display = "none";
+    document.getElementById("resetRemoteGameButton").style.display = "none";
     //board vars
     if (check_input_froms() == -1){
       alert("The host entered wrong settings for the game!");
@@ -463,7 +465,7 @@ function start_game() {
 
     if (check_and_change_score() == 1){
       cancelAnimationFrame(id);
-      document.getElementById("resetGameButton").style.display = "block";
+      document.getElementById("resetRemoteGameButton").style.display = "block";
     }
     context.font = "45px Verdana";
     context.fillText(score1, boardWidth/5, 45);
