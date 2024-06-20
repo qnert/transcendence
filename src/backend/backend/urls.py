@@ -24,6 +24,7 @@ from game.views import game, multiplayer, get_username, matches
 
 
 urlpatterns = [
+	path('', include('django_prometheus.urls')),
     path('admin/', admin.site.urls),
 	path('api/', include('api.urls')),
 	path('', include('api.urls_content')),

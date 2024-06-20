@@ -127,5 +127,5 @@ services:
 volumes:
   frontend:
     driver: local
-  grafana-storage: {}
-  prometheus_data: {}
+  grafana-data: {}
+  prometheus-data: {}
