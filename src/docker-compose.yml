@@ -44,31 +44,59 @@ services:
       - transcendence
   
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana-oss:latest
     container_name: grafana
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-data:/var/lib/grafana
     networks:
       - transcendence
     restart: unless-stopped
-    ports:
-     - 3000:3000
-    volumes:
-      - grafana-storage:/var/lib/grafana
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.37.9
     container_name: prometheus
-    networks:
-      - transcendence
-    command:
-      - '--web.enable-lifecycle'
-      - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
       - 9090:9090
-    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
     volumes:
-      - ./Docker/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-  
+      - ./Docker/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yaml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:v1.5.0
+    container_name: node_exporter
+    restart: unless-stopped
+    ports:
+      - 9100:9100
+    networks:
+      - transcendence
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: cadvisor
+    command:
+      - '-port=8098'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - 8098:8098
+    networks:
+      - transcendence
+
   # check exposiong ports
   redis:
     image: redis:latest
