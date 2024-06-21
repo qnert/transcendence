@@ -109,23 +109,7 @@ function updateUserStatus() {
         .catch((error) => console.error("Error fetching friends or online status:", error));
 }
 
-function sendFriendRequest(userId) {
-    const csrftoken = getCookie("csrftoken");
-    fetch("/api/send_friend_request/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify({ user_id: userId }),
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            alert(data.message);
-            document.getElementById("search-friends").value = "";
-            document.getElementById("search-results").innerHTML = "";
-        });
-}
+
 
 function deleteFriend(friendId, element) {
     const csrftoken = getCookie("csrftoken");
