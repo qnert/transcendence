@@ -1,36 +1,94 @@
-#board {
-  background-color: black;
-  border: 5px solid greenyellow;
-  margin: 0 auto;
+/* Add Flexbox styles to the container of the content */
+#newContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
+    width: 100%;  /* Full viewport width */
+    padding-top: 70px; /* Add padding to account for the navbar */
 }
-#myForm {
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  margin-top: 50px;
-}
-#gameContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 50px;
-}
-.versus-screen {
-  width: 400px;
-  margin: 50px auto;
-  border: 2px solid #333;
-  padding: 20px;
-  text-align: center;
-  background-color: #f0f0f0;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
 
-  .player-name {
+/* Style the form to match the design */
+#myForm {
+    width: 400px; /* Adjust width as needed */
+    padding: 20px;
+    border: 1px solid #007bff; /* Blue border */
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column; /* Flexbox column direction */
+    justify-content: center; /* Center items vertically */
+    align-items: center; /* Center items horizontally */
+    background-color: #ffffff; /* White background */
+    text-align: left;
+}
+
+/* Ensure consistent input field styles */
+#myForm input[type="number"],
+#myForm input[type="color"],
+#myForm input[type="text"],
+#myForm input[type="checkbox"],
+#myForm input[type="button"] {
+    width: 100%; /* Ensure full width */
+    padding: 12px; /* Consistent padding */
+    margin-bottom: 10px; /* Add margin for spacing */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px; /* Larger font size */
+}
+
+#myForm input[type="button"] {
+    background-color: #007bff; /* Blue background */
+    color: #fff; /* White text */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+#myForm input[type="button"]:hover {
+    background-color: #0056b3; /* Darker blue background on hover */
+    color: #fff; /* White text on hover */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Slightly larger shadow on hover */
+}
+
+/* Versus screen styling */
+.versus-screen {
+    width: 400px;
+    margin: 50px auto;
+    border: 2px solid #007bff;
+    padding: 20px;
+    text-align: center;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+.player-name {
     font-size: 24px;
     margin-bottom: 10px;
-  }
+    color: #333; /* Darker text color */
+}
 
-  .versus-text {
+.versus-text {
     font-size: 32px;
     margin-bottom: 20px;
-  }
+    color: #333; /* Darker text color */
+}
+
+/* Game board styling */
+#board {
+    background-color: black;
+    border: 5px solid greenyellow;
+    margin: 0 auto;
+}
+
+#gameContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+    width: 100%;
+    justify-content: center;
+}
