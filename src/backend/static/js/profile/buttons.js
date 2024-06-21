@@ -1,42 +1,17 @@
-import { handle401Error, handleRoute } from "../basics.js";
+import { handle401Error, handleRoute, updateContentToken } from "../basics.js";
 import { fetchProfileData } from "./fetch_profile.js";
 import { getCookie } from "../security/csrft.js";
 import { checkBox } from "./2FA.js";
 
 
-window.onload = function () {
+window.onload = async function () {
     const currentUrl = window.location.href;
     console.log(currentUrl);
     if (currentUrl.includes("/profile/")) {
         fetchProfileData();
-    	bindSaveChangesButton();
-    	bindProfileButton();
+        checkBox();
     }
 };
-
-document.addEventListener("DOMContentLoaded", function () {
-    const currentUrl = window.location.href;
-    if (currentUrl.includes("/profile/")) {
-        fetchProfileData();
-    	bindSaveChangesButton();
-    	bindProfileButton();
-    }
-});
-
-document.addEventListener("DOMContentLoaded", async function () {
-    const currentUrl = window.location.href;
-    if (currentUrl.includes("profile/")) {
-		checkBox();
-    }
-});
-
-window.onload = async function () {
-    const currentUrl = window.location.href;
-    if (currentUrl.includes("profile")) {
-		checkBox();
-    }
-};
-
 
 export async function saveChanges() {
     const picture_url = document.getElementById("profile-picture_url").value;
@@ -79,14 +54,13 @@ export function bindSaveChangesButton() {
     }
 }
 
-
-export function bindProfileButton() {
+export async function bindProfileButton() {
     const profileButton = document.getElementById("profile");
     if (profileButton) {
-        profileButton.addEventListener("click", function (event) {
-            event.preventDefault();
+        profileButton.onclick = (event) => {
+            event.preventDefault()
             handleRoute(event, "/profile/");
             fetchProfileData();
-        });
+        };
     }
 }
