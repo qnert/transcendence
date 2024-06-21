@@ -16,14 +16,12 @@ export function setPasswd() {
                 alert("Passwords do not match! Try again!");
             } else {
                 const csrftoken = getCookie("csrftoken");
-                const token = localStorage.getItem("access_token");
                 try {
                     const response = await fetch("/api/set_passwd/", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                             "X-CSRFToken": csrftoken,
-                            Authorization: `Bearer ${token}`,
                         },
                         body: JSON.stringify({ password: confirmPassword }),
                     });

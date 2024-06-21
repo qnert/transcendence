@@ -101,10 +101,13 @@ export async function checkAccessToken() {
             updateContent("/login/");
         }
     } else {
-        console.log("No token found. Logging out.");
-        showLoggedOutState();
-        logout();
-        window.history.pushState({ path: "/login/" }, "", "/login/");
-        updateContent("/login/");
+        const url = window.location.href;
+        if (!url.includes("set_passwd")){
+            console.log("No token found. Logging out.");
+            showLoggedOutState();
+            logout();
+            window.history.pushState({ path: "/login/" }, "", "/login/");
+            updateContent("/login/");
+        }
     }
 }
