@@ -1,5 +1,6 @@
 import { getUsernameFromBackend } from "../module.js";
 
+
 const userId = getUsernameFromBackend();
 const friendSocket = new WebSocket("ws://" + window.location.host + "/ws/online/");
 
@@ -100,10 +101,10 @@ export function searchFriends() {
                             const resultItem = document.createElement("li");
                             resultItem.className = "dropdown-item mt-2";
                             resultItem.innerHTML = `
-    	      <img src="${friend.profile_picture_url}" class="rounded-circle search-result" style="width: 30px; height: 30px; margin-right: 8px;">
-    	      ${friend.display_name}
-    	      <button class="btn btn-sm btn-primary ms-2 search-result" onclick="sendFriendRequest(${friend.id})">Add Friend</button>
-    	      `;
+							<img src="${friend.profile_picture_url}" class="rounded-circle search-result" style="width: 30px; height: 30px; margin-right: 8px;">
+							<button id="${friend.display_name}" class="btn btn-link search-result" onclick="loadContentFriend('${friend.display_name}')">${friend.display_name}</button>
+							<button class="btn btn-sm btn-primary ms-2 search-result" onclick="sendFriendRequest(${friend.id})">Add Friend</button>
+    	      				`;
                             resultsContainer.appendChild(resultItem);
                         });
                     });
@@ -114,23 +115,7 @@ export function searchFriends() {
     }
 }
 
-function acceptRequest(requestId, element) {
-    if (friendSocket.readyState === WebSocket.OPEN) {
-        friendSocket.send(
-            JSON.stringify({
-                action: "accept",
-                request_id: requestId,
-            })
-        );
-        if (element.id != "accept_button_offline") removeAlert(element);
-        else {
-            element.closest(".friend-request-item").remove();
-            checkFriendRequests();
-        }
-    } else {
-        alert("Error Websocket not open");
-    }
-}
+
 
 function denyRequest(requestId, element) {
     if (friendSocket.readyState === WebSocket.OPEN) {
