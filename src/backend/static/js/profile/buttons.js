@@ -3,16 +3,6 @@ import { fetchProfileData } from "./fetch_profile.js";
 import { getCookie } from "../security/csrft.js";
 import { checkBox } from "./2FA.js";
 
-
-window.onload = async function () {
-    const currentUrl = window.location.href;
-    console.log(currentUrl);
-    if (currentUrl.includes("/profile/")) {
-        fetchProfileData();
-        checkBox();
-    }
-};
-
 export async function saveChanges() {
     const picture_url = document.getElementById("profile-picture_url").value;
     const display_name = document.getElementById("profile-display_name").value;
@@ -57,10 +47,10 @@ export function bindSaveChangesButton() {
 export async function bindProfileButton() {
     const profileButton = document.getElementById("profile");
     if (profileButton) {
-        profileButton.onclick = (event) => {
+        profileButton.onclick = async (event) => {
             event.preventDefault()
-            handleRoute(event, "/profile/");
-            fetchProfileData();
+            await handleRoute(event, "/profile/");
+            await fetchProfileData();
         };
     }
 }

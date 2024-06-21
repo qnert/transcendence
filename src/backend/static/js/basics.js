@@ -9,6 +9,7 @@ import { checkLoginStatus } from "./login_check.js";
 import { startGameButton, resetGameButton } from "./game/game.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
 import { loadFriends } from "./friends/fetch_friends.js";
+import { fetchProfileData } from "./profile/fetch_profile.js";
 
 window.addEventListener("popstate", function (event) {
     if (event.state && event.state.path) {
@@ -195,3 +196,12 @@ export function getUsername() { //jwt token?
 			await fetchFriendsData(display_name);
 		}
 	}
+
+	window.onload = async function () {
+		const currentUrl = window.location.href;
+		console.log(currentUrl);
+		if (currentUrl.includes("/profile/")) {
+			await fetchProfileData();
+			await checkBox();
+		}
+	};
