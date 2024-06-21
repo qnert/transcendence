@@ -125,7 +125,9 @@ export function start_game() {
 
 
     //fill the board with our classes
-    context.fillStyle = document.getElementById("ballColor").value;
+	const ballColor = document.getElementById("ballColor");
+	if(ballColor)
+    	context.fillStyle = document.getElementById("ballColor").value;
     context.fillRect(player1.x, player1.y, player1.width, player1.height);
     context.fillRect(player2.x, player2.y, player2.width, player2.height);
 
@@ -188,8 +190,10 @@ export function start_game() {
     countdown--;
     context.clearRect(0, 0, board.width, board.height);
     context.font = "45px Verdana";
-    context.fillStyle = document.getElementById("ballColor").value;
-    context.textAlign = "center";
+	const ballColor = document.getElementById("ballColor");
+	if (ballColor)
+    	context.fillStyle = document.getElementById("ballColor").value;
+	context.textAlign = "center";
     context.fillText(`Game starts in ${countdown}`, board.width / 2, board.height / 2);
     if (countdown <= 0){
       clearInterval(intervalID);
@@ -206,7 +210,9 @@ export function start_game() {
 	if (borders)
     	context.fillStyle = document.getElementById("borders").value;
 
-    context.fillStyle = document.getElementById("ballColor").value;
+	const ballColor = document.getElementById("ballColor");
+	if (ballColor)
+    	context.fillStyle = document.getElementById("ballColor").value;
     check_and_change_dir_ball();
 
     ball.x += ball.speedX;
@@ -226,7 +232,9 @@ export function start_game() {
 
     if (check_and_change_score() == 1){
       cancelAnimationFrame(id);
-      document.getElementById("resetGameButton").style.display = "block";
+	  const resetGameButton = document.getElementById("resetGameButton");
+	  if (resetGameButton)
+      	document.getElementById("resetGameButton").style.display = "block";
     }
     context.font = "45px Verdana";
     context.fillText(score1, boardWidth/5, 45);
