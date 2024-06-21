@@ -27,6 +27,10 @@ def profileView(request):
     return render(request, 'profile.html')
 
 
+def friends_profile(request, name):
+	context= {'name': name}
+	return render(request, 'friends.html', context)
+
 
 def set_passwd(request):
 	return render(request, 'set_passwd.html')
