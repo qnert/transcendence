@@ -7,13 +7,22 @@ import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton } fro
 import { login, logout, oauth, setPasswd } from "./navbar/logging.js";
 import { checkLoginStatus } from "./login_check.js";
 import { startGameButton, resetGameButton } from "./game/game.js";
-import { createGameButton, startRemoteGame } from "./game/multiplayer.js";
+import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
 import { loadFriends } from "./friends/fetch_friends.js";
 
 window.addEventListener("popstate", function (event) {
-	//differentiate between routes 
     if (event.state && event.state.path) {
-        updateContent(event.state.path);
+		if(event.state.path === "/login/"){
+			if(getLoginStatus){
+				updateContentToken("/home/");
+			}
+			else{
+				updateContent("/login/");
+			}
+		}
+		else{
+			updateContent(event.state.path);
+		}
     }
 });
 
@@ -21,38 +30,43 @@ document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
 });
 
-export function updateContentToken(path) {
+export async function updateContentToken(path) {
     const token = localStorage.getItem("access_token");
-    fetch(path, {
-		method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-    })
-        .then((response) => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    handle401Error();
-					return;
-                } else {
-                    throw new Error("Unexpected Error");
-                }
+
+    try {
+        const response = await fetch(path, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                handle401Error();
+                return;
+            } else {
+                throw new Error("Unexpected Error");
             }
-            return response.text();
-        })
-        .then((html) => {
-			if (!html) return;
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            const newContent = doc.querySelector("#newContent");
-            const oldContent = document.getElementById("oldContent");
-            oldContent.innerHTML = "";
-            oldContent.appendChild(newContent);
-            reattachEventListeners();
-        })
-        .catch((error) => console.error("Error fetching content:", error));
+        }
+
+        const html = await response.text();
+        if (!html) return;
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const newContent = doc.querySelector("#newContent");
+        const oldContent = document.getElementById("oldContent");
+        oldContent.innerHTML = "";
+        oldContent.appendChild(newContent);
+        reattachEventListeners();
+
+    } catch (error) {
+        console.error("Error fetching content:", error);
+    }
 }
+
 
 
 
@@ -81,11 +95,11 @@ export function updateContent(path) {
         .catch((error) => console.error("Error fetching content:", error));
 }
 
-export function handleRoute(event, path) {
+export async function handleRoute(event, path) {
     event.preventDefault();
     if (window.location.pathname !== path) {
         window.history.pushState({ path: path }, "", path);
-        updateContentToken(path);
+        await updateContentToken(path);
     }
 }
 
@@ -98,8 +112,6 @@ export function reattachEventListeners() {
     oauth();
     homeButton();
     defaultButton();
-    bindProfileButton();
-	bindSaveChangesButton();
     soloGame();
     multiplayerGame();
     handleCheckbox();
@@ -112,9 +124,12 @@ export function reattachEventListeners() {
     resetGameButton();
     setPasswd();
     createGameButton();
-    startRemoteGame();
-}
-
+	resetRemoteGameButton();
+	startRemoteGame();
+	bindProfileButton();
+	bindSaveChangesButton();
+	}
+	
 window.onload = function () {
     loadFriends();
 };
@@ -170,3 +185,13 @@ export function getUsername() { //jwt token?
 		checkAccessToken();
 	}
 
+
+
+	window.onload = async function loadFriendsPage(){
+		let url = window.location.href
+		if(url.includes("/friend/")){
+			let words = url.split("/");
+			let display_name = words[4];
+			await fetchFriendsData(display_name);
+		}
+	}
