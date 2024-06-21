@@ -55,24 +55,24 @@ SECRET = "s-s4t2ud-deb86e90f0993fcd1f5b8c93e196e76100d45b1a936555e307912397a5c38
 code = ''
 state = ''
 
+def get_friends_profile(request):
+    if request.method == "GET":
+        display_name = request.GET.get('display_name')
+        print(display_name)
+        user_profile = UserProfile.objects.get(display_name=display_name)
+        profile_picture = user_profile.profile_picture_url
 
-# def check_access_token(request):
+        profile_data = {
+            'username': user_profile.user.username,
+            'email': user_profile.user.email,
+            'profile_picture': profile_picture,
+            'picture_url': user_profile.profile_picture_url,
+            'display_name': user_profile.display_name
+        }
+        return JsonResponse(profile_data)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-#     if 'Authorization' not in request.headers:			#need to handle it like that because of refresh of website. Could be handled by a else statement
-#         return True
-#     if 'Authorization' in request.headers:
-#         auth_header = request.headers['Authorization']
-#         if not auth_header.startswith('Bearer '):
-#             return False
-    
-#         token = auth_header.split(' ')[1]
-#         jwt_authentication = JWTAuthentication()
-    
-#         try:
-#             jwt_authentication.get_validated_token(token)
-#             return True
-#         except:
-#             return False
 
 
 def login_status(request):
@@ -557,7 +557,7 @@ def setup_2FA(request):
         return JsonResponse({'qr_code': img_str})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-
+ 
 
 def store_jwt(request):
     if request.method == "POST":

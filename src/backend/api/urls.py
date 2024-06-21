@@ -27,6 +27,7 @@ urlpatterns = [
 	path('activate_two_FA/', views.activate_two_FA),
 	path('deactivate_two_FA/', views.deactivate_two_FA),
 	path('login_status/', views.login_status),
+	path('get_friends_profile/', views.get_friends_profile),
 	path('friends/', views.friends_list, name='friends_list'),
 	path('friends_online_status/', views.friends_online_status, name='friends_online_status'),
 	path('pending_friend_requests/', views.pending_friend_requests, name='pending_friend_requests'),
