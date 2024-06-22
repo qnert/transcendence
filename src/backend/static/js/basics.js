@@ -195,7 +195,7 @@ export function getUsername() { //jwt token?
 			let display_name = words[4];
 			await fetchFriendsData(display_name);
 		}
-		else if(!currentUrl.includes("/login/") || currentURL !== "0.0.0.0:8000/"){
+		else if(!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/"){
 			loadFriends();
 		}
 		else if (currentUrl.includes("game")) {
