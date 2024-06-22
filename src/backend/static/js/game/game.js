@@ -4,14 +4,6 @@ function reset() {
     document.getElementById("resetGameButton").style.display = "none";
 }
 
-window.onload = function () {
-    const currentUrl = window.location.href;
-    if (currentUrl.includes("game")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
-    }
-};
 
 export function startGameButton() {
     const gameButton = document.getElementById("startGameButton");

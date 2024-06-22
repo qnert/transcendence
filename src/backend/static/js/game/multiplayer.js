@@ -313,14 +313,7 @@ function reset() {
     chatSocket.close();
 }
 
-window.onload = function () {
-    const currentUrl = window.location.href;
-    if (currentUrl.includes("multiplayer")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
-    }
-};
+
 
 function start_game() {
   document.getElementById("myForm").style.display = "none";
