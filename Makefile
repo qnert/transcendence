@@ -1,5 +1,5 @@
 .PHONY: all
-all: detached
+all: up
 
 .PHONY: re
 re: down up
@@ -58,6 +58,6 @@ logs:
 	@read service; \
 	docker-compose -f src/docker-compose.yml logs -f $$service
 
-.PHONY: detached
-detached:
+.PHONY: d
+d:
 	docker-compose -f src/docker-compose.yml up -d
