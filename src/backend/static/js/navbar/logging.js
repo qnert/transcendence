@@ -3,6 +3,7 @@ import { getAccessToken } from "../security/jwt.js";
 import { handle401Error, updateContent, updateContentToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
+import { friendSocket } from "../friends/action_friends.js";
 
 export function setPasswd() {
     const passwd = document.getElementById("setPasswd");
@@ -26,9 +27,9 @@ export function setPasswd() {
                         body: JSON.stringify({ password: confirmPassword }),
                     });
                     if (!response.ok) {
-						if(response. status === 401){
-							handle401Error();
-						}
+                        if(response. status === 401){
+                          handle401Error();
+                        }
                         alert(response.error);
                     }
                     alert("Setting your passwd was successful!");
@@ -71,9 +72,6 @@ export function oauth() {
     }
 }
 
-
-
-
 export function logout() {
     const logoutButton = document.getElementById("logout");
     if (logoutButton) {
@@ -94,7 +92,8 @@ export function logout() {
                 });
                 if (!response.ok){
 					throw new Error("Logout fail");
-				} 
+				}
+        friendSocket.close();
 				const access_token = localStorage.getItem("access_token");
 				if(access_token){
 					localStorage.removeItem("access_token");

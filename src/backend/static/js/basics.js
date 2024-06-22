@@ -68,9 +68,6 @@ export async function updateContentToken(path) {
     }
 }
 
-
-
-
 export function updateContent(path) {
     fetch(path, {
 		method: "GET",
@@ -130,7 +127,6 @@ export function reattachEventListeners() {
 	bindProfileButton();
 	bindSaveChangesButton();
 	}
-	
 
 
 export let chatSocket;
@@ -174,7 +170,7 @@ export function getUsername() { //jwt token?
 			return false;
 		}
 	}
-	
+
 	export function handle401Error() {
 		if (getLoginStatus()) {
 			logout();
@@ -195,7 +191,7 @@ export function getUsername() { //jwt token?
 			let display_name = words[4];
 			await fetchFriendsData(display_name);
 		}
-		else if(!currentUrl.includes("/login/") || currentURL !== "0.0.0.0:8000/"){
+		else if(!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/"){
 			loadFriends();
 		}
 		else if (currentUrl.includes("game")) {
