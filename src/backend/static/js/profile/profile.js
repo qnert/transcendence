@@ -87,11 +87,14 @@ export async function checkAccessToken() {
                 const username = await getUsernameFromBackend();
                 showLoggedInState(username);
             } else {
-                console.log("Token verification failed. Logging out.");
-                showLoggedOutState();
-                logout();
-                window.history.pushState({ path: "/login/" }, "", "/login/");
-                updateContent("/login/");
+                const url = window.location.href;
+                if (!url.includes("set_passwd")){
+                    console.log("Token verification failed. Logging out.");
+                    showLoggedOutState();
+                    logout();
+                    window.history.pushState({ path: "/login/" }, "", "/login/");
+                    updateContent("/login/");
+                }
             }
         } catch (error) {
             console.error("Error verifying token:", error);
