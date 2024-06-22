@@ -91,12 +91,19 @@ function initializeWebSocket(friendId) {
     };
 }
 
-document.getElementById('send').onclick = sendMessage;
-document.getElementById('message').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') {
-    sendMessage();
-  }
-});
+const send = document.getElementById('send');
+if(send){
+	document.getElementById('send').onclick = sendMessage;
+}
+const message = document.getElementById('message');
+if(message){
+	document.getElementById('message').addEventListener('keypress', function(e) {
+	  if (e.key === 'Enter') {
+		sendMessage();
+	  }
+	});
+
+}
 
 
 function sendMessage() {
@@ -112,15 +119,17 @@ function sendMessage() {
         messageInput.value = "";
     }
 }
-
-document.getElementById('leave').onclick = function() {
-    if (chatSocket) {
-      chatSocket.close();
-    }
-    document.getElementById('chatRoom').style.display = 'none';
-    document.getElementById('friendsList').style.display = 'block';
-    document.getElementById('message').disabled = true;
-    document.getElementById('send').disabled = true;
-    document.getElementById('chat-text').value = '';
-    document.getElementById('message').value = '';
-  };
+const leave = document.getElementById('leave');
+if(leave){
+	document.getElementById('leave').onclick = function() {
+		if (chatSocket) {
+		  chatSocket.close();
+		}
+		document.getElementById('chatRoom').style.display = 'none';
+		document.getElementById('friendsList').style.display = 'block';
+		document.getElementById('message').disabled = true;
+		document.getElementById('send').disabled = true;
+		document.getElementById('chat-text').value = '';
+		document.getElementById('message').value = '';
+	  };
+}
