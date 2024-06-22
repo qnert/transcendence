@@ -22,7 +22,6 @@ from two_factor.urls import urlpatterns as tf_urls
 from api.views import auth_callback
 from game.views import game, multiplayer, get_username, matches
 
-
 urlpatterns = [
 	path('', include('django_prometheus.urls')),
     path('admin/', admin.site.urls),
@@ -38,5 +37,5 @@ urlpatterns = [
     path('matches/', matches, name='matches'),
     # path('rosetta/', include('rosetta.urls')),
     path('api/', include('api.urls')),
-
+    path('tournament/', include('tournament.urls')),
 ]

@@ -40,3 +40,24 @@ bash:
 	@echo 'Enter service name to start bash:'
 	@read service; \
 	docker-compose -f src/docker-compose.yml exec $$service /bin/bash
+
+.PHONY: showmigrations
+showmigrations:
+	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py showmigrations
+
+.PHONY: superuser
+superuser:
+	docker-compose -f src/docker-compose.yml exec backend /usr/local/bin/python backend/manage.py createsuperuser
+
+.PHONY: logs
+logs:
+	@echo "Services:"
+	@docker-compose -f src/docker-compose.yml config --services | column
+	@echo
+	@echo 'Enter service name to follow logs:'
+	@read service; \
+	docker-compose -f src/docker-compose.yml logs -f $$service
+
+.PHONY: d
+d:
+	docker-compose -f src/docker-compose.yml up -d

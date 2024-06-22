@@ -1,0 +1,54 @@
+<div>
+    <form id="tournament-form">
+        <div class="form-group">
+            <h2>Create Tournament</h2>
+            <label></label>
+            <input
+                type="text"
+                class="form-control"
+                id="tournament-form-name-field"
+                placeholder="Enter Tournament Name"
+                aria-describedby="tournament-form-name-field-helper"
+            />
+            <small
+                id="tournament-form-name-field-helper"
+                class="form-text text-muted"
+            >
+                <strong>Note:</strong> [ A-Z ] [ a-z ] [ 0-9 ] [ ._ ]
+                <em> must contain at least one letter, no spaces </em>
+                <br />
+            </small>
+            <button
+                type="submit"
+                form="tournament-form"
+                id="tournamentCreateButton"
+                class="btn btn-primary"
+            >
+                Create
+            </button>
+        </div>
+    </form>
+</div>
+
+<div id="join-field-group">
+    <h2>Join Tournament</h2>
+    <label for="join-field-list">Choose an existing Tournament:</label>
+    <select id="join-field-list" name="join-field-tournament">
+        <option selected="true" disabled="true"></option>
+        {% for tournament in tournaments %}
+        <option value="{{ tournament.name }}">{{ tournament.name }}</option>
+        {% endfor %}
+    </select>
+    <button
+        type="submit"
+        form="join-field-list"
+        id="tournamentJoinButton"
+        class="btn btn-primary"
+    >
+        Join
+    </button>
+</div>
+
+<div>
+    <button id="tournamentBackButton" class="btn btn-primary">Back</button>
+</div>

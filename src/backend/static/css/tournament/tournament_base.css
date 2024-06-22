@@ -1,0 +1,41 @@
+* {
+    box-sizing: border-box;
+}
+
+#header {
+    h1 {
+        text-align: center;
+    }
+    button {
+        margin-left: 20px;
+        align-items: center;
+    }
+}
+
+#newContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    div {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        > * {
+            margin: 5px;
+        }
+    }
+    #tournament-lobby-chat {
+        #lobby-chat-log {
+            height: 200px;
+            width: 80%;
+        }
+        #lobby-chat-message-input {
+            width: 80%;
+        }
+    }
+}
