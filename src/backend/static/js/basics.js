@@ -3,13 +3,17 @@ import { generateQRCode, validateOTP, handleCheckbox, checkBox } from "./profile
 import { bindProfileButton} from "./profile/buttons.js";
 import { bindSaveChangesButton } from "./profile/buttons.js";
 import { checkAccessToken, setNewPasswd } from "./profile/profile.js";
-import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton } from "./navbar/buttons.js";
+import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton, tournamentButton } from "./navbar/buttons.js";
 import { login, logout, oauth, setPasswd } from "./navbar/logging.js";
 import { checkLoginStatus } from "./login_check.js";
 import { startGameButton, resetGameButton } from "./game/game.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
 import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
+import { initTournamentHubEventLoop } from "./tournament/tournament_hub.js";
+
+
+
 
 window.addEventListener("popstate", function (event) {
     if (event.state && event.state.path) {
@@ -129,6 +133,8 @@ export function reattachEventListeners() {
 	startRemoteGame();
 	bindProfileButton();
 	bindSaveChangesButton();
+	tournamentButton();
+	initTournamentHubEventLoop();
 	}
 	
 window.onload = function () {

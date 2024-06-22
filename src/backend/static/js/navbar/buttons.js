@@ -31,6 +31,17 @@ export function loginButton() {
     }
 }
 
+export function tournamentButton() {
+    const tournamentButton = document.getElementById("tournamentButton");
+    if (tournamentButton) {
+        tournamentButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            window.history.pushState({ path: "/tournament/hub/" }, "", "/tournament/hub/");
+			updateContent("/tournament/hub/");
+        });
+    }
+}
+
 export function defaultButton() {
     const defaultButton = document.getElementById("defaultButton");
     if (defaultButton) {

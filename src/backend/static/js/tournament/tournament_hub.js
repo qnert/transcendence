@@ -1,37 +1,50 @@
 import { initTournamentLobbyEventLoop } from "./tournament_lobby.js";
+import { handleRoute, updateContentToken, updateContent } from "../basics.js";
+ 
 
 console.log("< tournament_hub.js > loaded successfully");
 
 const msgInvalidName = "Invalid tournament name!";
 const msgInvalidOption = "Please select an existing Tournament!";
 
-function initTournamentHubEventLoop() {
-    document.addEventListener("click", function (event) {
-        event.preventDefault();
-    });
+export function initTournamentHubEventLoop() {
 
-    document
-        .getElementById("tournamentCreateButton")
-        .addEventListener("click", function () {
-            createTournament();
-        });
+	const  tournementCreateButton =   document.getElementById("tournamentCreateButton")
+	if(tournementCreateButton){
+		document
+			.getElementById("tournamentCreateButton")
+			.addEventListener("click", function (event) {
+				event.preventDefault();
+				createTournament();
+			});
+	}
+	const tournamentJoinButton = document.getElementById("tournamentJoinButton");
+	if(tournamentJoinButton){
+		document
+			.getElementById("tournamentJoinButton")
+			.addEventListener("click", function (event) {
+				event.preventDefault();
+				joinTournament();
+			});
+	}
 
-    document
-        .getElementById("tournamentJoinButton")
-        .addEventListener("click", function () {
-            joinTournament();
-        });
-
-    document
-        .getElementById("tournamentBackButton")
-        .addEventListener("click", function () {
-            getBack();
-        });
+	const tournamentBackButton =document.getElementById("tournamentBackButton")
+	if(tournamentBackButton){
+		document
+			.getElementById("tournamentBackButton")
+			.addEventListener("click", function (event) {
+				event.preventDefault();
+				getBack();
+			});
+	}
 
     const dropdownMenu = document.getElementById("join-field-list");
-    dropdownMenu.addEventListener("focus", function () {
-        updateTournamentList(dropdownMenu);
-    });
+	if (dropdownMenu){
+		dropdownMenu.addEventListener("focus", function (event) {
+			event.preventDefault();
+			updateTournamentList(dropdownMenu);
+		});
+	}
 }
 
 async function updateTournamentList(dropdownMenu) {
@@ -77,6 +90,7 @@ async function joinTournament() {
     if (selectedOption && selectedOption.innerHTML) {
         const tournamentName = selectedOption.innerHTML;
         enterTournamentLobby(tournamentName);
+		// TODO maybe use updateContentToken here and define pathname in this function before
     }
     else{
         alert(msgInvalidOption);
@@ -102,14 +116,18 @@ async function enterTournamentLobby(tournamentName) {
 
     postParticipant(tournamentName);
 
-    const newContent = document.getElementById("newContent");
     const pathname = "/tournament/lobby/" + tournamentName + "/";
     const tournamentLobby = await fetch(pathname, {
         method: "GET",
     });
     const html = await tournamentLobby.text();
-    newContent.innerHTML = html;
-    history.pushState({ tournamentName: tournamentName }, "", pathname);
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(html, "text/html");
+	const newContent = doc.querySelector("#newContent");
+	const oldContent = document.getElementById("oldContent");
+	oldContent.innerHTML = "";
+	oldContent.appendChild(newContent);
+	history.pushState({ tournamentName: tournamentName }, "", pathname);
     initTournamentLobbyEventLoop();
 }
 

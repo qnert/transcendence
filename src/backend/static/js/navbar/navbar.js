@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", checkAccessToken);
 
 export const showLoggedInState = (username) => {
     navButtons.innerHTML = `
-      <button class="nav-button" id="homeButton">Home</button>
+      <button class="nav-button" id="homeButton">42Transcendence</button>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -32,6 +32,9 @@ export const showLoggedInState = (username) => {
         <li class="nav-item">
             <button class="nav-button" id="multiplayerGame">Play Multiplayer</button>
           </li>
+        <li class="nav-item">
+            <button class="nav-button" id="tournamentButton">Tournament</button>
+          </li>
           <li class="nav-item dropdown">
             <button class="nav-button dropdown-toggle" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
               ${username}
@@ -51,7 +54,7 @@ export const showLoggedInState = (username) => {
 export const showLoggedOutState = () => {
     navButtons.innerHTML = `
         <li class="nav-item">
-          <button class="nav-button" id="defaultButton">Home</button>
+          <button class="nav-button" id="defaultButton">42Transcendence</button>
         </li>
         <li class="nav-item">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
