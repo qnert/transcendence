@@ -185,14 +185,13 @@ export function getUsername() { //jwt token?
 	}
 
 	window.onload = async function () {
-		const currentUrl = window.location.href;
-		console.log(currentUrl);
+		let currentUrl = window.location.href;
 		if (currentUrl.includes("/profile/")) {
 			await fetchProfileData();
 			await checkBox();
 		}
 		else if (currentUrl.includes("/friend/")) {
-			let words = url.split("/");
+			let words = currentUrl.split("/");
 			let display_name = words[4];
 			await fetchFriendsData(display_name);
 		}
