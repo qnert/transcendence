@@ -1,3 +1,10 @@
+:root {
+  --MAIN_COLOR_BACKGROUND: white;
+  --MAIN_COLOR_FONT: black;
+  --MAIN_COLOR_ACCENT: #007bff;
+  --MAIN_COLOR_SHADOW: rgba(0, 0, 0, 0.5);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -14,9 +21,9 @@
   .borderedBox {
     width: 400px; /* Adjust width as needed */
     padding: 20px;
-    border: 1px solid #007bff; /* Blue border */
+    border: 1px solid var(--MAIN_COLOR_ACCENT); /* Blue border */
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px var(--MAIN_COLOR_SHADOW);
     display: flex;
     flex-direction: column; /* Flexbox column direction */
     justify-content: center; /* Center items vertically */
@@ -34,7 +41,7 @@
 
     .form-check {
       .form-check-input {
-        border: 1px solid #007bff; /* Blue border */
+        border: 1px solid var(--MAIN_COLOR_ACCENT); /* Blue border */
         border-radius: 5px;
       }
     }
