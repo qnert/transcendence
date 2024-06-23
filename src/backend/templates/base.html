@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{% static 'css/chat.css' %}">
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'css/multiplayer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tournament/tournament_base.css' %}">
 
 
   </head>
@@ -113,10 +114,13 @@
   <script type="module" src="{% static "js/security/csrft.js" %}"></script>
   <script type="module" src="{% static "js/security/jwt.js" %}"></script>
 
+
+  <script type="module" src="{% static "js/tournament/tournament_hub.js" %}"></script>
+  <script type="module" src="{% static "js/tournament/tournament_lobby.js" %}"></script>
+
   {% comment %}  {% endcomment %}
   <script type="module" src="{% static "js/login_check.js" %}"></script>
   <script type="module" src="{% static "js/basics.js" %}"></script>
-
 
 <script>
 
