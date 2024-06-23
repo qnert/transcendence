@@ -2,13 +2,27 @@ let ballSpeed_og;
 
 const ballSpeedVar = document.getElementById("ballSpeed");
 if (ballSpeedVar) {
-    ballSpeed_og = ballSpeedVar.value;
+    ballSpeed_og = document.getElementById("ballSpeed").value;
 }
 
 export function createGameButton() {
     const createMultiplayer = document.getElementById("createMultiplayer");
     if (createMultiplayer) {
-        createMultiplayer.addEventListener("click", create_join_game);
+        createMultiplayer.onclick = () => create_join_game();
+    }
+}
+
+export function startRemoteGame() {
+    const startRemoteGame = document.getElementById("startRemoteGame");
+    if (startRemoteGame) {
+        startRemoteGame.onclick = () => remote_start();
+    }
+}
+
+export function resetRemoteGameButton() {
+    const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
+    if (resetRemoteGameButton) {
+        resetRemoteGameButton.onclick = () => reset();
     }
 }
 
@@ -29,7 +43,7 @@ export function createGameButton() {
   //ball vars
   let ballWidth = 10;
   let ballHeight = 10;
-  let ballSpeed = ballSpeed_og;
+let ballSpeed = ballSpeed_og;
   let random = Math.random() > 0.5 ? 1 : -1;
   let ballAngle = random * Math.PI / 4;
   random = Math.random() > 0.5 ? 1 : -1;
@@ -103,7 +117,7 @@ export function createGameButton() {
   let username;
   let connected_users;
 
-  function create_join_game(){
+  export function create_join_game(){
     border_color = document.getElementById("borders").value;
     ball_color = document.getElementById("ballColor").value;
     background_color = document.getElementById("background").value;
@@ -115,6 +129,10 @@ export function createGameButton() {
     if (/[^a-zA-Z0-9]/.test(room_name)){
       alert('Please enter only alphabetical characters !');
       return;
+    }
+	if (room_name.length < 4 || room_name.trim() === "") {
+        alert("Please enter a Room Name with values atleast 4 characters!");
+        return;
     }
     fetch("/username/")
     .then(response => {
@@ -268,20 +286,6 @@ export function createGameButton() {
     });
   }
 
-export function resetRemoteGameButton() {
-    const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
-    if (resetRemoteGameButton) {
-        resetRemoteGameButton.addEventListener("click", reset);
-    }
-}
-
-export function startRemoteGame() {
-    const startRemoteGame = document.getElementById("startRemoteGame");
-    if (startRemoteGame) {
-        startRemoteGame.addEventListener("click", remote_start);
-    }
-}
-
 function remote_start() {
     if (document.getElementById("player2").textContent == "waiting...") {
         alert("Wait for another player to join!");
@@ -310,6 +314,8 @@ function reset() {
     document.getElementById("myForm").style.display = "block";
     document.getElementById("board").style.display = "none";
     document.getElementById("resetRemoteGameButton").style.display = "none";
+    document.getElementById("left_player").style.display = "none";
+    document.getElementById("right_player").style.display = "none";
     chatSocket.close();
 }
 
