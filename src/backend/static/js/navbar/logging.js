@@ -12,8 +12,11 @@ export function setPasswd() {
             event.preventDefault();
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
-
-            if (password !== confirmPassword) {
+			if (password.length < 3) {
+				alert("Please enter a Password with atleast 4");
+				return;
+			}
+            else if (password !== confirmPassword) {
                 alert("Passwords do not match! Try again!");
             } else {
                 const csrftoken = getCookie("csrftoken");

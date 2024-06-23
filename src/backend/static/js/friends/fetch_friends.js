@@ -198,6 +198,6 @@ export async function pendingFriendRequest() {
                     });
                 }
             });
-        updateFriendDropdown();
-    }
+      }
+    updateFriendDropdown();
 }
