@@ -5,15 +5,13 @@ import { getCookie } from "../security/csrft.js";
 document.addEventListener("DOMContentLoaded", checkAccessToken);
 
 export const showLoggedInState = (username) => {
-    navButtons.innerHTML = `
-      <button class="nav-button" id="homeButton">42Transcendence</button>
+  navButtons.innerHTML = `
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <li class="nav-item">
         <button class="nav-button" id="game" >Solo Game</button>
       </li>
-
         <li class="nav-item dropdown">
           <button class="nav-button dropdown-toggle" id="friendsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             Friends
@@ -48,14 +46,11 @@ export const showLoggedInState = (username) => {
         </ul>
       </li>
       `;
-    reattachEventListeners();
+  reattachEventListeners();
 };
 
 export const showLoggedOutState = () => {
-    navButtons.innerHTML = `
-        <li class="nav-item">
-          <button class="nav-button" id="defaultButton">42Transcendence</button>
-        </li>
+  navButtons.innerHTML = `
         <li class="nav-item">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -68,5 +63,5 @@ export const showLoggedOutState = () => {
           <button class="nav-button" id="registerButton">Authenticate with 42</button>
         </li>
       `;
-    reattachEventListeners();
+  reattachEventListeners();
 };
