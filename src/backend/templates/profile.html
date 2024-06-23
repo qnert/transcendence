@@ -34,12 +34,15 @@
       </div>
 
       <button type="submit" class="btn btn-primary" id="saveChangesButton">Save Changes</button>
-
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="checkBox2FA" />
-        <label class="form-check-label" for="checkBox2FA">2FA is activated</label>
-      </div>
     </form>
+
+    <h2 class="mt-5">2-Factor Authentication</h2>
+    <div class="borderedBox">
+      <div class="form-check">
+        <label class="form-check-label" for="checkBox2FA">Activate/Deactivate</label>
+        <input class="form-check-input" type="checkbox" value="" id="checkBox2FA" />
+      </div>
+    </div>
 
     <h2 class="mt-5">Change Password</h2>
     <form class="borderedBox" id="newPasswordForm" method="POST" enctype="multipart/form-data">

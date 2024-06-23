@@ -10,6 +10,7 @@
   min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
   width: 100%; /* Full viewport width */
   padding-top: 70px; /* Add padding to account for the navbar */
+
   .borderedBox {
     width: 400px; /* Adjust width as needed */
     padding: 20px;
@@ -22,11 +23,20 @@
     align-items: center; /* Center items horizontally */
     background-color: #ffffff; /* White background */
     text-align: left;
+
     input {
       margin-bottom: 10px;
     }
+
     button {
       margin-top: 20px;
+    }
+
+    .form-check {
+      .form-check-input {
+        border: 1px solid #007bff; /* Blue border */
+        border-radius: 5px;
+      }
     }
   }
 }
