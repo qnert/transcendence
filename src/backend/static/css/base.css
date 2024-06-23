@@ -19,7 +19,7 @@
   padding-top: 70px; /* Add padding to account for the navbar */
 
   .borderedBox {
-    width: 400px; /* Adjust width as needed */
+    width: 600px; /* Adjust width as needed */
     padding: 20px;
     border: 1px solid var(--COLOR-BASE-ACCENT);
     border-radius: 5px;
