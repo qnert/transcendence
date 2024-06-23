@@ -1,14 +1,4 @@
 /* Add Flexbox styles to the container of the content */
-#newContent {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
-    width: 100%;  /* Full viewport width */
-    padding-top: 70px; /* Add padding to account for the navbar */
-}
-
 /* Style the form to match the design */
 #myForm {
     width: 400px; /* Adjust width as needed */
