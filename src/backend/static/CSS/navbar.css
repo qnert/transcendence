@@ -14,8 +14,8 @@
 .navbar-brand {
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
-  background-color: black;
+  color: black;
+  background-color: white;
   text-decoration: none;
   margin-right: auto; /* Pushes the brand to the left */
   transition: background-color 0.3s;
@@ -23,7 +23,7 @@
 }
 
 .navbar-brand:hover {
-  background-color: blue;
+  background-color: black;
   color: white;
 }
 
