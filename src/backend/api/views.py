@@ -47,7 +47,7 @@ from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from api.decorators import *
-
+import validators
 
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
 UID = os.environ.get('UID_42')
@@ -320,6 +320,13 @@ def get_username(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+def is_valid_url(url):
+    try:
+        response = requests.get(url)
+        return response.status_code == 200  # Check if the response is OK (status code 200)
+    except requests.exceptions.RequestException:
+        return False
+
 @own_jwt_required
 def save_changes(request):
     if request.method == "POST":
@@ -328,8 +335,12 @@ def save_changes(request):
         display_name = data.get('display_name')
         picture_url = data.get('picture_url')
         profile = user.profile
+        if UserProfile.objects.exclude(user=user).filter(display_name=display_name).exists():
+            return JsonResponse({'error': 'Display name already in use'}, status=403)
         if picture_url == "":
             profile.profile_picture_url = "https://media.istockphoto.com/id/1201041782/photo/alpaca.jpg?s=612x612&w=0&k=20&c=aHFfLZMuyEyyiJux4OghXfdcc40Oa6L7_cE0D7zvbtY="
+        elif not is_valid_url(picture_url) :
+            return JsonResponse({'error': 'Invalid URL, choose a new one'}, status=403)
         else:
             profile.profile_picture_url = picture_url
         profile.display_name = display_name
