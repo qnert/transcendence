@@ -11,7 +11,7 @@ import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
 import { initTournamentHubEventLoop } from "./tournament/tournament_hub.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
-
+import { matchHistoryButton } from "./profile/buttons.js";
 
 
 window.addEventListener("popstate", function (event) {
@@ -131,6 +131,7 @@ export function reattachEventListeners() {
 	bindSaveChangesButton();
 	tournamentButton();
 	initTournamentHubEventLoop();
+	matchHistoryButton();
 	}
 
 
