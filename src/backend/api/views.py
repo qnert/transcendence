@@ -327,13 +327,12 @@ def save_changes(request):
         data = json.loads(request.body)
         display_name = data.get('display_name')
         picture_url = data.get('picture_url')
-        print("picture_url:", picture_url)
-        print("displa_name:", display_name)
         profile = user.profile
-        if display_name is not None:
-            profile.display_name = display_name
-        if picture_url is not None:
+        if picture_url == "":
+            profile.profile_picture_url = "https://media.istockphoto.com/id/1201041782/photo/alpaca.jpg?s=612x612&w=0&k=20&c=aHFfLZMuyEyyiJux4OghXfdcc40Oa6L7_cE0D7zvbtY="
+        else:
             profile.profile_picture_url = picture_url
+        profile.display_name = display_name
         profile.save()
         return JsonResponse({'message': 'Changes saved successfully'})
     else:
@@ -478,12 +477,13 @@ def fetch_user_data(request):
                                        email=email,
                                        )
 
-        user_profile, profile_created = UserProfile.objects.get_or_create(user=user,
-                                                                          profile_picture_url=profile_picture_url,
-                                                                          needs_password_set=True,
-                                                                          registered=True,
-                                                                          display_name=username,
-                                                                          )
+        user_profile, profile_created = UserProfile.objects.get_or_create(
+		user=user,
+        profile_picture_url=profile_picture_url,
+        needs_password_set=True,
+        registered=True,
+        display_name=username,
+        )
         return JsonResponse({'success': 'success'}, status=200)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
