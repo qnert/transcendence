@@ -1,35 +1,32 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
 
-{% block content %}
 <div id="newContent">
-
-	<div id="tournament-lobby-chat">
-		<h2>Lobby: {{ lobby_name }}</h2>
-		<h3 id="tournament-lobby-state"></h3>
-		<div id="lobby-participants-list"></div>
-		<textarea
-			class="form-control"
-			id="lobby-chat-log"
-			cols="100"
-			rows="20"
-			readonly
-		></textarea
-		><br />
-		<input
-			class="form-control"
-			id="lobby-chat-message-input"
-			type="text"
-			size="100"
-		/><br />
-		<input
-			class="btn btn-primary"
-			id="lobby-chat-message-submit"
-			type="button"
-			value="Send"
-		/>
-		{{ lobby_name|json_script:"lobby_name" }}
-	</div>
-
+  <div id="tournament-lobby-chat">
+    <h2>Lobby: {{ lobby_name }}</h2>
+    <h3 id="tournament-lobby-state"></h3>
+    <div id="lobby-participants-list"></div>
+    <textarea
+      class="form-control"
+      id="lobby-chat-log"
+      cols="100"
+      rows="20"
+      readonly
+    ></textarea
+    ><br />
+    <input
+      class="form-control"
+      id="lobby-chat-message-input"
+      type="text"
+      size="100"
+    /><br />
+    <input
+      class="btn btn-primary"
+      id="lobby-chat-message-submit"
+      type="button"
+      value="Send"
+    />
+    {{ lobby_name|json_script:"lobby_name" }}
+  </div>
 </div>
 
 {% endblock content %}
