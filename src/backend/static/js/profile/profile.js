@@ -8,7 +8,7 @@ import { getCookie } from "../security/csrft.js";
 export function setNewPasswd() {
     const passwd = document.getElementById("newPasswdButton");
     if (passwd) {
-        passwd.addEventListener("click", async function (event) {
+        passwd.onclick = async function (event) {
             event.preventDefault();
             const oldPassword = document.getElementById("oldPassword").value;
             const password = document.getElementById("password").value;
@@ -51,7 +51,7 @@ export function setNewPasswd() {
                     console.error("something went wrong");
                 }
             }
-        });
+        };
     }
 }
 
