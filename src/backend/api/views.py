@@ -58,8 +58,10 @@ state = ''
 def get_friends_profile(request):
     if request.method == "GET":
         display_name = request.GET.get('display_name')
-        print(display_name)
-        user_profile = UserProfile.objects.get(display_name=display_name)
+        try:
+            user_profile = UserProfile.objects.get(display_name=display_name)
+        except UserProfile.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'}, status=404)
         profile_picture = user_profile.profile_picture_url
 
         profile_data = {

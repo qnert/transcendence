@@ -72,9 +72,6 @@ export async function updateContentToken(path) {
     }
 }
 
-
-
-
 export function updateContent(path) {
     fetch(path, {
 		method: "GET",
@@ -136,10 +133,7 @@ export function reattachEventListeners() {
 	tournamentButton();
 	initTournamentHubEventLoop();
 	}
-	
-window.onload = function () {
-    loadFriends();
-};
+
 
 export let chatSocket;
 export let selectedFriendId = null;
@@ -182,7 +176,7 @@ export function getUsername() { //jwt token?
 			return false;
 		}
 	}
-	
+
 	export function handle401Error() {
 		if (getLoginStatus()) {
 			logout();
@@ -192,22 +186,28 @@ export function getUsername() { //jwt token?
 		checkAccessToken();
 	}
 
-
-
-	window.onload = async function loadFriendsPage(){
-		let url = window.location.href
-		if(url.includes("/friend/")){
-			let words = url.split("/");
-			let display_name = words[4];
-			await fetchFriendsData(display_name);
-		}
-	}
-
 	window.onload = async function () {
-		const currentUrl = window.location.href;
-		console.log(currentUrl);
+		let currentUrl = window.location.href;
 		if (currentUrl.includes("/profile/")) {
 			await fetchProfileData();
 			await checkBox();
+		}
+		else if (currentUrl.includes("/friend/")) {
+			let words = currentUrl.split("/");
+			let display_name = words[4];
+			await fetchFriendsData(display_name);
+		}
+		else if(!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/"){
+			loadFriends();
+		}
+		else if (currentUrl.includes("game")) {
+			document.getElementById("background").value = "#ffffff"; // Default to white
+			document.getElementById("borders").value = "#0000ff"; // Default to blue
+			document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+		}
+		else if (currentUrl.includes("multiplayer")) {
+			document.getElementById("background").value = "#ffffff"; // Default to white
+			document.getElementById("borders").value = "#0000ff"; // Default to blue
+			document.getElementById("ballColor").value = "#0000ff"; // Default to blue
 		}
 	};

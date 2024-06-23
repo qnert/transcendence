@@ -1,20 +1,51 @@
-import { getUsernameFromBackend } from "../module.js";
+import { loadFriends, sendFriendRequest, updateUserStatus } from './fetch_friends.js';
+import { deleteFriend } from './fetch_friends.js';
 
+  window.deleteFriend = deleteFriend;
+  window.sendFriendRequest = sendFriendRequest;
+  window.acceptRequest = acceptRequest;
+  window.denyRequest = denyRequest;
+  window.stopPropagation = stopPropagation;
 
-const userId = getUsernameFromBackend();
-const friendSocket = new WebSocket("ws://" + window.location.host + "/ws/online/");
+  let userId = null;
+  export let friendSocket = null;
+  getUsernameFromBackend();
 
-friendSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
-    console.log(data);
-    if (data.type === "friend_request_accepted") updateFriendDropdown(data.friend_profile_picture_url, data.friend_name, data.friend_id);
-    else if (data.type === "user_status") updateUserStatus();
-    else if (data.type === "friend_request_notification") displayAlert(data.friend_name, data.friend_id);
-};
+  function getUsernameFromBackend() {
+    return fetch('/api/get_user_id/')
+      .then(response => response.json())
+      .then(data => {
+        userId = data.id;
+      })
+      .catch(error => {
+        console.error('Error loading user ID:', error);
+        throw error;
+      });
+  }
 
-friendSocket.onclose = function (e) {
-    console.error("Online socket closed");
-};
+  export function initFriendSocket() {
+    friendSocket = new WebSocket(
+    'ws://' + window.location.host + '/ws/online/'
+    );
+
+    friendSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        console.log(data);
+        if (data.type === "friend_request_accepted") {
+          updateFriendDropdown(data.friend_profile_picture_url, data.friend_name, data.friend_id);
+          loadFriends();
+        }
+        else if (data.type === "user_status")
+          updateUserStatus();
+        else if (data.type === "friend_request_notification")
+          displayAlert(data.friend_name, data.friend_id);
+    };
+
+    friendSocket.onclose = function (e) {
+        console.log("Online socket closed");
+    };
+  }
+
 
 function displayAlert(friendName, requestId) {
     const alertsContainer = document.getElementById("alerts-container");
@@ -30,11 +61,10 @@ function displayAlert(friendName, requestId) {
         <a class="btn btn-success btn-sm ms-2" onclick="acceptRequest(${requestId}, this)">Accept</a>
         <a class="btn btn-danger btn-sm ms-2" onclick="denyRequest(${requestId}, this)">Deny</a>
     `;
-
     alertsContainer.appendChild(alertDiv);
 }
 
-function updateFriendDropdown() {
+export function updateFriendDropdown() {
     fetch("/api/friends/")
         .then((response) => response.json())
         .then((data) => {
@@ -115,10 +145,29 @@ export function searchFriends() {
     }
 }
 
+export function acceptRequest(requestId, element) {
+  if (friendSocket && friendSocket.readyState === WebSocket.OPEN) {
+    friendSocket.send(
+      JSON.stringify({
+        action: "accept",
+        request_id: requestId,
+      })
+    );
+    if (element.id != "accept_button_offline")
+      removeAlert(element);
+    else {
+      element.closest(".friend-request-item").remove();
+      updateFriendDropdown();
+      loadFriends();
+      checkFriendRequests();
+    }
+  } else {
+    alert("Error Websocket not open");
+  }
+}
 
-
-function denyRequest(requestId, element) {
-    if (friendSocket.readyState === WebSocket.OPEN) {
+export function denyRequest(requestId, element) {
+    if (friendSocket && friendSocket.readyState === WebSocket.OPEN) {
         friendSocket.send(
             JSON.stringify({
                 action: "deny",

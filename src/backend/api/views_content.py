@@ -1,9 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .decorators import *
-# from .views import check_access_token
 from django.http import JsonResponse
-
+from .models import *
 
 def baseView(request):
 	return render(request, 'base.html')
@@ -27,8 +26,13 @@ def profileView(request):
     return render(request, 'profile.html')
 
 
-def friends_profile(request, name):
-	context= {'name': name}
+def friends_profile(request, display_name):
+	try:
+		user_profile = UserProfile.objects.get(display_name=display_name)
+	except:
+		context= {'error_message': f'There is no user with name: {display_name}'}
+		return render(request, '404.html', context)
+	context= {'display_name': display_name}
 	return render(request, 'friends.html', context)
 
 
