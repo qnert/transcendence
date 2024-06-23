@@ -1,11 +1,13 @@
 import { getCookie } from "../security/csrft.js";
 import { updateFriendDropdown, acceptRequest, denyRequest } from "./action_friends.js";
 import { selectFriend } from "../chat/action_chat.js";
+import { friendSocket } from "./action_friends.js";
 
 window.acceptRequest = acceptRequest;
 window.denyRequest = denyRequest;
 
 export function loadFriends() {
+  if (friendSocket) {
     fetch("/api/friends/")
         .then((response) => response.json())
         .then((data) => {
@@ -78,6 +80,7 @@ export function loadFriends() {
             }
         })
         .catch((error) => console.error("Error loading friends:", error));
+  }
 }
 
 export function updateUserStatus() {

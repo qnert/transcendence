@@ -2,6 +2,7 @@ import { getCookie } from "./security/csrft.js";
 import { loadFriends, pendingFriendRequest } from "./friends/fetch_friends.js";
 import { loadChatHTML } from "./chat/action_chat.js";
 import { initFriendSocket } from "./friends/action_friends.js";
+import { friendSocket } from "./friends/action_friends.js";
 
 export async function checkLoginStatus() {
     const currentUrl = window.location.href;
@@ -31,7 +32,7 @@ export async function checkLoginStatus() {
             },
             body: JSON.stringify({ token: token }),
         });
-        if (response.ok) {
+        if (response.ok && !friendSocket) { //check friendSocket to see if the user is already online
           initFriendSocket();
           loadChatHTML();
           loadFriends();
