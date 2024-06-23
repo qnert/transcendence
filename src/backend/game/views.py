@@ -19,11 +19,30 @@ def game(request):
 def multiplayer(request, room_name=None):
   return render(request, 'multiplayer.html', {'room_name': room_name})
 
+def history(request):
+  return render(request, 'match_history.html')
+
 def get_username(request):
   username = UserProfile.objects.get(user=request.user)
   return JsonResponse({'username': username.display_name})
 
-def matches(request):
-  user_profile = request.user.profile
-  game_results = GameResult.objects.filter(user_profile=user_profile)
-  return render(request, 'game/match_history.html', {'game_results': game_results})
+def game_history(request):
+    if request.method == "GET":
+        user_profile = request.user.profile
+        game_results = GameResult.objects.filter(user_profile=user_profile)
+        if game_results is None:
+            return JsonResponse({'error': 'There is no Game History'}, status=400)
+        data = [
+            {
+                # 'user_profile': result.user_profile.display_name,
+                'opponent_profile': result.opponent_profile.display_name,
+                'user_score': result.user_score,
+                'opponent_score': result.opponent_score,
+                'is_win': result.is_win,
+                'date_played': result.date_played.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            for result in game_results
+        ]
+        return JsonResponse(data, safe=False)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
