@@ -138,7 +138,7 @@ export let chatSocket;
 export let selectedFriendId = null;
 
 
-export function getUsername() { //jwt token?
+export function getUsername() { //TODO jwt token?
         fetch("/api/get_username", {
             method: "GET",
             headers: {
