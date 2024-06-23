@@ -50,7 +50,7 @@ from api.decorators import *
 
 
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
-UID = "u-s4t2ud-eb4d25721512a1e2da0dcdd30cf8690c975996bfe99fea803547dfdde2556456"
+UID = os.environ.get('UID_42')
 SECRET = os.environ.get('SECRET_42')
 code = ''
 state = ''
