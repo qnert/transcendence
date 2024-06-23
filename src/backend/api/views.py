@@ -47,7 +47,7 @@ from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from api.decorators import *
-
+import validators
 
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
 UID = os.environ.get('UID_42')
@@ -320,6 +320,13 @@ def get_username(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+def is_valid_url(url):
+    try:
+        response = requests.get(url)
+        return response.status_code == 200  # Check if the response is OK (status code 200)
+    except requests.exceptions.RequestException:
+        return False
+
 @own_jwt_required
 def save_changes(request):
     if request.method == "POST":
@@ -327,13 +334,16 @@ def save_changes(request):
         data = json.loads(request.body)
         display_name = data.get('display_name')
         picture_url = data.get('picture_url')
-        print("picture_url:", picture_url)
-        print("displa_name:", display_name)
         profile = user.profile
-        if display_name is not None:
-            profile.display_name = display_name
-        if picture_url is not None:
+        if UserProfile.objects.exclude(user=user).filter(display_name=display_name).exists():
+            return JsonResponse({'error': 'Display name already in use'}, status=403)
+        if picture_url == "":
+            profile.profile_picture_url = "https://media.istockphoto.com/id/1201041782/photo/alpaca.jpg?s=612x612&w=0&k=20&c=aHFfLZMuyEyyiJux4OghXfdcc40Oa6L7_cE0D7zvbtY="
+        elif not is_valid_url(picture_url) :
+            return JsonResponse({'error': 'Invalid URL, choose a new one'}, status=403)
+        else:
             profile.profile_picture_url = picture_url
+        profile.display_name = display_name
         profile.save()
         return JsonResponse({'message': 'Changes saved successfully'})
     else:
@@ -346,10 +356,8 @@ def set_new_passwd(request):
         data = json.loads(request.body)
         old_passwd = data.get('old_passwd')
         if not authenticate(username=user.username, password=old_passwd):
-            return JsonResponse({'error': 'Incorrect old Password'}, status=400)
+            return JsonResponse({'error': 'Incorrect old Password'}, status=403)
         new_passwd = data.get('password')
-        print(request.user.username)
-        print(new_passwd)
         user.set_password(new_passwd)
         user.save()
         return JsonResponse({'message': 'New password set successfully'})
@@ -480,12 +488,13 @@ def fetch_user_data(request):
                                        email=email,
                                        )
 
-        user_profile, profile_created = UserProfile.objects.get_or_create(user=user,
-                                                                          profile_picture_url=profile_picture_url,
-                                                                          needs_password_set=True,
-                                                                          registered=True,
-                                                                          display_name=username,
-                                                                          )
+        user_profile, profile_created = UserProfile.objects.get_or_create(
+		user=user,
+        profile_picture_url=profile_picture_url,
+        needs_password_set=True,
+        registered=True,
+        display_name=username,
+        )
         return JsonResponse({'success': 'success'}, status=200)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)

@@ -6,6 +6,10 @@ import { checkBox } from "./2FA.js";
 export async function saveChanges() {
     const picture_url = document.getElementById("profile-picture_url").value;
     const display_name = document.getElementById("profile-display_name").value;
+	if (display_name.length < 1 || display_name.trim() === ""){
+		alert("display name must be atleast 1 character long");
+		return;
+	}
     const csrftoken = getCookie("csrftoken");
     const token = localStorage.getItem("access_token");
     try {
@@ -37,10 +41,10 @@ export async function saveChanges() {
 export function bindSaveChangesButton() {
     const saveChangesButton = document.getElementById("saveChangesButton");
     if (saveChangesButton) {
-        saveChangesButton.addEventListener("click", function (event) {
+        saveChangesButton.onclick = function (event) {
             event.preventDefault();
             saveChanges();
-        });
+        };
     }
 }
 

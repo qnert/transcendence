@@ -7,11 +7,10 @@ import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton, tour
 import { login, logout, oauth, setPasswd } from "./navbar/logging.js";
 import { checkLoginStatus } from "./login_check.js";
 import { startGameButton, resetGameButton } from "./game/game.js";
-import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
 import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
 import { initTournamentHubEventLoop } from "./tournament/tournament_hub.js";
-
+import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
 
 
 
@@ -139,7 +138,7 @@ export let chatSocket;
 export let selectedFriendId = null;
 
 
-export function getUsername() { //jwt token?
+export function getUsername() { //TODO jwt token?
         fetch("/api/get_username", {
             method: "GET",
             headers: {

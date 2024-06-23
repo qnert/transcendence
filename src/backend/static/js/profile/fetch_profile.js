@@ -19,7 +19,11 @@ export async function fetchProfileData() {
                 handle401Error();
                 return;
             }
-            if (response.status === 405) {
+			else if (response.status === 403){
+				alert(response.error);
+				return;
+			}
+            else if (response.status === 405) {
                 console.log("Method not allowed");
                 return;
             }
