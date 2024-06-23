@@ -1,53 +1,43 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 {% block title %}
-Pong Game
-{%endblock %}
+  Pong Game
+{% endblock %}
 {% block content %}
+  <div id="newContent">
+    <h1>Pong Game</h1>
+    <form class="borderedBox" id="myForm">
+      <label for="ballSpeed" id="labelBallSpeed">Ball Speed:</label>
+      <input id="ballSpeed" type="number" max="12" min="4" value="8" required />
 
-<div id="newContent">
-  <h1>Pong Game</h1>
-  <form class="borderedBox" id="myForm">
-    <label for="ballSpeed" id="labelBallSpeed">Ball Speed:</label>
-    <input id="ballSpeed" type="number" max="12" min="4" value="8" required />
+      <label for="maxScore" id="labelMaxScore">Max Score:</label>
+      <input id="maxScore" type="number" max="12" min="4" value="8" required />
 
-    <label for="maxScore" id="labelMaxScore">Max Score:</label>
-    <input id="maxScore" type="number" max="12" min="4" value="8" required />
+      <label for="background" id="labelBackground">Background Color:</label>
+      <input id="background" type="color" value="#ffffff" required />
 
-    <label for="background" id="labelBackground">Background Color:</label>
-    <input id="background" type="color" value="#ffffff" required />
+      <label for="borders" id="labelBorders">Border Color:</label>
+      <input id="borders" type="color" value="#0000ff" required />
 
-    <label for="borders" id="labelBorders">Border Color:</label>
-    <input id="borders" type="color" value="#0000ff" required />
+      <label for="ballColor" id="labelBallColor">Ball Color:</label>
+      <input id="ballColor" type="color" value="#0000ff" required />
 
-    <label for="ballColor" id="labelBallColor">Ball Color:</label>
-    <input id="ballColor" type="color" value="#0000ff" required />
+      <label for="advancedMode" id="labelAdvancedMode">Advanced Mode:</label>
+      <input id="advancedMode" type="checkbox" required />
 
-    <label for="advancedMode" id="labelAdvancedMode">Advanced Mode:</label>
-    <input id="advancedMode" type="checkbox" required />
+      <label for="powerUps" id="labelPowerUps">Power Ups:</label>
+      <input id="powerUps" type="checkbox" required />
 
-    <label for="powerUps" id="labelPowerUps">Power Ups:</label>
-    <input id="powerUps" type="checkbox" required />
+      <label for="AI" id="labelAI">AI enabled:</label>
+      <input id="AI" type="checkbox" required />
 
-    <label for="AI" id="labelAI">AI enabled:</label>
-    <input id="AI" type="checkbox" required /><br /><br />
-
-    <p>Please enter values between 4 and 12 and leave no field empty!</p>
-    <input id="startGameButton" type="button" value="Start Game" /><br /><br />
-  </form>
-  <div id="gameContainer">
-    <canvas id="board" style="display: none"></canvas>
-    <input
-      id="resetGameButton"
-      type="button"
-      value="Reset Game"
-      style="display: none"
-    /><br /><br />
-    <p>
-      Control the left player by using W and S keys and control the right player
-      by using Up and Down arrow keys
-    </p>
+      <p>Please enter values between 4 and 12 and leave no field empty!</p>
+      <input id="startGameButton" type="button" value="Start Game" />
+    </form>
+    <div id="gameContainer">
+      <canvas id="board" style="display: none"></canvas>
+      <input id="resetGameButton" type="button" value="Reset Game" style="display: none" />
+      <p>Control the left player by using W and S keys and control the right player by using Up and Down arrow keys</p>
+    </div>
   </div>
-</div>
-
 {% endblock %}

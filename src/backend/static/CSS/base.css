@@ -22,5 +22,11 @@
     align-items: center; /* Center items horizontally */
     background-color: #ffffff; /* White background */
     text-align: left;
+    input {
+      margin-bottom: 10px;
+    }
+    button {
+      margin-top: 20px;
+    }
   }
 }

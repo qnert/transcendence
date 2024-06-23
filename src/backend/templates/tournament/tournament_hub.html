@@ -1,55 +1,27 @@
-{% extends "base.html" %} {% block content %}
-
-<div id="newContent">
-  <h2>Create Tournament</h2>
-  <div class="borderedBox">
-    <form id="tournament-hub-form">
+{% extends 'base.html' %}
+{% block content %}
+  <div id="newContent">
+    <h2>Create Tournament</h2>
+    <form class="borderedBox" id="tournament-hub-form">
       <label></label>
-      <input
-        type="text"
-        class="form-control"
-        id="tournament-form-name-field"
-        placeholder="Enter Tournament Name"
-        aria-describedby="tournament-form-name-field-helper"
-      />
-      <small
-        id="tournament-form-name-field-helper"
-        class="form-text text-muted"
-      >
+      <input type="text" class="form-control" id="tournament-form-name-field" placeholder="Enter Tournament Name" aria-describedby="tournament-form-name-field-helper" />
+      <small id="tournament-form-name-field-helper" class="form-text text-muted">
         <strong>Note:</strong> [ A-Z ] [ a-z ] [ 0-9 ] [ ._ ]
-        <em> must contain at least one letter, no spaces </em>
-        <br />
+        <em>must contain at least one letter, no spaces</em>
       </small>
-      <button
-        type="submit"
-        form="tournament-form"
-        id="tournamentCreateButton"
-        class="btn btn-primary"
-      >
-        Create
-      </button>
+      <button type="submit" form="tournament-form" id="tournamentCreateButton" class="btn btn-primary">Create</button>
     </form>
-  </div>
-  <h2>Join Tournament</h2>
-  <div class="borderedBox">
-    <div id="join-field-group">
+
+    <h2>Join Tournament</h2>
+    <div class="borderedBox" id="join-field-group">
       <label for="join-field-list">Choose an existing Tournament:</label>
       <select id="join-field-list" name="join-field-tournament">
         <option selected="true" disabled="true"></option>
         {% for tournament in tournaments %}
-        <option value="{{ tournament.name }}">{{ tournament.name }}</option>
+          <option value="{{ tournament.name }}">{{ tournament.name }}</option>
         {% endfor %}
       </select>
-      <button
-        type="submit"
-        form="join-field-list"
-        id="tournamentJoinButton"
-        class="btn btn-primary"
-      >
-        Join
-      </button>
+      <button type="submit" form="join-field-list" id="tournamentJoinButton" class="btn btn-primary">Join</button>
     </div>
   </div>
-</div>
-
-{% endblock content %}
+{% endblock %}
