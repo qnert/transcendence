@@ -13,9 +13,14 @@ export function setNewPasswd() {
             const oldPassword = document.getElementById("oldPassword").value;
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
-            if (password !== confirmPassword) {
+			if (password.length < 3) {
+				alert("Please enter a Password with atleast 4");
+				return;
+			}
+			else if (password !== confirmPassword) {
 				alert("Passwords do not match! Try again!");
-				} else {
+			}
+			else {
 				const newPassword = passwd.cloneNode(true);
 				passwd.parentNode.replaceChild(newPassword, passwd);
                 const csrftoken = getCookie("csrftoken");
@@ -35,6 +40,10 @@ export function setNewPasswd() {
 							handle401Error();
 							alert(response.error);
 							return;
+						}
+						else if(response.status === 403){
+							alert("Incorrect old Password");
+							return ;
 						}
                     }
                     alert("Setting your new password was successful!");

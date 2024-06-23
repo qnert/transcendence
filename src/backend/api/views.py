@@ -346,10 +346,8 @@ def set_new_passwd(request):
         data = json.loads(request.body)
         old_passwd = data.get('old_passwd')
         if not authenticate(username=user.username, password=old_passwd):
-            return JsonResponse({'error': 'Incorrect old Password'}, status=400)
+            return JsonResponse({'error': 'Incorrect old Password'}, status=403)
         new_passwd = data.get('password')
-        print(request.user.username)
-        print(new_passwd)
         user.set_password(new_passwd)
         user.save()
         return JsonResponse({'message': 'New password set successfully'})
