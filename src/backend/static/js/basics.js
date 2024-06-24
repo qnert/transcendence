@@ -10,7 +10,7 @@ import { startGameButton, resetGameButton, close_solo_on_change } from "./game/g
 import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
 import { initTournamentHubEventLoop } from "./tournament/tournament_hub.js";
-import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
+import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
 
 
 
@@ -30,6 +30,7 @@ window.addEventListener("popstate", function (event) {
     }
 });
 
+window.addEventListener("popstate", close_multi_on_change);
 window.addEventListener("popstate", close_solo_on_change);
 
 document.addEventListener("DOMContentLoaded", function () {
