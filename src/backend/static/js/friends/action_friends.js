@@ -65,6 +65,7 @@ function displayAlert(friendName, requestId) {
 }
 
 export function updateFriendDropdown() {
+  if (friendSocket) {
     fetch("/api/friends/")
         .then((response) => response.json())
         .then((data) => {
@@ -104,6 +105,7 @@ export function updateFriendDropdown() {
             }
             updateUserStatus();
         });
+  }
 }
 
 function removeAlert(element) {

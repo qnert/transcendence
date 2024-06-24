@@ -6,17 +6,14 @@ import { checkAccessToken, setNewPasswd } from "./profile/profile.js";
 import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton, tournamentButton } from "./navbar/buttons.js";
 import { login, logout, oauth, setPasswd } from "./navbar/logging.js";
 import { checkLoginStatus } from "./login_check.js";
-import { startGameButton, resetGameButton } from "./game/game.js";
+import { startGameButton, resetGameButton, close_solo_on_change } from "./game/game.js";
 import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
 import { initTournamentHubEventLoop } from "./tournament/tournament_hub.js";
-import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
+import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
 import { matchHistoryButton } from "./profile/buttons.js";
 import { getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton} from "./profile/buttons.js";
 import { showLoggedOutState } from "./navbar/navbar.js";
-
-
-
 
 
 window.addEventListener("popstate", function (event) {
@@ -34,6 +31,9 @@ window.addEventListener("popstate", function (event) {
 		}
     }
 });
+
+window.addEventListener("popstate", close_multi_on_change);
+window.addEventListener("popstate", close_solo_on_change);
 
 document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();

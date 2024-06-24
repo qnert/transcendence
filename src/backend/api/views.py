@@ -49,6 +49,11 @@ from rest_framework.exceptions import AuthenticationFailed
 from api.decorators import *
 import validators
 
+# TODO make this dynamic if we deploy to server
+# possible solution inside a function:
+#     scheme = request.scheme  # 'http' or 'https'
+#     host = request.get_host()  # 'localhost:8000' or '192.168.1.x:8000'
+#     redirect_uri = f"{scheme}://{host}/oauth/callback/"
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
 UID = os.environ.get('UID_42')
 SECRET = os.environ.get('SECRET_42')

@@ -96,7 +96,9 @@ export function logout() {
                 if (!response.ok){
 					throw new Error("Logout fail");
 				}
-        friendSocket.close();
+                if (friendSocket) {
+                    friendSocket.close();
+                }
 				const access_token = localStorage.getItem("access_token");
 				if(access_token){
 					localStorage.removeItem("access_token");
