@@ -124,7 +124,6 @@ export function resetRemoteGameButton() {
     maxScore = document.getElementById("maxScore").value;
     advanced_mode = document.getElementById("advancedMode").checked;
     power_up_mode = document.getElementById("powerUps").checked;
-
     let room_name = document.getElementById("room_name").value;
     if (/[^a-zA-Z0-9]/.test(room_name)){
       alert('Please enter only alphabetical characters !');
@@ -475,7 +474,10 @@ function start_game() {
 
     if (check_and_change_score() == 1){
       cancelAnimationFrame(id);
-      document.getElementById("resetRemoteGameButton").style.display = "block";
+	  const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
+	  if(resetRemoteGameButton){
+		  document.getElementById("resetRemoteGameButton").style.display = "block";
+	  }
     }
     context.font = "45px Verdana";
     context.fillText(score1, boardWidth/5, 45);
