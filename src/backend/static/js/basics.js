@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
 });
 
-export async function updateContentToken(path) {
+async function updateContentToken(path) {
     const token = localStorage.getItem("access_token");
 
     try {
@@ -79,7 +79,7 @@ export async function updateContentToken(path) {
     }
 }
 
-export function updateContent(path) {
+function updateContent(path) {
     fetch(path, {
 		method: "GET",
         headers: {
@@ -105,6 +105,13 @@ export function updateContent(path) {
 }
 
 export async function handleRoute(path) {
+    if (window.location.pathname !== path) {
+        window.history.pushState({ path: path }, "", path);
+        await updateContent(path);
+    }
+}
+
+export async function handleRouteToken(path) {
     if (window.location.pathname !== path) {
         window.history.pushState({ path: path }, "", path);
         await updateContentToken(path);
@@ -193,8 +200,7 @@ export function getUsername() { //TODO jwt token?
 			logout();
 		}
 		showLoggedOutState();
-		window.history.pushState({ path: "/login/" }, "", "/login/");
-		updateContent("/login/");
+		handleRoute("/login/");
 		checkAccessToken();
 	}
 
