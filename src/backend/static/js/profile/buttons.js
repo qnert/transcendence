@@ -54,7 +54,7 @@ export async function bindProfileButton() {
     if (profileButton) {
         profileButton.onclick = async (event) => {
             event.preventDefault()
-            await handleRoute(event, "/profile/");
+            await handleRoute("/profile/");
             await fetchProfileData();
         };
     }
@@ -65,7 +65,7 @@ export async function matchHistoryButton(){
 	if(matchHistory){
 		matchHistory.onclick = async function(event){
 			event.preventDefault();
-			await handleRoute(event, "/history/");
+			await handleRoute("/history/");
 			await getGameHistory();
 		}
 	}

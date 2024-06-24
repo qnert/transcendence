@@ -5,7 +5,7 @@ export function soloGame() {
     if (soloGameButton) {
         soloGameButton.onclick = function (event) {
             event.preventDefault();
-            handleRoute(event, "/game/");
+            handleRoute("/game/");
         };
     }
 }
@@ -15,7 +15,7 @@ export function multiplayerGame() {
     if (multiplayerGame) {
         multiplayerGame.onclick = function (event) {
             event.preventDefault();
-            handleRoute(event, "/multiplayer/");
+            handleRoute("/multiplayer/");
         };
     }
 }

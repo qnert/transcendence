@@ -3,5 +3,5 @@ from . import consumers
 
 
 websocket_urlpatterns = [
-    re_path(r"ws/tournament/lobby/(?P<lobby_name>\w+)/$", consumers.TournamentConsumer.as_asgi()),
+    re_path(r"ws/tournament/lobby/(?P<lobby_name>\w+)/(?P<user_name>\w+)/$", consumers.TournamentConsumer.as_asgi()),
 ]

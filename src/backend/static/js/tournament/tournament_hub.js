@@ -1,141 +1,128 @@
-import { initTournamentLobbyEventLoop } from "./tournament_lobby.js";
-import { handleRoute, updateContentToken, updateContent } from "../basics.js";
+import { handleRoute } from "../basics.js";
+import { tournamentLobbyInit } from "./tournament_lobby.js";
 
-console.log("< tournament_hub.js > loaded successfully");
+// =========================== GLOBAL ===============================
 
 const msgInvalidName = "Invalid tournament name!";
 const msgInvalidOption = "Please select an existing Tournament!";
 
-export function initTournamentHubEventLoop() {
-  const tournementCreateButton = document.getElementById(
-    "tournamentCreateButton"
-  );
-  if (tournementCreateButton) {
-    document
-      .getElementById("tournamentCreateButton")
-      .addEventListener("click", function (event) {
-        event.preventDefault();
-        createTournament();
-      });
+// =========================== MAIN EVENT LOOP ===============================
+
+export function tournamentHubEventLoop() {
+  const tournamentCreateButton = document.getElementById("tournamentCreateButton");
+  if (tournamentCreateButton) {
+    tournamentCreateButton.onclick = function (event) {
+      event.preventDefault();
+      createTournament();
+    };
   }
+
   const tournamentJoinButton = document.getElementById("tournamentJoinButton");
   if (tournamentJoinButton) {
-    document
-      .getElementById("tournamentJoinButton")
-      .addEventListener("click", function (event) {
-        event.preventDefault();
-        joinTournament();
-      });
-  }
-
-  const tournamentBackButton = document.getElementById("tournamentBackButton");
-  if (tournamentBackButton) {
-    document
-      .getElementById("tournamentBackButton")
-      .addEventListener("click", function (event) {
-        event.preventDefault();
-        getBack();
-      });
-  }
-
-  const dropdownMenu = document.getElementById("join-field-list");
-  if (dropdownMenu) {
-    dropdownMenu.addEventListener("focus", function (event) {
+    tournamentJoinButton.onclick = function (event) {
       event.preventDefault();
-      updateTournamentList(dropdownMenu);
-    });
+      joinTournament();
+    };
+  }
+
+  const tournamentDropDown = document.getElementById("join-field-list");
+  if (tournamentDropDown) {
+    tournamentDropDown.onclick = async function (event) {
+      event.preventDefault();
+      await getTournamentList(tournamentDropDown);
+    };
   }
 }
 
-async function updateTournamentList(dropdownMenu) {
-  const tournamentList = await fetch("/tournament/api/get_list/", {
-    method: "GET",
-  });
-  const html = await tournamentList.text();
-  dropdownMenu.innerHTML = html;
-}
+// =========================== MAIN FUNCTIONS ===============================
 
 async function createTournament() {
-  const tournamentName = document.getElementById(
-    "tournament-form-name-field"
-  ).value;
+  // checks input for valid characters (a-z A-Z .- 0-9, maximum 50 chars, at least one letter)
   const regex = /^(?=.*[a-zA-Z])[a-zA-Z0-9.-]{1,50}$/;
-
-  if (regex.test(tournamentName)) {
-    postTournament(tournamentName);
-  } else {
+  const tournamentName = document.getElementById("tournament-form-name-field").value;
+  if (!regex.test(tournamentName)) {
     alert(msgInvalidName);
     return;
   }
-
-  async function postTournament(tournamentName) {
-    const response = await fetch("/tournament/api/create/", {
-      method: "POST",
-      body: JSON.stringify({ tournament_name: tournamentName }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      enterTournamentLobby(tournamentName);
-    } else {
-      const responseError = await response.json();
-      alert(responseError.error);
-    }
+  try {
+    await postTournament(tournamentName);
+    await enterTournamentLobby(tournamentName);
+  } catch (error) {
+    alert(error);
   }
 }
 
 async function joinTournament() {
-  const dropdownMenu = document.getElementById("join-field-list");
-  const selectedOption = dropdownMenu.options[dropdownMenu.selectedIndex];
-  if (selectedOption && selectedOption.innerHTML) {
-    const tournamentName = selectedOption.innerHTML;
-    enterTournamentLobby(tournamentName);
-    // TODO maybe use updateContentToken here and define pathname in this function before
-  } else {
+  const tournamentDropDown = document.getElementById("join-field-list");
+  const selectedOption = tournamentDropDown.options[tournamentDropDown.selectedIndex];
+  if (!selectedOption || !selectedOption.innerHTML) {
     alert(msgInvalidOption);
+    return;
   }
+  const tournamentName = selectedOption.innerHTML;
+  await enterTournamentLobby(tournamentName);
 }
 
 async function enterTournamentLobby(tournamentName) {
-  async function postParticipant(tournamentName) {
-    const response = await fetch("/tournament/api/join/", {
-      method: "POST",
-      body: JSON.stringify({ tournament_name: tournamentName }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.ok) {
-      console.log("User added");
-    } else {
-      const responseError = await response.json();
-      alert(responseError.error);
-    }
+  try {
+    const response = await postParticipant(tournamentName);
+  } catch (error) {
+    alert(error);
+    return;
   }
+  const pathToLobby = "/tournament/lobby/" + tournamentName + "/";
+  const userName = getUserNameFromDOM();
+  await handleRoute(pathToLobby);
+  await tournamentLobbyInit(tournamentName, userName);
+}
 
-  postParticipant(tournamentName);
+// =========================== API REQUESTS ===============================
 
-  const pathname = "/tournament/lobby/" + tournamentName + "/";
-  const tournamentLobby = await fetch(pathname, {
+async function postTournament(tournamentName) {
+  const response = await fetch("/tournament/api/create/", {
+    method: "POST",
+    body: JSON.stringify({ tournament_name: tournamentName }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) {
+    const responseError = await response.json();
+    throw new Error(responseError.error);
+  }
+}
+
+async function postParticipant(tournamentName) {
+  const response = await fetch("/tournament/api/join/", {
+    method: "POST",
+    body: JSON.stringify({ tournament_name: tournamentName }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) {
+    const responseError = await response.json();
+    throw new Error(responseError.error);
+  }
+}
+
+async function getTournamentList(tournamentDropDown) {
+  const tournamentList = await fetch("/tournament/api/get_list/", {
     method: "GET",
   });
-  const html = await tournamentLobby.text();
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-  const newContent = doc.querySelector("#newContent");
-  const oldContent = document.getElementById("oldContent");
-  oldContent.innerHTML = "";
-  oldContent.appendChild(newContent);
-  history.pushState({ tournamentName: tournamentName }, "", pathname);
-  initTournamentLobbyEventLoop();
+  // TODO error handling or no?
+  const html = await tournamentList.text();
+  tournamentDropDown.innerHTML = html;
 }
 
-function getBack() {
-  const newContent = document.getElementById("newContent");
-  newContent.innerHTML = "";
-  history.pushState({}, "", "/tournament/");
+function getUserNameFromDOM(){
+  const navbarDropdownMenuLink = document.getElementById("navbarDropdownMenuLink");
+  return navbarDropdownMenuLink.innerHTML.trim();
 }
 
-// @note mb export instead?
-window.initTournamentHubEventLoop = initTournamentHubEventLoop;
+// TODO implement?
+//        if (!response.ok) {
+			//if(response.status === 401){
+			//	handle401Error();
+			//	return;
+			//}
