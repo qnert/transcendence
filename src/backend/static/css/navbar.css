@@ -16,6 +16,7 @@
   font-weight: bold;
   color: black;
   background-color: white;
+  border-radius: 5px;
   text-decoration: none;
   margin-right: auto; /* Pushes the brand to the left */
   transition: background-color 0.3s;

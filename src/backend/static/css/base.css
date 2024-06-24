@@ -29,10 +29,10 @@
     justify-content: center; /* Center items vertically */
     align-items: center; /* Center items horizontally */
     background-color: var(--COLOR-BASE-BACKGROUND);
-    text-align: left;
 
     input {
       margin-bottom: 10px;
+      text-align: center;
     }
 
     button {
