@@ -43,7 +43,7 @@ export function resetRemoteGameButton() {
   //ball vars
   let ballWidth = 10;
   let ballHeight = 10;
-let ballSpeed = ballSpeed_og;
+  let ballSpeed = ballSpeed_og;
   let random = Math.random() > 0.5 ? 1 : -1;
   let ballAngle = random * Math.PI / 4;
   random = Math.random() > 0.5 ? 1 : -1;
@@ -124,7 +124,6 @@ let ballSpeed = ballSpeed_og;
     maxScore = document.getElementById("maxScore").value;
     advanced_mode = document.getElementById("advancedMode").checked;
     power_up_mode = document.getElementById("powerUps").checked;
-
     let room_name = document.getElementById("room_name").value;
     if (/[^a-zA-Z0-9]/.test(room_name)){
       alert('Please enter only alphabetical characters !');
@@ -265,6 +264,7 @@ let ballSpeed = ballSpeed_og;
             reset();
           }
           else{
+            clearInterval(intervalID);
             if (username == connected_users[0])
               alert(`${connected_users[1]} left the lobby!`);
             else
@@ -285,6 +285,15 @@ let ballSpeed = ballSpeed_og;
         console.error('Error fetching username:', error);
     });
   }
+
+export function close_multi_on_change(){
+  if (id != 0)
+    cancelAnimationFrame(id);
+  if (intervalID != 0)
+    clearInterval(intervalID);
+  if (chatSocket)
+    chatSocket.close();
+}
 
 function remote_start() {
     if (document.getElementById("player2").textContent == "waiting...") {
@@ -433,6 +442,7 @@ function start_game() {
     context.fillText(`Game starts in ${countdown}`, board.width / 2, board.height / 2);
     if (countdown <= 0){
       clearInterval(intervalID);
+      intervalID = 0;
       update();
       return;
     }
@@ -464,7 +474,10 @@ function start_game() {
 
     if (check_and_change_score() == 1){
       cancelAnimationFrame(id);
-      document.getElementById("resetRemoteGameButton").style.display = "block";
+	  const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
+	  if(resetRemoteGameButton){
+		  document.getElementById("resetRemoteGameButton").style.display = "block";
+	  }
     }
     context.font = "45px Verdana";
     context.fillText(score1, boardWidth/5, 45);

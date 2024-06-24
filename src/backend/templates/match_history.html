@@ -5,61 +5,41 @@ Pong Game
 {% endblock %}
 
 {% block content %}
-<!-- TODO remove style tag -->
-<style>
-  .container {
-      text-align: center;
-      margin-top: 20px;
-  }
-  .history {
-      display: block;
-      margin-top: 20px;
-  }
-  table {
-      width: 80%;
-      border-collapse: collapse;
-      margin: 0 auto;
-  }
-  table, th, td {
-      border: 1px solid black;
-  }
-  th, td {
-      padding: 10px;
-      text-align: center;
-  }
-  th {
-      background-color: #f2f2f2;
-  }
-</style>
+
 </head>
 <body>
 <div id="newContent">
-	<div class="container">
+	<div class="container" id="matchHistory">
 	    <h1>Your Pong Game Match History</h1>
 	    <div class="history" id="history">
 	        <table>
-	            <thead>
+	            <thead scope="col">
 	                <tr>
 	                    <th>Opponent</th>
 	                    <th>Your Score</th>
 	                    <th>Opponent's Score</th>
-	                    <th>Result</th>
+						<th>Win/Loss</th>
 	                    <th>Date Played</th>
 	                </tr>
 	            </thead>
-	            <tbody>
-	                {% for result in game_results %}
-	                <tr>
-	                    <td>{{ result.opponent_profile.display_name }}</td>
-	                    <td>{{ result.user_score }}</td>
-	                    <td>{{ result.opponent_score }}</td>
-	                    <td>{{ result.is_win|yesno:"Win,Loose" }}</td>
-	                    <td>{{ result.date_played }}</td>
-	                </tr>
-	                {% endfor %}
+	            <tbody id="history-body">
 	            </tbody>
 	        </table>
 	    </div>
+		<div>
+            <button id="pieChart">Win/Loss </button>
+            <button id="lineChartAvg">Average Rally</button>
+            <button id="lineChartMax">Longest Rally</button>
+            <button id="lineChartMin">Shortest Rally</button>
+
+			<div id="stat-result"></div>
+
+            <div id="chart-container">
+                <img id="chart" src="" alt="" />
+            </div>
+
+		</div>
+
 	</div>
 </div>
 {% endblock %}
