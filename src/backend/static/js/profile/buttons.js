@@ -109,3 +109,77 @@ export async function getGameHistory(){
         console.error("Something went wrong:", error);
     }
 }
+
+export async function pieChartButton(){
+	const chart = document.getElementById("pieChart");
+	if(chart){
+		chart.onclick = async function(event){
+			event.preventDefault();
+			getChart("pie_chart");
+		}
+	}
+}
+export async function lineChartAvgButton(){
+	const chart = document.getElementById("lineChartAvg");
+	if(chart){
+		chart.onclick = async function(event){
+			event.preventDefault();
+			getChart("line_chart_avg");
+		}
+	}
+}
+export async function lineChartMaxButton(){
+	const chart = document.getElementById("lineChartMax");
+	if(chart){
+		chart.onclick = async function(event){
+			event.preventDefault();
+			getChart("line_chart_max");
+		}
+	}
+}
+
+export async function lineChartMinButton(){
+	const chart = document.getElementById("lineChartMin");
+	if(chart){
+		chart.onclick = async function(event){
+			event.preventDefault();
+			getChart("line_chart_min");
+		}
+	}
+}
+
+async function getChart(path){
+	const token = localStorage.getItem("access_token");
+	try {
+        const response = await fetch(`/${path}/`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        if (!response.ok) {
+			if(response.status === 401){
+				handle401Error();
+				return;
+			}
+			if(response.status === 400){
+				alert("No data given!");
+				return;
+			}
+			return ;
+        } else {
+			const chart = document.getElementById('chart');
+			if(chart)
+				chart.innerHTML = "";
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('chart').src = 'data:image/png;base64,' + data.success;
+            }
+		}
+    } catch (error) {
+        console.error("Something went wrong:", error);
+    }
+}
+
+

@@ -12,6 +12,10 @@ import { fetchProfileData } from "./profile/fetch_profile.js";
 import { initTournamentHubEventLoop } from "./tournament/tournament_hub.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
 import { matchHistoryButton } from "./profile/buttons.js";
+import { getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton} from "./profile/buttons.js";
+
+
+
 
 
 window.addEventListener("popstate", function (event) {
@@ -132,7 +136,12 @@ export function reattachEventListeners() {
 	tournamentButton();
 	initTournamentHubEventLoop();
 	matchHistoryButton();
-	}
+	pieChartButton();
+	lineChartAvgButton();
+	lineChartMinButton();
+	lineChartMaxButton();
+
+}
 
 
 export let chatSocket;
@@ -209,5 +218,8 @@ export function getUsername() { //TODO jwt token?
 			document.getElementById("background").value = "#ffffff"; // Default to white
 			document.getElementById("borders").value = "#0000ff"; // Default to blue
 			document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+		}
+		else if(currentUrl.includes("history")){
+			getGameHistory();
 		}
 	};
