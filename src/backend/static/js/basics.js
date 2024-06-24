@@ -13,6 +13,7 @@ import { initTournamentHubEventLoop } from "./tournament/tournament_hub.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton } from "./game/multiplayer.js";
 import { matchHistoryButton } from "./profile/buttons.js";
 import { getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton} from "./profile/buttons.js";
+import { showLoggedOutState } from "./navbar/navbar.js";
 
 
 
@@ -190,6 +191,7 @@ export function getUsername() { //TODO jwt token?
 		if (getLoginStatus()) {
 			logout();
 		}
+		showLoggedOutState();
 		window.history.pushState({ path: "/login/" }, "", "/login/");
 		updateContent("/login/");
 		checkAccessToken();
