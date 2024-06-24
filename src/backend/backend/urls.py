@@ -20,7 +20,7 @@ from api.views import *
 from rest_framework_simplejwt import views as jwt_views
 from two_factor.urls import urlpatterns as tf_urls
 from api.views import auth_callback
-from game.views import game, multiplayer, get_username, history, game_history
+from game.views import *
 
 urlpatterns = [
 	path('', include('django_prometheus.urls')),
@@ -31,12 +31,15 @@ urlpatterns = [
 	path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
 	path('token/verify/', jwt_views.TokenVerifyView.as_view(), name="token_verify"),
 	path('callback/', auth_callback, name='oauth_callback'),
+    path('api/', include('api.urls')),
+    path('tournament/', include('tournament.urls')),
 	path('game/', game, name='game'),
     path('username/', get_username, name='get_username'),
     path('multiplayer/', multiplayer, name='multiplayer'),
     path('history/', history, name='history'),
     path('game_history/', game_history, name='game_history'),
-    # path('rosetta/', include('rosetta.urls')),
-    path('api/', include('api.urls')),
-    path('tournament/', include('tournament.urls')),
+	path('pie_chart/', generate_pie_chart),
+	path('line_chart_avg/', generate_line_chart_avg),
+	path('line_chart_max/', generate_line_chart_max),
+	path('line_chart_min/', generate_line_chart_min),
 ]
