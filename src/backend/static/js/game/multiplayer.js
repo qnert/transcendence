@@ -1,9 +1,4 @@
-let ballSpeed_og;
-
 const ballSpeedVar = document.getElementById("ballSpeed");
-if (ballSpeedVar) {
-    ballSpeed_og = document.getElementById("ballSpeed").value;
-}
 
 export function createGameButton() {
     const createMultiplayer = document.getElementById("createMultiplayer");
@@ -43,7 +38,7 @@ export function resetRemoteGameButton() {
   //ball vars
   let ballWidth = 10;
   let ballHeight = 10;
-  let ballSpeed = ballSpeed_og;
+  let ballSpeed = 0;
   let random = Math.random() > 0.5 ? 1 : -1;
   let ballAngle = random * Math.PI / 4;
   random = Math.random() > 0.5 ? 1 : -1;
@@ -118,6 +113,12 @@ export function resetRemoteGameButton() {
   let connected_users;
 
   export function create_join_game(){
+    if (ballSpeedVar) {
+      ballSpeed = document.getElementById("ballSpeed").value;
+    }
+    console.log(ballSpeed);
+    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
+    ball.speedY = ballSpeed * Math.sin(ballAngle);
     border_color = document.getElementById("borders").value;
     ball_color = document.getElementById("ballColor").value;
     background_color = document.getElementById("background").value;
@@ -274,7 +275,7 @@ export function resetRemoteGameButton() {
         }
         document.getElementById("roomInfo").style.display = "block";
         document.getElementById("versusScreen").style.display = "block";
-        document.getElementById("myForm").style.visibility = "hidden";
+        document.getElementById("myForm").style.display = "none";
         document.getElementById("board").style.display = "none";
         document.getElementById("left_player").style.display = "none";
         document.getElementById("right_player").style.display = "none";
@@ -319,7 +320,7 @@ function remote_start() {
 function reset() {
     document.getElementById("roomInfo").style.display = "none";
     document.getElementById("versusScreen").style.display = "none";
-    document.getElementById("myForm").style.visibility = "visible";
+    document.getElementById("myForm").style.visibility = "block";
     document.getElementById("myForm").style.display = "block";
     document.getElementById("board").style.display = "none";
     document.getElementById("resetRemoteGameButton").style.display = "none";
@@ -672,7 +673,6 @@ function start_game() {
       score2++;
       let random = Math.random() * 2 - 1;
       let ballAngle = random * Math.PI / 4;
-      ballSpeed = ballSpeed_og;
       ball.speedX = ballSpeed * Math.cos(ballAngle);
       ball.speedY = ballSpeed * Math.sin(ballAngle);
       ball.speedX *= -1;
@@ -684,7 +684,6 @@ function start_game() {
       score1++;
       let random = Math.random() * 2 - 1;
       let ballAngle = random * Math.PI / 4;
-      ballSpeed = ballSpeed_og;
       ball.speedX = ballSpeed * Math.cos(ballAngle);
       ball.speedY = ballSpeed * Math.sin(ballAngle);
       chatSocket.send(JSON.stringify({'type': 'reset_game', 'ball_speed_x': ball.speedX, 'ball_speed_y': ball.speedY, 'score1': score1, 'score2': score2}));
