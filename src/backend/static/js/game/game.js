@@ -19,6 +19,16 @@ export function resetGameButton() {
     }
 }
 
+let board_id = 0;
+let intervalID = 0;
+
+export function close_solo_on_change(){
+  if (board_id != 0)
+    cancelAnimationFrame(board_id);
+  if (intervalID != 0)
+    clearInterval(intervalID);
+}
+
 export function start_game() {
      //board vars
     let board;
@@ -66,7 +76,6 @@ export function start_game() {
     let speed_x = boardWidth/2;
     let speed_y = boardHeight/4 * 3;
 
-    let intervalID = 0;
     let countdown = 6;
 
     //game classes
@@ -182,13 +191,14 @@ export function start_game() {
     countdown--;
     context.clearRect(0, 0, board.width, board.height);
     context.font = "45px Verdana";
-	const ballColor = document.getElementById("ballColor");
-	if (ballColor)
-    	context.fillStyle = document.getElementById("ballColor").value;
-	context.textAlign = "center";
+    const ballColor = document.getElementById("ballColor");
+    if (ballColor)
+        context.fillStyle = document.getElementById("ballColor").value;
+    context.textAlign = "center";
     context.fillText(`Game starts in ${countdown}`, board.width / 2, board.height / 2);
     if (countdown <= 0){
       clearInterval(intervalID);
+      intervalID = 0;
       update();
       return;
     }
@@ -196,8 +206,8 @@ export function start_game() {
 
   function update() {
     let id = requestAnimationFrame(update);
+    board_id = id;
     context.clearRect(0, 0, board.width, board.height); // Clear the canvas
-
 	const borders = document.getElementById("borders");
 	if (borders)
     	context.fillStyle = document.getElementById("borders").value;
@@ -224,9 +234,9 @@ export function start_game() {
 
     if (check_and_change_score() == 1){
       cancelAnimationFrame(id);
-	  const resetGameButton = document.getElementById("resetGameButton");
-	  if (resetGameButton)
-      	document.getElementById("resetGameButton").style.display = "block";
+      const resetGameButton = document.getElementById("resetGameButton");
+      if (resetGameButton)
+          document.getElementById("resetGameButton").style.display = "block";
     }
     context.font = "45px Verdana";
     context.fillText(score1, boardWidth/5, 45);
