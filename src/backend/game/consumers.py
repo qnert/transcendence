@@ -59,7 +59,10 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
           opponent_profile=opponent_profile,
           user_score=text_data_json['user_score'],
           opponent_score=text_data_json['opponent_score'],
-          is_win=text_data_json['is_win']
+          is_win=text_data_json['is_win'],
+          max_rally=text_data_json['max_rally'],
+          min_rally=text_data_json['min_rally'],
+          average_rally=text_data_json['average_rally']
       )
 
   async def send_connected_user(self):

@@ -48,8 +48,6 @@ def game_history(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-
-
 def generate_pie_chart(request):
     user_profile = request.user.profile
     game_results = GameResult.objects.filter(user_profile=user_profile)

@@ -1,6 +1,7 @@
 from django.db import models
 from api.models import UserProfile
 from django.utils import timezone
+from django.contrib import admin
 
 # Create your models here.
 class GameResult(models.Model):
