@@ -34,11 +34,14 @@ export function resetRemoteGameButton() {
   let playerHeight_power = playerHeight * 1.5;
   let playerSpeedY = 0;
   let playerSpeed_power;
+  let prevX = 0;
+  let prevY = 0;
 
   //ball vars
   let ballWidth = 10;
   let ballHeight = 10;
   let ballSpeed = 0;
+  let init_ballSpeed = 0;
   let random = Math.random() > 0.5 ? 1 : -1;
   let ballAngle = random * Math.PI / 4;
   random = Math.random() > 0.5 ? 1 : -1;
@@ -194,6 +197,7 @@ export function resetRemoteGameButton() {
           ball_color = data.ballColor;
           maxScore = data.maxScore;
           ballSpeed = data.ballSpeed;
+          init_ballSpeed = data.ballSpeed;
           advanced_mode = data.advancedMode;
           power_up_mode = data.powerUps;
           countdown = 6;
@@ -458,6 +462,9 @@ function start_game() {
     context.fillStyle = ball_color;
     check_and_change_dir_ball();
 
+    prevX = ball.x;
+    prevY = ball.y;
+
     ball.x += ball.speedX;
     ball.y += ball.speedY;
     drawCircle(context, ball.x, ball.y, ball.width/2);
@@ -581,6 +588,12 @@ function start_game() {
     return distanceBetweenCenters <= sumOfRadii;
   }
 
+  function checkPaddleCollision(prevX, currentX, paddleX, paddleWidth) {
+    if (prevX < paddleX && currentX >= paddleX) return true;
+    if (prevX > paddleX + paddleWidth && currentX <= paddleX + paddleWidth) return true;
+    return false;
+}
+
   function check_and_change_dir_ball() {
     if (ball.y > boardHeight - ball.height/2){
       if (advanced_mode == true)
@@ -600,7 +613,8 @@ function start_game() {
     }
     if (ball.x <= player1.x + player1.width && ball.x + ball.width >= player1.x
       && ball.y + ball.height >= player1.y && ball.y <= player1.y + player1.height){
-      if (ball.x < player1.x + player1.width){
+      if (checkPaddleCollision(prevX, ball.x, player1.x, player1.width) && ball.x < player1.x + player1.width){
+        ballSpeed *= 1.01;
         let diff = ball.y - (player1.y + player1.height/2);
         let rad = degreesToRadians(45);
         let angle = mapValue(diff, -player1.height/2, player1.height/2, -rad, rad);
@@ -609,9 +623,10 @@ function start_game() {
         chatSocket.send(JSON.stringify({'type': 'ball_move', 'ball_speed_x': ball.speedX, 'ball_speed_y': ball.speedY, 'player': '1'}));
       }
     }
-    else if (ball.x + ball.width >= player2.x && ball.x <= player2.x + player2.width
+    else if (checkPaddleCollision(prevX, ball.x, player2.x, player2.width) && ball.x + ball.width >= player2.x && ball.x <= player2.x + player2.width
         && ball.y <= player2.y + player2.height && ball.y + ball.height >= player2.y){
         if (ball.x > player2.x){
+          ballSpeed *= 1.01;
           let diff = ball.y - (player2.y + player2.height/2);
           let angle = mapValue(diff, -player2.height/2, player2.height/2, degreesToRadians(225), degreesToRadians(135));
           ball.speedX = ballSpeed * Math.cos(angle);
@@ -671,6 +686,7 @@ function start_game() {
       // if (score2 <= maxScore - 1)
       //   soundGoal.play();
       score2++;
+      ballSpeed = init_ballSpeed;
       let random = Math.random() * 2 - 1;
       let ballAngle = random * Math.PI / 4;
       ball.speedX = ballSpeed * Math.cos(ballAngle);
@@ -682,6 +698,7 @@ function start_game() {
       // if (score1 <= maxScore - 1)
       //   soundGoal.play();
       score1++;
+      ballSpeed = init_ballSpeed;
       let random = Math.random() * 2 - 1;
       let ballAngle = random * Math.PI / 4;
       ball.speedX = ballSpeed * Math.cos(ballAngle);
