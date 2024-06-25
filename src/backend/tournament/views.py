@@ -1,14 +1,10 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt  # TODO remove
+from django.core.exceptions import ValidationError
 from tournament.models import Tournament
 from api.models import UserProfile
 import json
-
-
-def tournament(request):
-    if (request.method == "GET"):
-        return render(request, 'tournament_base.html')
 
 
 def tournament_hub(request):
@@ -48,11 +44,11 @@ def tournament_api_get_state(request):
 def tournament_api_create(request):
     if (request.method == "POST"):
         tournament_name = json.loads(request.body).get("tournament_name")
+        # TODO check for exceptions?
         user_profile = UserProfile.objects.get(user=request.user)
         if tournament_name is not None:
             if Tournament.objects.filter(name=tournament_name).exists():
-                return JsonResponse({"error": "Tournament exists already!"}, status=409)
-
+                return JsonResponse({"error": "Tournament exists already!"}, status=400)
             Tournament.objects.create(name=tournament_name, created_by=user_profile)
             return JsonResponse({"message": "Success"}, status=201)
 
@@ -61,8 +57,12 @@ def tournament_api_create(request):
 def tournament_api_join(request):
     if (request.method == "POST"):
         tournament_name = json.loads(request.body).get("tournament_name")
+        # TODO mb allow superusers to join tournament too for testing?
+        # TODO check for exceptions?
         tournament = Tournament.objects.get(name=tournament_name)
-
         user_profile = UserProfile.objects.get(user=request.user)
-        tournament.add_participant(user_profile=user_profile)
+        try:
+            tournament.add_participant(user_profile=user_profile)
+        except ValidationError:
+            return JsonResponse({"error": "User is already in tournament!"}, status=400)
         return JsonResponse({"message": "Success"}, status=201)
