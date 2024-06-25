@@ -122,6 +122,7 @@ export function reattachEventListeners() {
     soloGame();
     multiplayerGame();
     handleCheckbox();
+	checkLoginStatus();
     checkBox();
     setNewPasswd();
     searchFriends();

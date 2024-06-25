@@ -2,6 +2,7 @@ import { getCookie } from "../security/csrft.js";
 import { updateFriendDropdown, acceptRequest, denyRequest } from "./action_friends.js";
 import { selectFriend } from "../chat/action_chat.js";
 import { friendSocket } from "./action_friends.js";
+import { blockUser, unblockUser } from "../chat/fetch_chat.js";
 
 window.acceptRequest = acceptRequest;
 window.denyRequest = denyRequest;

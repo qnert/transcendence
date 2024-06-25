@@ -44,7 +44,5 @@ def friends_profile(request, display_name):
 def set_passwd(request):
 	return render(request, 'set_passwd.html')
 
-@twoFA_required
-@own_login_required
 def chatView(request):
 	return render(request, 'chatroom.html')
