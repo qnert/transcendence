@@ -30,7 +30,6 @@ import { deleteFriend } from './fetch_friends.js';
 
     friendSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
-        console.log(data);
         if (data.type === "friend_request_accepted") {
           updateFriendDropdown(data.friend_profile_picture_url, data.friend_name, data.friend_id);
           loadFriends();

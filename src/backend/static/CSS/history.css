@@ -1,9 +1,14 @@
+<<<<<<< fix/minorErrors
+  #History {
+      text-align: center;
+=======
 #matchHistory {
     text-align: center;
     margin-top: 20px;
   
     .history {
       display: block;
+>>>>>>> dev
       margin-top: 20px;
     }
     table {

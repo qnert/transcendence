@@ -4,7 +4,7 @@ import { bindProfileButton} from "./profile/buttons.js";
 import { bindSaveChangesButton } from "./profile/buttons.js";
 import { checkAccessToken, setNewPasswd } from "./profile/profile.js";
 import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton, tournamentButton } from "./navbar/buttons.js";
-import { login, logout, oauth, setPasswd } from "./navbar/logging.js";
+import { login, logoutButton, oauth, setPasswd, logout } from "./navbar/logging.js";
 import { checkLoginStatus } from "./login_check.js";
 import { startGameButton, resetGameButton, close_solo_on_change } from "./game/game.js";
 import { loadFriends } from "./friends/fetch_friends.js";
@@ -12,10 +12,9 @@ import { fetchProfileData } from "./profile/fetch_profile.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
 import { matchHistoryButton } from "./profile/buttons.js";
 import { getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton} from "./profile/buttons.js";
-import { showLoggedOutState } from "./navbar/navbar.js";
+import { showLoggedInState, showLoggedOutState } from "./navbar/navbar.js";
 import { tournamentHubEventLoop } from "./tournament/tournament_hub.js";
 import { tournamentLobbyEventLoop, tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
-
 
 window.addEventListener("popstate", function (event) {
     if (event.state && event.state.path) {
@@ -114,7 +113,7 @@ export async function handleRoute(path) {
 export function reattachEventListeners() {
     loginButton();
     login();
-    logout();
+    logoutButton();
     generateQRCode();
     validateOTP();
     oauth();
@@ -125,8 +124,6 @@ export function reattachEventListeners() {
     handleCheckbox();
     checkBox();
     setNewPasswd();
-    searchFriends();
-    checkLoginStatus();
     searchFriends();
     startGameButton();
     resetGameButton();
@@ -150,20 +147,31 @@ export let chatSocket;
 export let selectedFriendId = null;
 
 
-export function getUsername() { //TODO jwt token?
-        fetch("/api/get_username", {
+export async function getUsername() {
+    const token = localStorage.getItem("access_token");
+    try {
+        const response = await fetch("/api/get_username", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
         });
-        if (response.ok) {
-            const username = response.username;
-            return username;
-        } else {
-            throw new Error("Failed to get username from backend");
+
+        if (!response.ok) {
+            console.log("Failed to get username from backend");
+            return;
         }
+
+        const data = await response.json();
+        const username = data.username;
+        console.log(username);
+        return username;
+    } catch (error) {
+        console.error("Error fetching username:", error);
+        throw error;
     }
+}
 
 
 	export async function getLoginStatus() {
@@ -188,14 +196,16 @@ export function getUsername() { //TODO jwt token?
 		}
 	}
 
-	export function handle401Error() {
+
+	window.handle401Error = handle401Error;
+
+	export async function handle401Error() {
 		if (getLoginStatus()) {
-			logout();
+			await logout();
 		}
-		showLoggedOutState();
 		window.history.pushState({ path: "/login/" }, "", "/login/");
 		updateContent("/login/");
-		checkAccessToken();
+		showLoggedOutState();
 	}
 
 	window.onload = async function () {
@@ -209,20 +219,27 @@ export function getUsername() { //TODO jwt token?
 			let display_name = words[4];
 			await fetchFriendsData(display_name);
 		}
-		else if(!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/"){
-			loadFriends();
-		}
 		else if (currentUrl.includes("game")) {
 			document.getElementById("background").value = "#ffffff"; // Default to white
 			document.getElementById("borders").value = "#0000ff"; // Default to blue
 			document.getElementById("ballColor").value = "#0000ff"; // Default to blue
-		}
+			}
 		else if (currentUrl.includes("multiplayer")) {
 			document.getElementById("background").value = "#ffffff"; // Default to white
 			document.getElementById("borders").value = "#0000ff"; // Default to blue
 			document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+			}
+		else if (currentUrl.includes("history")){
+			await getGameHistory();
 		}
-		else if(currentUrl.includes("history")){
-			getGameHistory();
+		if(!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/"){
+			loadFriends();
+		}
+		if(await getLoginStatus()){
+			const username = await getUsername();
+			showLoggedInState(username);
+		}
+		else{
+			showLoggedOutState();
 		}
 	};

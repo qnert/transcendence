@@ -94,13 +94,15 @@ export function updateUserStatus() {
 
                 if (friendItem) {
                     const statusDot = friendItem.querySelector(".status-dot");
-                    if (status === "online") {
-                        statusDot.classList.add("online");
-                        statusDot.classList.remove("offline");
-                    } else {
-                        statusDot.classList.add("offline");
-                        statusDot.classList.remove("online");
-                    }
+					if(statusDot){
+						if (status === "online") {
+							statusDot.classList.add("online");
+							statusDot.classList.remove("offline");
+						} else {
+							statusDot.classList.add("offline");
+							statusDot.classList.remove("online");
+						}
+					}
                 }
 
                 if (chatStatusText) {
