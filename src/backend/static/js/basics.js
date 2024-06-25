@@ -9,11 +9,12 @@ import { checkLoginStatus } from "./login_check.js";
 import { startGameButton, resetGameButton, close_solo_on_change } from "./game/game.js";
 import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
-import { initTournamentHubEventLoop } from "./tournament/tournament_hub.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
 import { matchHistoryButton } from "./profile/buttons.js";
 import { getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton} from "./profile/buttons.js";
 import { showLoggedInState, showLoggedOutState } from "./navbar/navbar.js";
+import { tournamentHubEventLoop } from "./tournament/tournament_hub.js";
+import { tournamentLobbyEventLoop, tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 
 window.addEventListener("popstate", function (event) {
     if (event.state && event.state.path) {
@@ -31,8 +32,10 @@ window.addEventListener("popstate", function (event) {
     }
 });
 
+
 window.addEventListener("popstate", close_multi_on_change);
 window.addEventListener("popstate", close_solo_on_change);
+window.addEventListener("popstate", tournamentLobbyCloseSocket);
 
 document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
@@ -100,8 +103,7 @@ export function updateContent(path) {
         .catch((error) => console.error("Error fetching content:", error));
 }
 
-export async function handleRoute(event, path) {
-    event.preventDefault();
+export async function handleRoute(path) {
     if (window.location.pathname !== path) {
         window.history.pushState({ path: path }, "", path);
         await updateContentToken(path);
@@ -131,16 +133,15 @@ export function reattachEventListeners() {
 	startRemoteGame();
 	bindProfileButton();
 	bindSaveChangesButton();
-	tournamentButton();
-	initTournamentHubEventLoop();
 	matchHistoryButton();
 	pieChartButton();
 	lineChartAvgButton();
 	lineChartMinButton();
 	lineChartMaxButton();
-
+	tournamentButton();
+	tournamentHubEventLoop();
+    tournamentLobbyEventLoop();
 }
-
 
 export let chatSocket;
 export let selectedFriendId = null;

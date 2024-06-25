@@ -2,7 +2,6 @@ from django.urls import path
 from tournament import views
 
 urlpatterns = [
-    path('', views.tournament),
     path('hub/', views.tournament_hub, name="hub"),
     path('api/get_list/', views.tournament_api_get_list, name="get_list"),
     path('api/get_state/', views.tournament_api_get_state, name="get_state"),

@@ -16,20 +16,19 @@ from api.models import UserProfile
 
 MAX_PARTICIPANTS = 4
 
-
 class Tournament(models.Model):
 
     created_at = models.DateField(default=date.today)
     name = models.CharField(max_length=50, unique=True)
     participants = models.ManyToManyField(UserProfile, related_name='active_tournament')
-    created_by = models.ForeignKey(UserProfile, related_name='created_tournaments',
-                                   null=True, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(UserProfile, related_name='created_tournaments', null=True, on_delete=models.CASCADE)
     STATE_CHOICES = [
         ('setup', 'Setup'),
         ('playing', 'Playing'),
         ('finished', 'Finished'),
     ]
-    state = models.CharField(max_length=10, choices=STATE_CHOICES, default='setup')
+    state = models.CharField(
+        max_length=10, choices=STATE_CHOICES, default='setup')
 
     class Meta:
         ordering = ['name']
@@ -40,16 +39,16 @@ class Tournament(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if not self.participants.exists() and self.created_by is not None:
-            self.participants.add(self.created_by)
+        # TODO throw error if not?
+        #if not self.participants.exists() and self.created_by is not None:
+            #self.participants.add(self.created_by)
 
     def add_participant(self, user_profile: UserProfile):
-        if user_profile in self.participants.all():
-            return
-        if self.participants.count() < MAX_PARTICIPANTS:
-            self.participants.add(user_profile)
-        else:
+        if user_profile is not self.created_by and user_profile in self.participants.all():
+            raise ValidationError("User already in tournament!")
+        if self.participants.count() >= MAX_PARTICIPANTS:
             raise ValidationError("Maximum amount of participants reached!")
+        self.participants.add(user_profile)
 
     def remove_participant(self, user_profile: UserProfile):
         if user_profile in self.participants.all():
