@@ -29,6 +29,7 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
   tournamentLobbySocket.onclose = function () {
     console.error("Chat socket closed unexpectedly");
+    // TODO leave tournament
   };
 
   tournamentLobbyChatInput.focus();
@@ -51,10 +52,9 @@ export function tournamentLobbyInit(lobbyName, userName) {
 // =========================== CLEAN UP ===============================
 
 export function tournamentLobbyCloseSocket() {
-  console.log("closing lobby socket");
   if (tournamentLobbySocket) {
+    console.log("closing lobby socket");
     tournamentLobbySocket.close();
     tournamentLobbySocket = null;
   }
 }
-
