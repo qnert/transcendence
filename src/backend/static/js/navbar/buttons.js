@@ -5,7 +5,7 @@ export function soloGame() {
     if (soloGameButton) {
         soloGameButton.onclick = function (event) {
             event.preventDefault();
-            handleRoute("/game/");
+            handleRouteToken("/game/");
         };
     }
 }
@@ -15,7 +15,7 @@ export function multiplayerGame() {
     if (multiplayerGame) {
         multiplayerGame.onclick = function (event) {
             event.preventDefault();
-            handleRoute("/multiplayer/");
+            handleRouteToken("/multiplayer/");
         };
     }
 }
@@ -25,7 +25,7 @@ export function loginButton() {
     if (loginButton) {
         loginButton.onclick = function (event) {
             event.preventDefault();
-			handleRoute("/login/");
+			handleRouteToken("/login/");
         };
     }
 }
@@ -35,7 +35,7 @@ export function tournamentButton() {
     if (tournamentButton) {
         tournamentButton.onclick = function (event) {
             event.preventDefault();
-			handleRoute("/tournament/hub/");
+			handleRouteToken("/tournament/hub/");
         };
     }
 }

@@ -16,7 +16,14 @@ import { showLoggedOutState } from "./navbar/navbar.js";
 import { tournamentHubEventLoop } from "./tournament/tournament_hub.js";
 import { tournamentLobbyEventLoop, tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 
+function handleUrlChange(){
+    close_multi_on_change();
+    close_solo_on_change();
+    tournamentLobbyCloseSocket();
+}
 
+window.addEventListener("pushstate", handleUrlChange);
+window.addEventListener("replacestate", handleUrlChange);
 window.addEventListener("popstate", function (event) {
     if (event.state && event.state.path) {
 		if(event.state.path === "/login/"){
@@ -31,12 +38,8 @@ window.addEventListener("popstate", function (event) {
 			updateContent(event.state.path);
 		}
     }
+    handleUrlChange();
 });
-
-
-window.addEventListener("popstate", close_multi_on_change);
-window.addEventListener("popstate", close_solo_on_change);
-window.addEventListener("popstate", tournamentLobbyCloseSocket);
 
 document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
