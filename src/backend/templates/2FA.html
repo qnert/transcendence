@@ -1,18 +1,26 @@
 {% extends "base.html" %}
-
 {% block content %}
 
 <div id="newContent">
-	<h1>Setup Two Factor Authentication</h1>
-	<div id="qrcode-container">
-		<button id="generateQRCode">Generate</button>
-		<img id="qrcode">
-	</div>
-
-	<p>Scan this QR code with Google Authenticator</p>
-
-	<input type="text" id="otpInput" placeholder="Enter OTP">
-	<button id="validateOTP">Confirm</button>
+    <h1>Setup Two Factor Authentication</h1>
+    <div id="twoFactorContainer" class="borderedBox">
+        <h2>How To:</h2>
+        <ol>
+            <li>Generate QR Code</li>
+            <li>Scan with Google Authenticator</li>
+            <li>
+                Enter One True Pairing <strong>(OTP)</strong> from Google
+                Authenticator
+            </li>
+            <li>Submit OTP</li>
+        </ol>
+        <button class="btn btn-primary" id="generateQRCode">
+            Generate QR Code
+        </button>
+        <img id="qrcode" />
+        <input type="text" id="otpInput" placeholder="Enter OTP" />
+        <button class="btn btn-primary" id="validateOTP">Confirm</button>
+    </div>
 </div>
 
 {% endblock %}

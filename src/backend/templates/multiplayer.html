@@ -1,58 +1,55 @@
-{% extends "base.html" %}
-
+{% extends 'base.html' %}
+{% load static %}
 {% block title %}
-Pong Game
+  Pong Game
 {% endblock %}
-
 {% block content %}
+  <div id="newContent">
+    <h1>Pong Game</h1>
+    <form class="borderedBox" id="myForm">
+      <label for="ballSpeed" id="labelBallSpeed">Ball Speed:</label>
+      <input id="ballSpeed" type="number" max="12" min="4" value="8" required />
 
-<div id="newContent">
-  <h1 style="text-align: center">Pong Game</h1>
-  <form id="myForm">
-    <label for="ballSpeed" id="labelBallSpeed">Ball Speed:</label>
-    <input id="ballSpeed" type="number" max="12" min="4" value="8" required/>
+      <label for="maxScore" id="labelMaxScore">Max Score:</label>
+      <input id="maxScore" type="number" max="12" min="4" value="8" required />
 
-    <label for="maxScore" id="labelMaxScore">Max Score:</label>
-    <input id="maxScore" type="number" max="12" min="4" value="8" required/>
+      <label for="background" id="labelBackground">Background Color:</label>
+      <input id="background" type="color" value="#ffffff" required />
 
-    <label for="background" id="labelBackground">Background Color:</label>
-    <input id="background" type="color" value="#ffffff" required/>
+      <label for="borders" id="labelBorders">Border Color:</label>
+      <input id="borders" type="color" value="#0000ff" required />
 
-    <label for="borders" id="labelBorders">Border Color:</label>
-    <input id="borders" type="color" value="#0000ff" required/>
+      <label for="ballColor" id="labelBallColor">Ball Color:</label>
+      <input id="ballColor" type="color" value="#0000ff" required />
 
-    <label for="ballColor" id="labelBallColor">Ball Color:</label>
-    <input id="ballColor" type="color" value="#0000ff" required/>
+      <label for="advancedMode" id="labelAdvancedMode">Advanced Mode:</label>
+      <input id="advancedMode" type="checkbox" required />
 
-    <label for="advancedMode" id="labelAdvancedMode">Advanced Mode:</label>
-    <input id="advancedMode" type="checkbox" required/>
+      <label for="powerUps" id="labelPowerUps">Power Ups:</label>
+      <input id="powerUps" type="checkbox" required />
 
-    <label for="powerUps" id="labelPowerUps">Power Ups:</label>
-    <input id="powerUps" type="checkbox" required/><br/><br/>
-
-    <p>Please enter values between 4 and 12 and leave no field empty!</p>
-    <label for="room_name" id="labelRoomName" minlength="4" value="">Room Name: </label>
-    <input id="room_name" type="text"/>
-    <input id="createMultiplayer" type="button" value="Join/Create Game" /><br><br>
-  </form>
-  <div id="roomInfo" class="versus-screen" style="display: none"><p></p></div>
-  <div id ="versusScreen" class="versus-screen" style="display: none">
-    <div id="player1" class="player-name">Player1</div>
-    <div class="versus-text">VS</div>
-    <div id="player2" class="player-name">waiting...</div>
-    <input id="startRemoteGame" type="button" value="Start Game" style="display: none"/>
+      <p>Please enter values between 4 and 12 and leave no field empty!</p>
+      <label for="room_name" id="labelRoomName" minlength="4" value="">Room Name:</label>
+      <input id="room_name" type="text" />
+      <input id="createMultiplayer" type="button" value="Join/Create Game" />
+    </form>
+    <div id="roomInfo" class="versus-screen" style="display: none">
+      <p></p>
+    </div>
+    <div id="versusScreen" class="versus-screen" style="display: none">
+      <div id="player1" class="player-name">Player1</div>
+      <div class="versus-text">VS</div>
+      <div id="player2" class="player-name">waiting...</div>
+      <input id="startRemoteGame" type="button" value="Start Game" style="display: none" />
+    </div>
+    <div id="gameContainer">
+      <div id="left_player" style="display: none">Left text....</div>
+      <canvas id="board" style="display: none"></canvas>
+      <div id="right_player" style="display: none">Right text....</div>
+    </div>
+    <div id="board_info">
+      <input id="resetRemoteGameButton" type="button" value="Reset Game" style="display: none" />
+      <p>Control the player by using Up and Down arrow keys</p>
+    </div>
   </div>
-  <div id="gameContainer">
-    <div id="left_player" style="display: none">Left text....</div>
-    <canvas id="board" style="display: none"></canvas>
-    <div id="right_player" style="display: none">Right text....</div>
-  </div>
-  <div id="board_info">
-    <input id="resetRemoteGameButton" type="button" value="Reset Game" style="display: none"/><br/><br/>
-    <p>Control the player by using Up and Down arrow keys</p>
-  </div>
-</div>
-<script>
-  
-</script>
 {% endblock %}

@@ -1,5 +1,3 @@
-const ballSpeedVar = document.getElementById("ballSpeed");
-
 export function createGameButton() {
     const createMultiplayer = document.getElementById("createMultiplayer");
     if (createMultiplayer) {
@@ -116,10 +114,7 @@ export function resetRemoteGameButton() {
   let connected_users;
 
   export function create_join_game(){
-    if (ballSpeedVar) {
-      ballSpeed = document.getElementById("ballSpeed").value;
-    }
-    console.log(ballSpeed);
+    ballSpeed = document.getElementById("ballSpeed").value;
     ball.speedX = random * ballSpeed * Math.cos(ballAngle);
     ball.speedY = ballSpeed * Math.sin(ballAngle);
     border_color = document.getElementById("borders").value;
@@ -261,7 +256,6 @@ export function resetRemoteGameButton() {
         else if (data.type == 'disconnected'){
           document.getElementById("startRemoteGame").style.display = "none";
           if (id !== 0){
-            cancelAnimationFrame(id);
             if (username == connected_users[0])
               alert(`${connected_users[1]} left the game!`);
             else
@@ -269,11 +263,18 @@ export function resetRemoteGameButton() {
             reset();
           }
           else{
-            clearInterval(intervalID);
             if (username == connected_users[0])
               alert(`${connected_users[1]} left the lobby!`);
             else
               alert(`${connected_users[0]} left the lobby!`);
+          }
+          if (id != 0){
+            cancelAnimationFrame(id);
+            id = 0;
+          }
+          if (intervalID != 0){
+            clearInterval(intervalID);
+            intervalID = 0;
           }
           return;
         }
@@ -788,14 +789,18 @@ function start_game() {
 
   function check_input_froms() {
       if (maxScore === "" || ballSpeed === ""){
+        console.log("empty value");
         return -1;
       }
       else{
         maxScore = parseInt(maxScore);
-        if (maxScore > 12 || maxScore <= 3)
+        if (maxScore > 12 || maxScore <= 3){
+          console.log("maxscore: ", maxScore);
           return -1;
+        }
         ballSpeed = parseInt(ballSpeed);
         if (ballSpeed > 20 || ballSpeed <= 3){
+          console.log("ballSpeed: ", ballSpeed);
           return -1;
         }
         playerSpeedY = Math.floor(ballSpeed/1.5);

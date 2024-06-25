@@ -11,7 +11,9 @@ import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
 import { initTournamentHubEventLoop } from "./tournament/tournament_hub.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
-
+import { matchHistoryButton } from "./profile/buttons.js";
+import { getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton} from "./profile/buttons.js";
+import { showLoggedOutState } from "./navbar/navbar.js";
 
 
 window.addEventListener("popstate", function (event) {
@@ -134,7 +136,13 @@ export function reattachEventListeners() {
 	bindSaveChangesButton();
 	tournamentButton();
 	initTournamentHubEventLoop();
-	}
+	matchHistoryButton();
+	pieChartButton();
+	lineChartAvgButton();
+	lineChartMinButton();
+	lineChartMaxButton();
+
+}
 
 
 export let chatSocket;
@@ -183,6 +191,7 @@ export function getUsername() { //TODO jwt token?
 		if (getLoginStatus()) {
 			logout();
 		}
+		showLoggedOutState();
 		window.history.pushState({ path: "/login/" }, "", "/login/");
 		updateContent("/login/");
 		checkAccessToken();
@@ -211,5 +220,8 @@ export function getUsername() { //TODO jwt token?
 			document.getElementById("background").value = "#ffffff"; // Default to white
 			document.getElementById("borders").value = "#0000ff"; // Default to blue
 			document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+		}
+		else if(currentUrl.includes("history")){
+			getGameHistory();
 		}
 	};
