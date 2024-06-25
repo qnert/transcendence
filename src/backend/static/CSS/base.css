@@ -1,0 +1,49 @@
+:root {
+  --COLOR-BASE-BACKGROUND: white;
+  --COLOR-BASE-FONT: black;
+  --COLOR-BASE-ACCENT: #007bff;
+  --COLOR-BASE-SHADOW: rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#newContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
+  width: 100%; /* Full viewport width */
+  padding-top: 70px; /* Add padding to account for the navbar */
+
+  .borderedBox {
+    width: 600px; /* Adjust width as needed */
+    padding: 20px;
+    border: 1px solid var(--COLOR-BASE-ACCENT);
+    border-radius: 5px;
+    box-shadow: 0 0 10px var(--COLOR-BASE-SHADOW);
+    display: flex;
+    flex-direction: column; /* Flexbox column direction */
+    justify-content: center; /* Center items vertically */
+    align-items: center; /* Center items horizontally */
+    background-color: var(--COLOR-BASE-BACKGROUND);
+
+    input {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 20px;
+    }
+
+    .form-check {
+      .form-check-input {
+        border: 1px solid var(--COLOR-BASE-ACCENT);
+        border-radius: 5px;
+      }
+    }
+  }
+}
