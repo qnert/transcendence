@@ -5,6 +5,7 @@ import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
 import { friendSocket } from "../friends/action_friends.js";
 import { showLoggedOutState } from "./navbar.js";
+import { updateFriendDropdown } from "../friends/action_friends.js";
 
 export function setPasswd() {
     const passwd = document.getElementById("setPasswd");
@@ -209,6 +210,7 @@ export function login() {
 					await storeJWT();
                     handleRoute("/home/");
                     loadFriends();
+					updateFriendDropdown();
                     checkAccessToken();
                 }
             } catch (error) {

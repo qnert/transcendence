@@ -5,10 +5,6 @@ import { getCookie } from "../security/csrft.js";
 
 export const showLoggedInState = (username) => {
   navButtons.innerHTML = `
-<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-  <span class="navbar-toggler-icon"></span>
-</button>
-
 <li class="nav-item">
   <button class="nav-button" id="game" >Solo Game</button>
 </li>
@@ -56,9 +52,6 @@ export const showLoggedInState = (username) => {
 export const showLoggedOutState = () => {
   navButtons.innerHTML = `
 <li class="nav-item">
-  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
 </li>
 <li class="nav-item">
   <button class="nav-button login-button" id="login">Login</button>

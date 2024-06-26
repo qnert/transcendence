@@ -149,7 +149,10 @@ export function resetRemoteGameButton() {
         const data = JSON.parse(e.data);
         if (data.type === 'connected_users') {
             connected_users = JSON.parse(data.connected_users)[room_name];
-              document.getElementById('roomInfo').textContent = `Welcome to Room ${data.room_name}!`;
+			const roomInfo =  document.getElementById('roomInfo');
+			if (roomInfo){
+				document.getElementById('roomInfo').textContent = `Welcome to Room ${data.room_name}!`;
+			}
               if (connected_users.length == 2){
                 let html_tag = document.getElementById("player1");
                 html_tag.textContent = connected_users[0];
@@ -254,7 +257,10 @@ export function resetRemoteGameButton() {
           return;
         }
         else if (data.type == 'disconnected'){
-          document.getElementById("startRemoteGame").style.display = "none";
+			const startRemoteGame = document.getElementById("startRemoteGame");
+			if(startRemoteGame){
+				document.getElementById("startRemoteGame").style.display = "none";
+			}
           if (id !== 0){
             if (username == connected_users[0])
               alert(`${connected_users[1]} left the game!`);

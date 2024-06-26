@@ -1,7 +1,8 @@
 import { checkAccessToken } from "../profile/profile.js";
 import { handle401Error, handleRouteToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
-
+import { loadFriends } from "../friends/fetch_friends.js";
+import { updateFriendDropdown } from "../friends/action_friends.js";
 async function activatetwoFA() {
     try {
         const csrftoken = getCookie("csrftoken");
@@ -110,45 +111,61 @@ export function handleCheckbox() {
     }
 }
 
-export function validateOTP() {
+export async function validateOTPButton() {
     const validateButton = document.getElementById("validateOTP");
     if (validateButton) {
-        validateButton.addEventListener("click", function (event) {
+        validateButton.onclick = async function (event) {
             event.preventDefault();
-            const otp = document.getElementById("otpInput").value;
-            const csrftoken = getCookie("csrftoken");
-            const token = localStorage.getItem("access_token");
-            fetch("/api/validate_otp/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken,
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ otp: otp }),
-            })
-            .then((response) => {
-                if (response.status === 401) {
-                    handle401Error();
-                    return;
-                }
-                return response.json();
-            })
-            .then((data) => {
-                if (data.valid) {
-                    checkAccessToken();
-                    handleRouteToken("/home/");
-                } else {
-                    alert("Validation failed: Invalid OTP");
-                }
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-                alert("An error occurred while validating the OTP");
-            });
-        });
-    }
+			await validateOTP();
+		}
+	}
+	const otpInput = document.getElementById("otpInput");
+	if (otpInput){
+		otpInput.onkeydown = async function(event) {
+			if (event.key === 'Enter') {
+				await validateOTP();
+			}
+		  };
+	}	
 }
+
+
+async function validateOTP(){
+    const otp = document.getElementById("otpInput").value;
+    const csrftoken = getCookie("csrftoken");
+    const token = localStorage.getItem("access_token");
+    fetch("/api/validate_otp/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ otp: otp }),
+    })
+    .then((response) => {
+        if (response.status === 401) {
+            handle401Error();
+            return;
+        }
+        return response.json();
+    })
+    .then((data) => {
+        if (data.valid) {
+            window.history.pushState({ path: "/home/" }, "", "/home/");
+            checkAccessToken();
+            updateContentToken("/home/");
+			loadFriends();
+			updateFriendDropdown();
+        } else {
+            alert("Validation failed: Invalid OTP");
+        }
+    })
+    .catch((error) => {
+        console.error("Error:", error);
+        alert("An error occurred while validating the OTP");
+    });
+};
 
 export function generateQRCode() {
     const qrcodeButton = document.getElementById("generateQRCode");

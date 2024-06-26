@@ -1,6 +1,6 @@
 import { searchFriends } from "./friends/action_friends.js";
-import { generateQRCode, validateOTP, handleCheckbox, checkBox } from "./profile/2FA.js";
-import { bindProfileButton } from "./profile/buttons.js";
+import { generateQRCode, validateOTPButton, handleCheckbox, checkBox } from "./profile/2FA.js";
+import { bindProfileButton} from "./profile/buttons.js";
 import { bindSaveChangesButton } from "./profile/buttons.js";
 import { checkAccessToken, setNewPasswd } from "./profile/profile.js";
 import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton, tournamentButton } from "./navbar/buttons.js";
@@ -244,33 +244,43 @@ export async function getLoginStatus() {
 
 window.handle401Error = handle401Error;
 
-window.onload = async function () {
-    let currentUrl = window.location.href;
-    if (currentUrl.includes("/profile/")) {
-        await fetchProfileData();
-        await checkBox();
-    } else if (currentUrl.includes("/friend/")) {
-        let words = currentUrl.split("/");
-        let display_name = words[4];
-        await fetchFriendsData(display_name);
-    } else if (currentUrl.includes("game")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
-    } else if (currentUrl.includes("multiplayer")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
-    } else if (currentUrl.includes("history")) {
-        await getGameHistory();
-    }
-    if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/") {
-        loadFriends();
-    }
-    if (await getLoginStatus()) {
-        const username = await getUsername();
-        showLoggedInState(username);
-    } else {
-        showLoggedOutState();
-    }
-};
+	window.onload = async function () {
+		let currentUrl = window.location.href;
+		if (currentUrl.includes("/profile/")) {
+			await fetchProfileData();
+			await checkBox();
+		}
+		else if(currentUrl.includes("/2FA/")){
+			showLoggedOutState();
+			return;
+		}
+		else if (currentUrl.includes("/friend/")) {
+			let words = currentUrl.split("/");
+			let display_name = words[4];
+			await fetchFriendsData(display_name);
+		}
+		else if (currentUrl.includes("game")) {
+			document.getElementById("background").value = "#ffffff";
+			document.getElementById("borders").value = "#0000ff";
+			document.getElementById("ballColor").value = "#0000ff";
+			}
+		else if (currentUrl.includes("multiplayer")) {
+			document.getElementById("background").value = "#ffffff";
+			document.getElementById("borders").value = "#0000ff";
+			document.getElementById("ballColor").value = "#0000ff";
+			}
+		else if (currentUrl.includes("history")){
+			await getGameHistory();
+		}
+		if(!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/" || currentUrl.includes("/2FA/")){
+			loadFriends();
+			updateFriendDropdown();
+		}
+		if(await getLoginStatus()){
+			const username = await getUsername();
+			showLoggedInState(username);
+		}
+		else{
+			showLoggedOutState();
+		}
+	};
