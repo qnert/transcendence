@@ -10,7 +10,7 @@ import { updateFriendDropdown } from "../friends/action_friends.js";
 export function setPasswd() {
     const passwd = document.getElementById("setPasswd");
     if (passwd) {
-        passwd.addEventListener("click", async function (event) {
+        passwd.onclick = async function (event) {
             event.preventDefault();
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
@@ -43,14 +43,14 @@ export function setPasswd() {
                     console.error("something went wrong");
                 }
             }
-        });
+        };
     }
 }
 
 export function oauth() {
     const registerButton = document.getElementById("registerButton");
     if (registerButton) {
-        registerButton.addEventListener("click", (event) => {
+        registerButton.onclick = async function (event){
             event.preventDefault();
             fetch("/api/oauth/", {
                 method: "GET",
@@ -72,7 +72,7 @@ export function oauth() {
                 .catch((error) => {
                     console.error("Error during fetch:", error);
                 });
-        });
+        };
     }
 }
 
