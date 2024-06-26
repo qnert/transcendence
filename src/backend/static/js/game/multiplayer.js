@@ -260,8 +260,8 @@ export function resetRemoteGameButton() {
 			const startRemoteGame = document.getElementById("startRemoteGame");
 			if(startRemoteGame){
 				document.getElementById("startRemoteGame").style.display = "none";
-			}
-          if (id !== 0){
+			}	
+          if (id !== 0){ 
             if (username == connected_users[0])
               alert(`${connected_users[1]} left the game!`);
             else
@@ -333,15 +333,18 @@ function remote_start() {
 }
 
 function reset() {
-    document.getElementById("roomInfo").style.display = "none";
-    document.getElementById("versusScreen").style.display = "none";
-    document.getElementById("myForm").style.visibility = "block";
-    document.getElementById("myForm").style.display = "block";
-    document.getElementById("board").style.display = "none";
-    document.getElementById("resetRemoteGameButton").style.display = "none";
-    document.getElementById("left_player").style.display = "none";
-    document.getElementById("right_player").style.display = "none";
-    chatSocket.close();
+	const roomInfo = document.getElementById("roomInfo");
+	if (roomInfo){
+		document.getElementById("roomInfo").style.display = "none";
+		document.getElementById("versusScreen").style.display = "none";
+		document.getElementById("myForm").style.visibility = "block";
+		document.getElementById("myForm").style.display = "block";
+		document.getElementById("board").style.display = "none";
+		document.getElementById("resetRemoteGameButton").style.display = "none";
+		document.getElementById("left_player").style.display = "none";
+		document.getElementById("right_player").style.display = "none";
+		chatSocket.close();
+	}
 }
 
 
