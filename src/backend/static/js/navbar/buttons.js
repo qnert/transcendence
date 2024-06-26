@@ -25,7 +25,7 @@ export function loginButton() {
     if (loginButton) {
         loginButton.onclick = function (event) {
             event.preventDefault();
-			handleRouteToken("/login/");
+			handleRoute("/login/");
         };
     }
 }
