@@ -121,6 +121,8 @@ def deactivate_two_FA(request):
 
 def check_login_status(request):
     if request.method == "GET":
+        if isinstance(request.user, AnonymousUser):
+            return JsonResponse ({'error': 'User not logged in'}, status=400)
         if request.user.is_authenticated:
             login_status = request.user.is_logged_in
             return JsonResponse({'status': login_status})
