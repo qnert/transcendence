@@ -101,13 +101,13 @@ export async function checkBox() {
 export function handleCheckbox() {
     const checkBox2FA = document.getElementById("checkBox2FA");
     if (checkBox2FA) {
-        checkBox2FA.addEventListener("change", function () {
+        checkBox2FA.onchange = function () {
             if (checkBox2FA.checked) {
                 activatetwoFA();
             } else {
                 deactivatetwoFA();
             }
-        });
+        };
     }
 }
 
@@ -170,7 +170,7 @@ async function validateOTP(){
 export function generateQRCode() {
     const qrcodeButton = document.getElementById("generateQRCode");
     if (qrcodeButton) {
-        qrcodeButton.addEventListener("click", function (event) {
+        qrcodeButton.onclick = function (event) {
             event.preventDefault();
             const token = localStorage.getItem("access_token");
             fetch("/api/setup-2fa", {
@@ -195,6 +195,6 @@ export function generateQRCode() {
             .catch((error) => {
                 console.log("Error:", error);
             });
-        });
+        };
     }
 }
