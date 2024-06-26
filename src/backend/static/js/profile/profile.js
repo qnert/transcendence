@@ -99,14 +99,12 @@ export async function checkAccessToken() {
                 const url = window.location.href;
                 if (!url.includes("set_passwd")){
                     console.log("Token verification failed. Logging out.");
-                    showLoggedOutState();
                     logout();
                     handleRoute("/login/");
                 }
             }
         } catch (error) {
             console.error("Error verifying token:", error);
-            showLoggedOutState();
             logout();
             handleRoute("/login/");
         }
@@ -114,7 +112,6 @@ export async function checkAccessToken() {
         const url = window.location.href;
         if (!url.includes("set_passwd")){
             console.log("No token found. Logging out.");
-            showLoggedOutState();
             logout();
             handleRoute("/login/");
         }

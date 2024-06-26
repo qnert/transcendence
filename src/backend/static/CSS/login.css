@@ -2,63 +2,64 @@
 #passwordFormContent, #loginFormContent {
     width: 400px; /* Adjust width as needed */
     padding: 20px;
-    border: 1px solid #007bff; /* Blue border */
+    border: 1px solid var(--COLOR-BASE-ACCENT); /* Blue border */
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px var(--COLOR-BASE-SHADOW);
     display: flex;
     flex-direction: column; /* Flexbox column direction */
     justify-content: center; /* Center items vertically */
     align-items: center; /* Center items horizontally */
-    background-color: #ffffff; /* White background */
-}
-
-#passwordFormContent .mb-3, #loginFormContent .mb-3 {
+    background-color: var(--COLOR-BASE-BACKGROUND); /* White background */
+  }
+  
+  #passwordFormContent .mb-3, #loginFormContent .mb-3 {
     margin-bottom: 15px; /* Consistent margin */
     width: 100%; /* Ensure full width within Flexbox */
-}
-
-#passwordFormContent label, #loginFormContent label {
+  }
+  
+  #passwordFormContent label, #loginFormContent label {
     display: block;
     font-weight: bold;
     margin-bottom: 5px;
     width: 100%; /* Ensure full width within Flexbox */
-    color: #333; /* Darker text color */
+    color: var(--COLOR-BASE-FONT); /* Darker text color */
     text-align: left; /* Left align text */
-}
-
-/* Ensure consistent input field styles */
-#passwordFormContent input[type="password"], #loginFormContent input[type="text"], #loginFormContent input[type="password"] {
+  }
+  
+  /* Ensure consistent input field styles */
+  #passwordFormContent input[type="password"], #loginFormContent input[type="text"], #loginFormContent input[type="password"] {
     width: 100%; /* Ensure full width */
     padding: 12px; /* Consistent padding */
-    border: 1px solid #ccc;
+    border: 1px solid var(--COLOR-BASE-SHADOW);
     border-radius: 5px;
     box-sizing: border-box;
     margin-bottom: 10px; /* Add margin for spacing */
-    font-size: 16px; /* Larger font size */
-}
-
-#passwordFormContent input[type="password"]:focus, #loginFormContent input[type="text"]:focus, #loginFormContent input[type="password"]:focus {
-    border-color: #007bff; /* Blue border on focus */
+    font-size: var(--FONT-SIZE-UNI);
+  }
+  
+  #passwordFormContent input[type="password"]:focus, #loginFormContent input[type="text"]:focus, #loginFormContent input[type="password"]:focus {
+    border-color: var(--COLOR-BASE-ACCENT); /* Blue border on focus */
     outline: none;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue shadow on focus */
-}
-
-#passwordFormContent button, #loginFormContent button {
+  }
+  
+  #passwordFormContent button, #loginFormContent button {
     display: block;
     width: 100%;
     padding: 12px;
-    background-color: #007bff; /* Blue background */
+    background-color: var(--COLOR-BASE-ACCENT); /* Blue background */
     border: none;
     border-radius: 5px;
-    color: #fff; /* White text */
-    font-size: 16px;
+    color: var(--COLOR-BASE-BACKGROUND); /* White text */
+    font-size: var(--FONT-SIZE-UNI);
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-#passwordFormContent button:hover, #loginFormContent button:hover {
+    box-shadow: 0 2px 5px var(--COLOR-BASE-SHADOW); /* Subtle shadow */
+  }
+  
+  #passwordFormContent button:hover, #loginFormContent button:hover {
     background-color: #0056b3; /* Darker blue background on hover */
-    color: #fff; /* White text on hover */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Slightly larger shadow on hover */
-}
+    color: var(--COLOR-BASE-BACKGROUND); /* White text on hover */
+    box-shadow: 0 4px 10px var(--COLOR-BASE-SHADOW); /* Slightly larger shadow on hover */
+  }
+  

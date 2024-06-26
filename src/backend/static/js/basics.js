@@ -11,21 +11,21 @@ import {
   defaultButton,
   tournamentButton,
 } from "./navbar/buttons.js";
-import { login, logout, oauth, setPasswd } from "./navbar/logging.js";
+import { login, logoutButton, oauth, setPasswd, logout } from "./navbar/logging.js";
 import { checkLoginStatus } from "./login_check.js";
 import { startGameButton, resetGameButton, close_solo_on_change } from "./game/game.js";
 import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
-import { matchHistoryButton } from "./profile/buttons.js";
 import {
+  matchHistoryButton,
   getGameHistory,
   pieChartButton,
   lineChartAvgButton,
   lineChartMaxButton,
   lineChartMinButton,
 } from "./profile/buttons.js";
-import { showLoggedOutState } from "./navbar/navbar.js";
+import { showLoggedInState, showLoggedOutState } from "./navbar/navbar.js";
 import { tournamentHubEventLoop } from "./tournament/tournament_hub.js";
 import { tournamentLobbyEventLoop, tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 
@@ -136,88 +136,75 @@ export async function handleRouteToken(path) {
 }
 
 export function reattachEventListeners() {
-  loginButton();
-  login();
-  logout();
-  generateQRCode();
-  validateOTP();
-  oauth();
-  homeButton();
-  defaultButton();
-  soloGame();
-  multiplayerGame();
-  handleCheckbox();
-  checkBox();
-  setNewPasswd();
-  searchFriends();
-  checkLoginStatus();
-  searchFriends();
-  startGameButton();
-  resetGameButton();
-  setPasswd();
-  createGameButton();
-  resetRemoteGameButton();
-  startRemoteGame();
   bindProfileButton();
   bindSaveChangesButton();
-  matchHistoryButton();
-  pieChartButton();
+  checkBox();
+  checkLoginStatus();
+  createGameButton();
+  defaultButton();
+  generateQRCode();
+  handleCheckbox();
+  homeButton();
   lineChartAvgButton();
   lineChartMinButton();
   lineChartMaxButton();
+  loginButton();
+  login();
+  logoutButton();
+  matchHistoryButton();
+  multiplayerGame();
+  oauth();
+  pieChartButton();
+  resetGameButton();
+  resetRemoteGameButton();
+  setNewPasswd();
+  setPasswd();
+  searchFriends();
+  soloGame();
+  startGameButton();
+  startRemoteGame();
+
   tournamentButton();
   tournamentHubEventLoop();
   tournamentLobbyEventLoop();
+  validateOTP();
 }
 
 export let chatSocket;
 export let selectedFriendId = null;
 
-export function getUsername() {
-  //TODO jwt token?
-  fetch("/api/get_username", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (response.ok) {
-    const username = response.username;
-    return username;
-  } else {
-    throw new Error("Failed to get username from backend");
-  }
-}
-
-export async function getLoginStatus() {
+export async function getUsername() {
+  const token = localStorage.getItem("access_token");
   try {
-    const response = await fetch("/api/login_status", {
+    const response = await fetch("/api/get_username", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
-    if (response.ok) {
-      const data = await response.json();
-      return data.loginStatus;
-    } else {
-      if (response.status === 401) {
-        return false;
-      }
+
+    if (!response.ok) {
+      console.log("Failed to get username from backend");
+      return;
     }
+
+    const data = await response.json();
+    const username = data.username;
+    console.log(username);
+    return username;
   } catch (error) {
-    console.error("Error in getLoginStatus:", error);
-    return false;
+    console.error("Error fetching username:", error);
+    throw error;
   }
 }
 
-export function handle401Error() {
+export async function handle401Error() {
   if (getLoginStatus()) {
-    logout();
+    await logout();
   }
-  showLoggedOutState();
   handleRoute("/login/");
-  checkAccessToken();
+  showLoggedOutState();
 }
 
 window.onload = async function () {
@@ -241,5 +228,60 @@ window.onload = async function () {
     document.getElementById("ballColor").value = "#0000ff"; // Default to blue
   } else if (currentUrl.includes("history")) {
     getGameHistory();
+  }
+};
+
+export async function getLoginStatus() {
+  try {
+    const response = await fetch("/api/login_status", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.loginStatus;
+    } else {
+      if (response.status === 401) {
+        return false;
+      }
+    }
+  } catch (error) {
+    console.error("Error in getLoginStatus:", error);
+    return false;
+  }
+}
+
+window.handle401Error = handle401Error;
+
+window.onload = async function () {
+  let currentUrl = window.location.href;
+  if (currentUrl.includes("/profile/")) {
+    await fetchProfileData();
+    await checkBox();
+  } else if (currentUrl.includes("/friend/")) {
+    let words = currentUrl.split("/");
+    let display_name = words[4];
+    await fetchFriendsData(display_name);
+  } else if (currentUrl.includes("game")) {
+    document.getElementById("background").value = "#ffffff"; // Default to white
+    document.getElementById("borders").value = "#0000ff"; // Default to blue
+    document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+  } else if (currentUrl.includes("multiplayer")) {
+    document.getElementById("background").value = "#ffffff"; // Default to white
+    document.getElementById("borders").value = "#0000ff"; // Default to blue
+    document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+  } else if (currentUrl.includes("history")) {
+    await getGameHistory();
+  }
+  if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/") {
+    loadFriends();
+  }
+  if (await getLoginStatus()) {
+    const username = await getUsername();
+    showLoggedInState(username);
+  } else {
+    showLoggedOutState();
   }
 };

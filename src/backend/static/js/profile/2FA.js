@@ -118,7 +118,6 @@ export function validateOTP() {
             const otp = document.getElementById("otpInput").value;
             const csrftoken = getCookie("csrftoken");
             const token = localStorage.getItem("access_token");
-			console.log(token);
             fetch("/api/validate_otp/", {
                 method: "POST",
                 headers: {
@@ -167,7 +166,7 @@ export function generateQRCode() {
             .then((response) => {
                 if (response.status === 401) {
                     handle401Error();
-                    throw new Error("Unauthorized access, logging out."); //maybe a return?
+                    throw new Error("Unauthorized access, logging out.");
                 }
                 return response.text();
             })

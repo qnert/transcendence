@@ -1,6 +1,8 @@
 import { loadFriends, sendFriendRequest, updateUserStatus } from './fetch_friends.js';
 import { deleteFriend } from './fetch_friends.js';
 
+
+
   window.deleteFriend = deleteFriend;
   window.sendFriendRequest = sendFriendRequest;
   window.acceptRequest = acceptRequest;
@@ -30,7 +32,6 @@ import { deleteFriend } from './fetch_friends.js';
 
     friendSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
-        console.log(data);
         if (data.type === "friend_request_accepted") {
           updateFriendDropdown(data.friend_profile_picture_url, data.friend_name, data.friend_id);
           loadFriends();
@@ -70,40 +71,42 @@ export function updateFriendDropdown() {
         .then((response) => response.json())
         .then((data) => {
             const friendsMenu = document.getElementById("friends-list");
-            friendsMenu.innerHTML = ""; // Clear existing content
-
-            if (data.length === 0) {
-                const noFriendsElement = document.createElement("li");
-                noFriendsElement.id = "no-friends";
-                noFriendsElement.innerHTML = `<span class="dropdown-item">No friends found</span>`;
-                friendsMenu.appendChild(noFriendsElement);
-            } else {
-                data.forEach((friend) => {
-                    const friendItem = document.createElement("li");
-                    var onlineStatus = '<span style="visibility: hidden;" class="status-dot offline"></span>';
-
-                    if (!friend.blocked_by && !friend.is_blocked) onlineStatus = '<span class="status-dot offline"></span>';
-                    friendItem.className = "friend-item d-flex align-items-center justify-content-between px-2 py-1";
-                    friendItem.id = `friend-${friend.user_id}`;
-                    friendItem.innerHTML = `
-			<div class="d-flex align-items-center">
-			  ${onlineStatus}
-			  <img src="${friend.profile_picture_url}" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 8px;">
-			  <button id="${friend.display_name}" class="btn btn-link search-result" onclick="loadContentFriend('${friend.display_name}')">${friend.display_name}</button>
-			</div>
-			<div class="dropdown">
-			  <a class="dropdown-toggle" style="margin-right: 5px;" role="button" id="dropdownMenuButton${friend.user_id}" onclick="stopPropagation(event)" data-bs-toggle="dropdown" aria-expanded="false"></a>
-			  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton${friend.user_id}">
-			    <li>
-			      <button class="dropdown-item text-danger" onclick="deleteFriend(${friend.user_id}, this)">Remove Friend</button>
-			    </li>
-			  </ul>
-			</div>
-          `;
-                    friendsMenu.appendChild(friendItem);
-                });
-            }
-            updateUserStatus();
+			if(friendsMenu){
+				friendsMenu.innerHTML = ""; // Clear existing content
+	
+				if (data.length === 0) {
+					const noFriendsElement = document.createElement("li");
+					noFriendsElement.id = "no-friends";
+					noFriendsElement.innerHTML = `<span class="dropdown-item">No friends found</span>`;
+					friendsMenu.appendChild(noFriendsElement);
+				} else {
+					data.forEach((friend) => {
+						const friendItem = document.createElement("li");
+						var onlineStatus = '<span style="visibility: hidden;" class="status-dot offline"></span>';
+	
+						if (!friend.blocked_by && !friend.is_blocked) onlineStatus = '<span class="status-dot offline"></span>';
+						friendItem.className = "friend-item d-flex align-items-center justify-content-between px-2 py-1";
+						friendItem.id = `friend-${friend.user_id}`;
+						friendItem.innerHTML = `
+				<div class="d-flex align-items-center">
+				  ${onlineStatus}
+				  <img src="${friend.profile_picture_url}" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 8px;">
+				  <button id="${friend.display_name}" class="btn btn-link search-result" onclick="loadContentFriend('${friend.display_name}')">${friend.display_name}</button>
+				</div>
+				<div class="dropdown">
+				  <a class="dropdown-toggle" style="margin-right: 5px;" role="button" id="dropdownMenuButton${friend.user_id}" onclick="stopPropagation(event)" data-bs-toggle="dropdown" aria-expanded="false"></a>
+				  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton${friend.user_id}">
+					<li>
+					  <button class="dropdown-item text-danger" onclick="deleteFriend(${friend.user_id}, this)">Remove Friend</button>
+					</li>
+				  </ul>
+				</div>
+			  `;
+						friendsMenu.appendChild(friendItem);
+					});
+				}
+				updateUserStatus();
+			}
         });
   }
 }
