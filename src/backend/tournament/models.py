@@ -16,7 +16,9 @@ class Tournament(models.Model):
     created_at = models.DateField(default=date.today)
     name = models.CharField(max_length=50, unique=True)
     participants = models.ManyToManyField(UserProfile, related_name='active_tournament')
-    created_by = models.ForeignKey(UserProfile, related_name='created_tournaments', null=True, on_delete=models.CASCADE)
+    # TODO rename to host?
+    created_by = models.ForeignKey(UserProfile, related_name='created_tournaments',
+                                   null=True, on_delete=models.CASCADE)
     STATE_CHOICES = [
         ('setup', 'Setup'),
         ('playing', 'Playing'),
