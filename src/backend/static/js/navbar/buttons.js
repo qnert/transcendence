@@ -1,11 +1,11 @@
-import { handleRoute, updateContentToken, updateContent } from "../basics.js";
+import { handleRoute, handleRouteToken } from "../basics.js";
 
 export function soloGame() {
     const soloGameButton = document.getElementById("game");
     if (soloGameButton) {
         soloGameButton.onclick = function (event) {
             event.preventDefault();
-            handleRoute("/game/");
+            handleRouteToken("/game/");
         };
     }
 }
@@ -15,7 +15,7 @@ export function multiplayerGame() {
     if (multiplayerGame) {
         multiplayerGame.onclick = function (event) {
             event.preventDefault();
-            handleRoute("/multiplayer/");
+            handleRouteToken("/multiplayer/");
         };
     }
 }
@@ -25,8 +25,7 @@ export function loginButton() {
     if (loginButton) {
         loginButton.onclick = function (event) {
             event.preventDefault();
-            window.history.pushState({ path: "/login/" }, "", "/login/");
-			updateContent("/login/");
+			handleRoute("/login/");
         };
     }
 }
@@ -36,8 +35,7 @@ export function tournamentButton() {
     if (tournamentButton) {
         tournamentButton.onclick = function (event) {
             event.preventDefault();
-            window.history.pushState({ path: "/tournament/hub/" }, "", "/tournament/hub/");
-			updateContent("/tournament/hub/");
+			handleRouteToken("/tournament/hub/");
         };
     }
 }
@@ -63,8 +61,7 @@ export function homeButton() {
         homeButton.parentNode.replaceChild(newHomeButton, homeButton);
         newHomeButton.onclick = function (event) {
             event.preventDefault();
-            window.history.pushState({ path: "/home/" }, "", "/home/");
-            updateContentToken("/home/");
+            handleRouteToken("/home/");
         };
     }
 }

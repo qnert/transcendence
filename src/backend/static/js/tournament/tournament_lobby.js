@@ -7,11 +7,11 @@ let tournamentLobbySocket;
 // TODO might remove
 // TODO event listener either gobal or here if url changes
 export async function tournamentLobbyEventLoop() {}
-export async function tournamentLobbyInit(lobbyName, userName) {
-  const tournamentLobbyChatLog = document.querySelector("#lobby-chat-log");
-  const tournamentLobbyChatInput = document.querySelector("#lobby-chat-message-input");
-  const tournamentLobbyChatSubmit = document.querySelector("#lobby-chat-message-submit");
 
+export function tournamentLobbyInit(lobbyName, userName) {
+  const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
+  const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
+  const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
   tournamentLobbySocket = new WebSocket(
     "ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/"
   );
@@ -29,6 +29,7 @@ export async function tournamentLobbyInit(lobbyName, userName) {
 
   tournamentLobbySocket.onclose = function () {
     console.error("Chat socket closed unexpectedly");
+    // TODO leave tournament
   };
 
   tournamentLobbyChatInput.focus();
@@ -51,8 +52,8 @@ export async function tournamentLobbyInit(lobbyName, userName) {
 // =========================== CLEAN UP ===============================
 
 export function tournamentLobbyCloseSocket() {
-  console.log("closing lobby socket");
   if (tournamentLobbySocket) {
+    console.log("closing lobby socket");
     tournamentLobbySocket.close();
     tournamentLobbySocket = null;
   }

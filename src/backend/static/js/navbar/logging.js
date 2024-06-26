@@ -1,6 +1,6 @@
 import { checkAccessToken } from "../profile/profile.js";
 import { getAccessToken } from "../security/jwt.js";
-import { handle401Error, updateContent, updateContentToken } from "../basics.js";
+import { handle401Error, handleRoute, handleRouteToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
 import { friendSocket } from "../friends/action_friends.js";
@@ -37,8 +37,7 @@ export function setPasswd() {
                         alert(response.error);
                     }
                     alert("Setting your passwd was successful!");
-                    window.history.pushState({ path: "/login/" }, "", "/login/");
-                    updateContent("/login/");
+                    handleRoute("/login/");
                 } catch (error) {
                     console.error("something went wrong");
                 }
@@ -105,8 +104,8 @@ export async function logoutButton() {
 					localStorage.removeItem("refresh_token");
 				}
 				showLoggedOutState();
-                window.history.pushState({ path: "/login/" }, "", "/login/");
-                updateContent("/login/");
+                checkAccessToken();
+                handleRoute("/login/");
             } catch (error) {
                 console.log("Error in logout", error);
             }
@@ -139,8 +138,7 @@ export async function logout() {;
 			localStorage.removeItem("refresh_token");
 		}
 		showLoggedOutState();
-        window.history.pushState({ path: "/login/" }, "", "/login/");
-        updateContent("/login/");
+        handleRoute("/login/");
     } catch (error) {
         console.log("Error in logout", error);
     }
@@ -202,16 +200,14 @@ export function login() {
                 if (twoFAResponseData.enable === true) {
                     await getAccessToken(username, password, csrftoken);
 					await storeJWT();
-                    window.history.pushState({ path: "/2FA/" }, "", "/2FA/");
-                    updateContentToken("/2FA/");
+                    handleRouteToken("/2FA/");
 					loadFriends();
                     checkAccessToken();
 				}
 				else {
 					await getAccessToken(username, password, csrftoken);
 					await storeJWT();
-                    window.history.pushState({ path: "/home/" }, "", "/home/");
-                    updateContent("/home/");
+                    handleRoute("/home/");
                     loadFriends();
                     checkAccessToken();
                 }

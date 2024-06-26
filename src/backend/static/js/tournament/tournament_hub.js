@@ -1,4 +1,5 @@
-import { handleRoute } from "../basics.js";
+
+import { handleRouteToken } from "../basics.js";
 import { tournamentLobbyInit } from "./tournament_lobby.js";
 
 // =========================== GLOBAL ===============================
@@ -60,6 +61,7 @@ async function joinTournament() {
     return;
   }
   const tournamentName = selectedOption.innerHTML;
+  // TODO this might be error prone
   await enterTournamentLobby(tournamentName);
 }
 
@@ -70,10 +72,11 @@ async function enterTournamentLobby(tournamentName) {
     alert(error);
     return;
   }
+  // TODO this might be error prone
   const pathToLobby = "/tournament/lobby/" + tournamentName + "/";
   const userName = getUserNameFromDOM();
-  await handleRoute(pathToLobby);
-  await tournamentLobbyInit(tournamentName, userName);
+  await handleRouteToken(pathToLobby);
+  tournamentLobbyInit(tournamentName, userName);
 }
 
 // =========================== API REQUESTS ===============================
@@ -120,9 +123,3 @@ function getUserNameFromDOM(){
   return navbarDropdownMenuLink.innerHTML.trim();
 }
 
-// TODO implement?
-//        if (!response.ok) {
-			//if(response.status === 401){
-			//	handle401Error();
-			//	return;
-			//}

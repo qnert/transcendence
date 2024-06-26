@@ -1,5 +1,5 @@
 import { checkAccessToken } from "../profile/profile.js";
-import { handle401Error, updateContentToken } from "../basics.js";
+import { handle401Error, handleRouteToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 
 async function activatetwoFA() {
@@ -136,9 +136,8 @@ export function validateOTP() {
             })
             .then((data) => {
                 if (data.valid) {
-                    window.history.pushState({ path: "/home/" }, "", "/home/");
                     checkAccessToken();
-                    updateContentToken("/home/");
+                    handleRouteToken("/home/");
                 } else {
                     alert("Validation failed: Invalid OTP");
                 }

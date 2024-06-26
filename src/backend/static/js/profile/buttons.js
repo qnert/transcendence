@@ -1,4 +1,4 @@
-import { handle401Error, handleRoute, updateContentToken } from "../basics.js";
+import { handle401Error, handleRouteToken } from "../basics.js";
 import { fetchProfileData } from "./fetch_profile.js";
 import { getCookie } from "../security/csrft.js";
 import { checkBox } from "./2FA.js";
@@ -54,7 +54,7 @@ export async function bindProfileButton() {
     if (profileButton) {
         profileButton.onclick = async (event) => {
             event.preventDefault()
-            await handleRoute("/profile/");
+            await handleRouteToken("/profile/");
             await fetchProfileData();
         };
     }
@@ -65,7 +65,7 @@ export async function matchHistoryButton(){
 	if(matchHistory){
 		matchHistory.onclick = async function(event){
 			event.preventDefault();
-			await handleRoute("/history/");
+			await handleRouteToken("/history/");
 			await getGameHistory();
 		}
 	}
