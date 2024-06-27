@@ -63,6 +63,6 @@ def tournament_api_join(request):
         user_profile = UserProfile.objects.get(user=request.user)
         try:
             tournament.add_participant(user_profile=user_profile)
-        except ValidationError:
-            return JsonResponse({"error": "User is already in tournament!"}, status=400)
+        except ValidationError as e:
+            return JsonResponse({"error": e.message }, status=400)
         return JsonResponse({"message": "Success"}, status=201)
