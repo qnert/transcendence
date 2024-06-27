@@ -61,18 +61,10 @@ async function joinTournament() {
     return;
   }
   const tournamentName = selectedOption.innerHTML;
-  // TODO this might be error prone
   await enterTournamentLobby(tournamentName);
 }
 
 async function enterTournamentLobby(tournamentName) {
-  try {
-    const response = await postParticipant(tournamentName);
-  } catch (error) {
-    alert(error);
-    return;
-  }
-  // TODO this might be error prone
   const pathToLobby = "/tournament/lobby/" + tournamentName + "/";
   const userName = getUserNameFromDOM();
   await handleRouteToken(pathToLobby);
@@ -83,20 +75,6 @@ async function enterTournamentLobby(tournamentName) {
 
 async function postTournament(tournamentName) {
   const response = await fetch("/tournament/api/create/", {
-    method: "POST",
-    body: JSON.stringify({ tournament_name: tournamentName }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    const responseError = await response.json();
-    throw new Error(responseError.error);
-  }
-}
-
-async function postParticipant(tournamentName) {
-  const response = await fetch("/tournament/api/join/", {
     method: "POST",
     body: JSON.stringify({ tournament_name: tournamentName }),
     headers: {

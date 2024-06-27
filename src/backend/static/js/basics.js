@@ -40,7 +40,8 @@ window.addEventListener("popstate", function (event) {
                 updateContent("/login/");
             }
         } else {
-            updateContent(event.state.path);
+            // TODO replaceState ?
+            updateContentToken(event.state.path);
         }
     }
     handleUrlChange();
@@ -78,7 +79,7 @@ async function updateContentToken(path) {
         oldContent.appendChild(newContent);
         reattachEventListeners();
     } catch (error) {
-        console.error("Error fetching content:", error);
+        //console.error("Error fetching content:", error);
         handleRouteToken("/home/");
     }
 }
