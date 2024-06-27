@@ -1,4 +1,5 @@
 :root {
+    --COLOR-BODY-BACKGROUND:  rgb(218, 218, 218, 1);
     --COLOR-BASE-BACKGROUND: white;
     --COLOR-BASE-FONT: black;
     --COLOR-BASE-ACCENT: #007bff;
@@ -17,13 +18,19 @@
     --FONT-SIZE-UNI: 16px;
     --COLOR-FRIEND-LIST-BORDER: #ccc;
     --COLOR-STATUS-TEXT: grey;
-  }
-  
-  * {
+}
+
+* {
     box-sizing: border-box;
-  }
-  
-  #newContent {
+}
+
+body {
+    background: var(--COLOR-BODY-BACKGROUND);
+    margin: 0;
+    padding: 0;
+}
+
+#newContent {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -31,34 +38,55 @@
     min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
     width: 100%; /* Full viewport width */
     padding-top: 70px; /* Add padding to account for the navbar */
-  
-    .borderedBox {
-      width: 600px; /* Adjust width as needed */
-      padding: 20px;
-      border: 1px solid var(--COLOR-BASE-ACCENT);
-      border-radius: 5px;
-      box-shadow: 0 0 10px var(--COLOR-BASE-SHADOW);
-      display: flex;
-      flex-direction: column; /* Flexbox column direction */
-      justify-content: center; /* Center items vertically */
-      align-items: center; /* Center items horizontally */
-      background-color: var(--COLOR-BASE-BACKGROUND);
-  
-      input {
-        margin-bottom: 10px;
+    padding-bottom: 70px;
+
+    h1,
+    h2,
+    h3 {
         text-align: center;
-      }
-  
-      button {
-        margin-top: 20px;
-      }
-  
-      .form-check {
-        .form-check-input {
-          border: 1px solid var(--COLOR-BASE-ACCENT);
-          border-radius: 5px;
-        }
-      }
     }
-  }
-  
+
+    .borderedBox {
+        width: 75%; /* Adjust width as needed */
+        padding: 20px;
+        border: 1px solid var(--COLOR-BASE-ACCENT);
+        border-radius: 5px;
+        box-shadow: 0 0 10px var(--COLOR-BASE-SHADOW);
+        display: flex;
+        flex-direction: column; /* Flexbox column direction */
+        justify-content: center; /* Center items vertically */
+        align-items: center; /* Center items horizontally */
+        background-color: var(--COLOR-BASE-BACKGROUND);
+
+        input {
+            margin-bottom: 5px;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        button {
+            margin-top: 20px;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid var(--COLOR-BASE-FONT);
+            box-shadow: 0 0 5px var(--COLOR-BASE-SHADOW);
+        }
+
+        .chat-input-submit {
+            display: flex;
+            flex-direction: row;
+            margin: auto;
+            width: 100%;
+            gap: 1%;
+        }
+
+        .form-check {
+            .form-check-input {
+                border: 1px solid var(--COLOR-BASE-ACCENT);
+                border-radius: 5px;
+            }
+        }
+    }
+}
