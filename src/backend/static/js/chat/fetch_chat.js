@@ -1,7 +1,11 @@
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
+import { updateFriendDropdown } from "../friends/action_friends.js";
 
-function blockUser(userId) {
+window.unblockUser = unblockUser;
+window.blockUser = blockUser;
+
+export function blockUser(userId) {
     const csrftoken = getCookie("csrftoken");
     fetch(`/api/block/${userId}/`, {
         method: "POST",
@@ -19,7 +23,7 @@ function blockUser(userId) {
         .catch((error) => console.error("Error blocking user:", error));
 }
 
-function unblockUser(userId) {
+export function unblockUser(userId) {
     const csrftoken = getCookie("csrftoken");
     fetch(`/api/unblock/${userId}/`, {
         method: "POST",

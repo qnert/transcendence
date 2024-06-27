@@ -721,7 +721,6 @@ function start_game() {
       let average = 0;
       for (let i = 0; i < rallies.length; i++){
         average += rallies[i];
-        console.log(i);
       }
       average = (average / rallies.length).toFixed(2);
       if (username == connected_users[0])

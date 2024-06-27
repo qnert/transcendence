@@ -1,9 +1,10 @@
 import { checkAccessToken } from "../profile/profile.js";
 import { getAccessToken } from "../security/jwt.js";
-import { handle401Error, updateContent, updateContentToken } from "../basics.js";
+import { handle401Error, handleRoute, handleRouteToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
 import { friendSocket } from "../friends/action_friends.js";
+import { showLoggedOutState } from "./navbar.js";
 
 export function setPasswd() {
     const passwd = document.getElementById("setPasswd");
@@ -36,8 +37,7 @@ export function setPasswd() {
                         alert(response.error);
                     }
                     alert("Setting your passwd was successful!");
-                    window.history.pushState({ path: "/login/" }, "", "/login/");
-                    updateContent("/login/");
+                    handleRoute("/login/");
                 } catch (error) {
                     console.error("something went wrong");
                 }
@@ -75,12 +75,10 @@ export function oauth() {
     }
 }
 
-export function logout() {
+export async function logoutButton() {
     const logoutButton = document.getElementById("logout");
     if (logoutButton) {
-        const newLogoutButton = logoutButton.cloneNode(true);
-        logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
-        newLogoutButton.addEventListener("click", async function (event) {
+        logoutButton.onclick = async function (event) {
             event.preventDefault();
             const refreshToken = localStorage.getItem("refresh_token");
             const csrftoken = getCookie("csrftoken");
@@ -99,24 +97,52 @@ export function logout() {
                 if (friendSocket) {
                     friendSocket.close();
                 }
-				const access_token = localStorage.getItem("access_token");
-				if(access_token){
+				if(accessToken){
 					localStorage.removeItem("access_token");
 				}
-				const refresh_token = localStorage.getItem("refresh_token");
-				if(refresh_token){
+				if(refreshToken){
 					localStorage.removeItem("refresh_token");
 				}
+				showLoggedOutState();
                 checkAccessToken();
-                window.history.pushState({ path: "/login/" }, "", "/login/");
-                updateContent("/login/");
+                handleRoute("/login/");
             } catch (error) {
                 console.log("Error in logout", error);
             }
-        });
+        };
     }
 }
 
+export async function logout() {;
+    const refreshToken = localStorage.getItem("refresh_token");
+    const csrftoken = getCookie("csrftoken");
+    const accessToken = localStorage.getItem("access_token");
+    try {
+        const response = await fetch("/api/logout/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken,
+            },
+        });
+        if (!response.ok){
+			throw new Error("Logout fail");
+		}
+        if (friendSocket) {
+            friendSocket.close();
+        }
+		if(accessToken){
+			localStorage.removeItem("access_token");
+		}
+		if(refreshToken){
+			localStorage.removeItem("refresh_token");
+		}
+		showLoggedOutState();
+        handleRoute("/login/");
+    } catch (error) {
+        console.log("Error in logout", error);
+    }
+};
 
 async function storeJWT() {
     const refresh_token = localStorage.getItem("refresh_token");
@@ -144,7 +170,7 @@ async function storeJWT() {
 export function login() {
     const Login = document.getElementById("loginFormContent");
     if (Login) {
-        Login.addEventListener("submit", async function (event) {
+        Login.onsubmit = async function (event) {
             event.preventDefault();
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
@@ -174,16 +200,14 @@ export function login() {
                 if (twoFAResponseData.enable === true) {
                     await getAccessToken(username, password, csrftoken);
 					await storeJWT();
-                    window.history.pushState({ path: "/2FA/" }, "", "/2FA/");
-                    updateContentToken("/2FA/");
+                    handleRouteToken("/2FA/");
 					loadFriends();
                     checkAccessToken();
 				}
 				else {
 					await getAccessToken(username, password, csrftoken);
 					await storeJWT();
-                    window.history.pushState({ path: "/home/" }, "", "/home/");
-                    updateContent("/home/");
+                    handleRoute("/home/");
                     loadFriends();
                     checkAccessToken();
                 }
@@ -191,6 +215,6 @@ export function login() {
                 console.error("Login error:", error);
                 alert("Login failed. Please try again.");
             }
-        });
+        };
     }
 }

@@ -1,4 +1,4 @@
-import { handle401Error, handleRoute, updateContentToken } from "../basics.js";
+import { handle401Error, handleRouteToken } from "../basics.js";
 import { fetchProfileData } from "./fetch_profile.js";
 import { getCookie } from "../security/csrft.js";
 import { checkBox } from "./2FA.js";
@@ -7,8 +7,8 @@ import { getAccessToken } from "../security/jwt.js";
 export async function saveChanges() {
     const picture_url = document.getElementById("profile-picture_url").value;
     const display_name = document.getElementById("profile-display_name").value;
-	if (display_name.length < 1 || display_name.trim() === ""){
-		alert("display name must be atleast 1 character long");
+	if (display_name.length < 1 || display_name.length > 20 || display_name.trim() === ""){
+		alert("display name must be between 1 and 20 characters long");
 		return;
 	}
     const csrftoken = getCookie("csrftoken");
@@ -54,7 +54,7 @@ export async function bindProfileButton() {
     if (profileButton) {
         profileButton.onclick = async (event) => {
             event.preventDefault()
-            await handleRoute(event, "/profile/");
+            await handleRouteToken("/profile/");
             await fetchProfileData();
         };
     }
@@ -65,7 +65,7 @@ export async function matchHistoryButton(){
 	if(matchHistory){
 		matchHistory.onclick = async function(event){
 			event.preventDefault();
-			await handleRoute(event, "/history/");
+			await handleRouteToken("/history/");
 			await getGameHistory();
 		}
 	}

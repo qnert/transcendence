@@ -2,6 +2,7 @@ import { getCookie } from "../security/csrft.js";
 import { updateFriendDropdown, acceptRequest, denyRequest } from "./action_friends.js";
 import { selectFriend } from "../chat/action_chat.js";
 import { friendSocket } from "./action_friends.js";
+import { blockUser, unblockUser } from "../chat/fetch_chat.js";
 
 window.acceptRequest = acceptRequest;
 window.denyRequest = denyRequest;
@@ -94,13 +95,15 @@ export function updateUserStatus() {
 
                 if (friendItem) {
                     const statusDot = friendItem.querySelector(".status-dot");
-                    if (status === "online") {
-                        statusDot.classList.add("online");
-                        statusDot.classList.remove("offline");
-                    } else {
-                        statusDot.classList.add("offline");
-                        statusDot.classList.remove("online");
-                    }
+					if(statusDot){
+						if (status === "online") {
+							statusDot.classList.add("online");
+							statusDot.classList.remove("offline");
+						} else {
+							statusDot.classList.add("offline");
+							statusDot.classList.remove("online");
+						}
+					}
                 }
 
                 if (chatStatusText) {

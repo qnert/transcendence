@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from channels.layers import get_channel_layer
 from asgiref.sync import sync_to_async
 from django.http import JsonResponse
+from api.decorators import *
 import matplotlib.pyplot as plt
 import io
 import urllib, base64
@@ -13,19 +14,33 @@ import numpy as np
 
 channel_layer = get_channel_layer()
 
+
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def game(request):
   return render(request, 'game.html')
 
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def multiplayer(request, room_name=None):
   return render(request, 'multiplayer.html', {'room_name': room_name})
 
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def history(request):
   return render(request, 'match_history.html')
+
 
 def get_username(request):
   username = UserProfile.objects.get(user=request.user)
   return JsonResponse({'username': username.display_name})
 
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def game_history(request):
     if request.method == "GET":
         user_profile = request.user.profile
@@ -47,7 +62,9 @@ def game_history(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def generate_pie_chart(request):
     user_profile = request.user.profile
     game_results = GameResult.objects.filter(user_profile=user_profile)
@@ -70,7 +87,9 @@ def generate_pie_chart(request):
     graphic = base64.b64encode(image_png).decode('utf-8')
     return JsonResponse({'success': graphic}, status=200)
 
-
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def generate_line_chart_avg(request):
     user_profile = request.user.profile
     game_results = GameResult.objects.filter(user_profile=user_profile)
@@ -101,7 +120,9 @@ def generate_line_chart_avg(request):
     graphic = base64.b64encode(image_png).decode('utf-8')
     return JsonResponse({'success': graphic}, status=200)
 
-
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def generate_line_chart_max(request):
     user_profile = request.user.profile
     game_results = GameResult.objects.filter(user_profile=user_profile)
@@ -132,7 +153,9 @@ def generate_line_chart_max(request):
     return JsonResponse({'success': graphic}, status=200)
 
 
-
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def generate_line_chart_min(request):
     user_profile = request.user.profile
     game_results = GameResult.objects.filter(user_profile=user_profile)

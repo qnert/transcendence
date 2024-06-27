@@ -1,152 +1,152 @@
 /* Navbar container with Flexbox and styling similar to login form */
 .navbar {
-  display: flex;
-  justify-content: space-between; /* Space between nav items */
-  align-items: center; /* Center items vertically */
-  padding: 10px 20px;
-  background-color: #007bff; /* Blue background color */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  width: 100%;
-}
-
-/* Align the brand/logo to the left */
-.navbar-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: black;
-  background-color: white;
-  border-radius: 5px;
-  text-decoration: none;
-  margin-right: auto; /* Pushes the brand to the left */
-  transition: background-color 0.3s;
-  cursor: pointer;
-}
-
-.navbar-brand:hover {
-  background-color: black;
-  color: white;
-}
-
-/* Flexbox container for nav items */
-.navbar-nav {
-  display: flex;
-  align-items: center;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-/* Style for individual nav items */
-.navbar-nav .nav-item {
-  margin-right: 10px; /* Adjust as needed */
-}
-
-/* Button and dropdown item styling */
-.nav-button,
-.dropdown-item {
-  background: none; /* No background */
-  border: none;
-  color: black; /* Black text color */
-  padding: 10px;
-  text-decoration: none;
-  cursor: pointer;
-  font-size: 1rem;
-  display: block;
-  width: auto; /* Ensure proper width */
-  border-radius: 5px; /* Add border-radius for consistency */
-}
-
-.nav-button:hover,
-.dropdown-item:hover {
-  background-color: #007bff; /* Blue background on hover */
-  color: white; /* White text on hover */
-}
-
-/* Adjustments for login button */
-.login-button {
-  background: none; /* No background */
-  color: black; /* Black text */
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.login-button:hover {
-  background-color: #007bff; /* Blue background on hover */
-  color: white; /* White text on hover */
-}
-
-/* Adjustments for authenticate button */
-.auth-button {
-  background: none; /* No background */
-  color: black; /* Black text */
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.auth-button:hover {
-  background-color: #007bff; /* Blue background on hover */
-  color: white; /* White text on hover */
-}
-
-/* Adjustments for profile dropdown */
-.profile-dropdown .nav-button {
-  background: none; /* No background */
-  color: black; /* Black text */
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.profile-dropdown .nav-button:hover {
-  background-color: #007bff; /* Blue background on hover */
-  color: white; /* White text on hover */
-}
-
-.profile-dropdown .dropdown-menu {
-  background-color: #007bff; /* Blue background for dropdown */
-  border-radius: 5px;
-  border: none;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  position: absolute;
-  right: 0;
-  left: auto;
-  max-width: 200px;
-  overflow: hidden;
-  text-align: right;
-}
-
-.profile-dropdown .dropdown-item {
-  background: none; /* No background */
-  color: black; /* Black text */
-  text-align: right;
-}
-
-.profile-dropdown .dropdown-item:hover {
-  background-color: #007bff; /* Blue background on hover */
-  color: white; /* White text on hover */
-}
-
-/* Adjustments for logout button */
-.logout-button {
-  background: none; /* No background */
-  color: black; /* Black text */
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  text-align: right;
-}
-
-.logout-button:hover {
-  background-color: #007bff; /* Blue background on hover */
-  color: white; /* White text on hover */
-}
+    display: flex;
+    justify-content: space-between; /* Space between nav items */
+    align-items: center; /* Center items vertically */
+    padding: 10px 20px;
+    background-color: var(--COLOR-BASE-ACCENT); /* Blue background color */
+    box-shadow: 0 0 10px var(--COLOR-BASE-SHADOW);
+    border-radius: 5px;
+    width: 100%;
+  }
+  
+  /* Align the brand/logo to the left */
+  .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--COLOR-BASE-FONT);
+    background-color: var(--COLOR-BASE-BACKGROUND);
+    border-radius: 5px;
+    text-decoration: none;
+    margin-right: auto; /* Pushes the brand to the left */
+    transition: background-color 0.3s;
+    cursor: pointer;
+  }
+  
+  .navbar-brand:hover {
+    background-color: var(--COLOR-BASE-FONT);
+    color: var(--COLOR-BASE-BACKGROUND);
+  }
+  
+  /* Flexbox container for nav items */
+  .navbar-nav {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Style for individual nav items */
+  .navbar-nav .nav-item {
+    margin-right: 10px; /* Adjust as needed */
+  }
+  
+  /* Button and dropdown item styling */
+  .nav-button,
+  .dropdown-item {
+    background: none; /* No background */
+    border: none;
+    color: var(--COLOR-BASE-FONT); /* Black text color */
+    padding: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: block;
+    width: auto; /* Ensure proper width */
+    border-radius: 5px; /* Add border-radius for consistency */
+  }
+  
+  .nav-button:hover,
+  .dropdown-item:hover {
+    background-color: var(--COLOR-BASE-ACCENT); /* Blue background on hover */
+    color: var(--COLOR-BASE-BACKGROUND); /* White text on hover */
+  }
+  
+  /* Adjustments for login button */
+  .login-button {
+    background: none; /* No background */
+    color: var(--COLOR-BASE-FONT); /* Black text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .login-button:hover {
+    background-color: var(--COLOR-BASE-ACCENT); /* Blue background on hover */
+    color: var(--COLOR-BASE-BACKGROUND); /* White text on hover */
+  }
+  
+  /* Adjustments for authenticate button */
+  .auth-button {
+    background: none; /* No background */
+    color: var(--COLOR-BASE-FONT); /* Black text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .auth-button:hover {
+    background-color: var(--COLOR-BASE-ACCENT); /* Blue background on hover */
+    color: var(--COLOR-BASE-BACKGROUND); /* White text on hover */
+  }
+  
+  /* Adjustments for profile dropdown */
+  .profile-dropdown .nav-button {
+    background: none; /* No background */
+    color: var(--COLOR-BASE-FONT); /* Black text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .profile-dropdown .nav-button:hover {
+    background-color: var(--COLOR-BASE-ACCENT); /* Blue background on hover */
+    color: var(--COLOR-BASE-BACKGROUND); /* White text on hover */
+  }
+  
+  .profile-dropdown .dropdown-menu {
+    background-color: var(--COLOR-BASE-ACCENT); /* Blue background for dropdown */
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0 0 10px var(--COLOR-BASE-SHADOW);
+    position: absolute;
+    right: 0;
+    left: auto;
+    max-width: 200px;
+    overflow: hidden;
+    text-align: right;
+  }
+  
+  .profile-dropdown .dropdown-item {
+    background: none; /* No background */
+    color: var(--COLOR-BASE-FONT); /* Black text */
+    text-align: right;
+  }
+  
+  .profile-dropdown .dropdown-item:hover {
+    background-color: var(--COLOR-BASE-ACCENT); /* Blue background on hover */
+    color: var(--COLOR-BASE-BACKGROUND); /* White text on hover */
+  }
+  
+  /* Adjustments for logout button */
+  .logout-button {
+    background: none; /* No background */
+    color: var(--COLOR-BASE-FONT); /* Black text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: right;
+  }
+  
+  .logout-button:hover {
+    background-color: var(--COLOR-BASE-ACCENT); /* Blue background on hover */
+    color: var(--COLOR-BASE-BACKGROUND); /* White text on hover */
+  }  

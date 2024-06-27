@@ -1,5 +1,5 @@
 import { checkAccessToken } from "../profile/profile.js";
-import { handle401Error, updateContentToken } from "../basics.js";
+import { handle401Error, handleRouteToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 
 async function activatetwoFA() {
@@ -118,7 +118,6 @@ export function validateOTP() {
             const otp = document.getElementById("otpInput").value;
             const csrftoken = getCookie("csrftoken");
             const token = localStorage.getItem("access_token");
-			console.log(token);
             fetch("/api/validate_otp/", {
                 method: "POST",
                 headers: {
@@ -137,9 +136,8 @@ export function validateOTP() {
             })
             .then((data) => {
                 if (data.valid) {
-                    window.history.pushState({ path: "/home/" }, "", "/home/");
                     checkAccessToken();
-                    updateContentToken("/home/");
+                    handleRouteToken("/home/");
                 } else {
                     alert("Validation failed: Invalid OTP");
                 }
@@ -168,7 +166,7 @@ export function generateQRCode() {
             .then((response) => {
                 if (response.status === 401) {
                     handle401Error();
-                    throw new Error("Unauthorized access, logging out."); //maybe a return?
+                    throw new Error("Unauthorized access, logging out.");
                 }
                 return response.text();
             })
