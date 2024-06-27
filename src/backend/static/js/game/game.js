@@ -2,7 +2,10 @@ function reset() {
     document.getElementById("myForm").style.display = "block";
     document.getElementById("board").style.display = "none";
     document.getElementById("resetGameButton").style.display = "none";
-}
+    document.getElementById("left_player").innerText = "Player1";
+    document.getElementById("left_player").style.display = "none";
+    document.getElementById("right_player").style.display = "none";
+  }
 
 
 export function startGameButton() {
@@ -118,6 +121,10 @@ export function start_game() {
 
     //color customization
     board.style.display = "block";
+    if (ai_enabled == true)
+      document.getElementById("left_player").innerText = "AI";
+    document.getElementById("left_player").style.display = "block";
+    document.getElementById("right_player").style.display = "block";
     board.style.backgroundColor = document.getElementById("background").value;
     board.style.borderTop = "5px solid " + document.getElementById("borders").value;
     board.style.borderBottom = "5px solid " + document.getElementById("borders").value;
