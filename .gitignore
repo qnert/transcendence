@@ -8,5 +8,5 @@ env/
 .DS_store
 *.env
 .vscode
-clear_db.sh
 src/backend/staticfiles
+src/grafana-data/
