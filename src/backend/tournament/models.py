@@ -8,7 +8,6 @@ from api.models import UserProfile
 # TODO add tournament abort?
 # @note prob want something like a list of game sessions/ids that can be shown to the participants
 
-
 MAX_PARTICIPANTS = 4
 
 
@@ -59,6 +58,9 @@ class Tournament(models.Model):
         for participant in self.participants.all():
             obj.append(participant.display_name)
         return obj
+
+    def get_state(self):
+        return self.state
 
     # def toggle_state():
     # toggle setup -> playing -> finished
