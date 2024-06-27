@@ -79,6 +79,8 @@ async function updateContentToken(path) {
         reattachEventListeners();
     } catch (error) {
         console.error("Error fetching content:", error);
+        // TODO not sure if valid
+        handleRoute("/home/");
     }
 }
 
@@ -104,7 +106,11 @@ function updateContent(path) {
             oldContent.appendChild(newContent);
             reattachEventListeners();
         })
-        .catch((error) => console.error("Error fetching content:", error));
+        .catch((error) => {
+            console.error("Error fetching content:", error);
+            // TODO not sure if valid
+            handleRoute("/home/");
+        });;
 }
 
 export async function handleRoute(path) {
