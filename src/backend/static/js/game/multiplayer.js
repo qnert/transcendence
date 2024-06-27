@@ -293,10 +293,14 @@ export function resetRemoteGameButton() {
   }
 
 export function close_multi_on_change(){
-  if (id != 0)
+  if (id != 0){
     cancelAnimationFrame(id);
-  if (intervalID != 0)
+    id = 0;
+  }
+  if (intervalID != 0){
     clearInterval(intervalID);
+    intervalID = 0;
+  }
   if (chatSocket)
     chatSocket.close();
 }
