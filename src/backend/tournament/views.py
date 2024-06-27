@@ -6,6 +6,7 @@ from tournament.models import Tournament
 from api.models import UserProfile
 import json
 
+# TODO protect if method isnt correct?
 
 def tournament_hub(request):
     if (request.method == "GET"):
@@ -14,8 +15,12 @@ def tournament_hub(request):
 
 
 def tournament_lobby(request, lobby_name):
+    # TODO protect if lobby doesnt exist
     if (request.method == "GET"):
-        return render(request, "tournament_lobby.html", {"lobby_name": lobby_name})
+        if Tournament.objects.filter(name=lobby_name).exists():
+            return render(request, "tournament_lobby.html", {"lobby_name": lobby_name})
+        # TODO correct way to handle?
+        return JsonResponse({"error": "Lobby not found"}, status=401)
 
 
 def tournament_api_get_list(request):
