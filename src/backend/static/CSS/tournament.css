@@ -1,14 +1,6 @@
-/* #tournament-hub-form {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+#newContent {
+    #chat-input-submit {
+        position: fixed;
+        top: 50%;
+    }
 }
-#join-field-group {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-} */
