@@ -8,6 +8,7 @@ from api.models import UserProfile
 # TODO add tournament abort?
 # @note prob want something like a list of game sessions/ids that can be shown to the participants
 
+
 MAX_PARTICIPANTS = 4
 
 
@@ -38,8 +39,8 @@ class Tournament(models.Model):
         super().save(*args, **kwargs)
 
     def add_participant(self, user_profile: UserProfile):
-        if user_profile is not self.created_by and user_profile in self.participants.all():
-            raise ValidationError("User already in tournament!")
+        if user_profile in self.participants.all():
+            raise ValidationError("Your user is already a participant!")
         if self.participants.count() >= MAX_PARTICIPANTS:
             raise ValidationError("Maximum amount of participants reached!")
         self.participants.add(user_profile)
