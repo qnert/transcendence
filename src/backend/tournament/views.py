@@ -13,14 +13,12 @@ def tournament_hub(request):
         tournaments = list(Tournament.objects.all().values())
         return render(request, 'tournament_hub.html', {'tournaments': tournaments})
 
-
+# TODO get join logic in here
 def tournament_lobby(request, lobby_name):
-    # TODO protect if lobby doesnt exist
     if (request.method == "GET"):
         if Tournament.objects.filter(name=lobby_name).exists():
             return render(request, "tournament_lobby.html", {"lobby_name": lobby_name})
-        # TODO correct way to handle?
-        return JsonResponse({"error": "Lobby not found"}, status=401)
+        return JsonResponse({"error": "Lobby not found"}, status=404)
 
 
 def tournament_api_get_list(request):
