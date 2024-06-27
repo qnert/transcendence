@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
   <div id="newContent">
-    <div id="tournament-lobby-chat">
-      <h2>Lobby: {{ lobby_name }}</h2>
-      <h3 id="tournament-lobby-state"></h3>
-      <div id="lobby-participants-list"></div>
-      <textarea class="form-control" id="lobby-chat-log" cols="100" rows="20" readonly></textarea>
-      <input class="form-control" id="lobby-chat-message-input" type="text" size="100" />
+    <h2>Welcome to <em>{{ lobby.name }},</em></h2>
+    <h3 id="tournament-lobby-state">State: {{ lobby.state }}</h3>
+    {% for participant in lobby.participants %}
+      <div id="lobby-participants-list">{{ participant }}</div>
+    {% endfor %}
+    <textarea class="form-control" id="lobby-chat-log" readonly></textarea>
+    <div class="borderedBox" class="chat-input-submit">
+      <input class="form-control" id="lobby-chat-message-input" type="text" />
       <input class="btn btn-primary" id="lobby-chat-message-submit" type="button" value="Send" />
-      {{ lobby_name|json_script:'lobby_name' }}
     </div>
+    {{ lobby.name|json_script:'lobby_name' }}
   </div>
 {% endblock %}
