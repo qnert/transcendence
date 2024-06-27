@@ -4,24 +4,21 @@ from datetime import date
 from api.models import UserProfile
 
 # TODO stats for 1st, 2nd, 3rd and hosting and leaving early in UserProfile
-# TODO add tournament state
 # TODO add change tournament state, with conditions (min amount of players)
 # TODO add tournament abort?
-
 # @note prob want something like a list of game sessions/ids that can be shown to the participants
-# @note prob want something like tournament channel when joining
-# @note mb a ForeignKey on User side would make more sense
-# @note not sure if i want an exception
-# @note remove created_by?
 
 MAX_PARTICIPANTS = 4
+
 
 class Tournament(models.Model):
 
     created_at = models.DateField(default=date.today)
     name = models.CharField(max_length=50, unique=True)
     participants = models.ManyToManyField(UserProfile, related_name='active_tournament')
-    created_by = models.ForeignKey(UserProfile, related_name='created_tournaments', null=True, on_delete=models.CASCADE)
+    # TODO rename to host?
+    created_by = models.ForeignKey(UserProfile, related_name='created_tournaments',
+                                   null=True, on_delete=models.CASCADE)
     STATE_CHOICES = [
         ('setup', 'Setup'),
         ('playing', 'Playing'),
@@ -39,9 +36,6 @@ class Tournament(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # TODO throw error if not?
-        #if not self.participants.exists() and self.created_by is not None:
-            #self.participants.add(self.created_by)
 
     def add_participant(self, user_profile: UserProfile):
         if user_profile is not self.created_by and user_profile in self.participants.all():
@@ -55,9 +49,15 @@ class Tournament(models.Model):
             self.participants.remove(user_profile)
         else:
             raise ValidationError("Unnecessary removal of participant!")
+        # TODO needs condition for if the tournament is finished (should it persist vs should just the result persist)
+        if self.participants.count() == 0:
+            self.delete()
 
     def get_participants(self):
         obj = []
         for participant in self.participants.all():
             obj.append(participant.display_name)
         return obj
+
+    # def toggle_state():
+    # toggle setup -> playing -> finished

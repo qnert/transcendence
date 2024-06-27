@@ -6,16 +6,19 @@ from tournament.models import Tournament
 from api.models import UserProfile
 import json
 
+# TODO protect if method isnt correct?
 
 def tournament_hub(request):
     if (request.method == "GET"):
         tournaments = list(Tournament.objects.all().values())
         return render(request, 'tournament_hub.html', {'tournaments': tournaments})
 
-
+# TODO get join logic in here
 def tournament_lobby(request, lobby_name):
     if (request.method == "GET"):
-        return render(request, "tournament_lobby.html", {"lobby_name": lobby_name})
+        if Tournament.objects.filter(name=lobby_name).exists():
+            return render(request, "tournament_lobby.html", {"lobby_name": lobby_name})
+        return JsonResponse({"error": "Lobby not found"}, status=404)
 
 
 def tournament_api_get_list(request):
@@ -63,6 +66,6 @@ def tournament_api_join(request):
         user_profile = UserProfile.objects.get(user=request.user)
         try:
             tournament.add_participant(user_profile=user_profile)
-        except ValidationError:
-            return JsonResponse({"error": "User is already in tournament!"}, status=400)
+        except ValidationError as e:
+            return JsonResponse({"error": e.message }, status=400)
         return JsonResponse({"message": "Success"}, status=201)

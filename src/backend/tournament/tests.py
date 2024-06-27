@@ -73,9 +73,9 @@ class TournamentEndPointTest(TestCase):
         """ sets up a user to send the requests from """
 
         cls.client = Client()
-        cls.user_name = User.objects.create_user(
+        cls.username = User.objects.create_user(
             username='testuser', password='1234', email='testuser@some_domain.com')
-        cls.user_profile = UserProfile.objects.create(user=cls.user_name)
+        cls.user_profile = UserProfile.objects.create(user=cls.username)
 
     def setUp(self):
         """ sets up a user to send the requests from """
