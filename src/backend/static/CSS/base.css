@@ -31,6 +31,7 @@
     min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
     width: 100%; /* Full viewport width */
     padding-top: 70px; /* Add padding to account for the navbar */
+	margin-bottom: 50px;
   
     .borderedBox {
       width: 600px; /* Adjust width as needed */
