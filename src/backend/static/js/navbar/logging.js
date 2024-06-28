@@ -7,6 +7,8 @@ import { friendSocket } from "../friends/action_friends.js";
 import { showLoggedOutState } from "./navbar.js";
 import { updateFriendDropdown } from "../friends/action_friends.js";
 import { showLoggedInState } from "./navbar.js";
+import { handleUrlChange } from "../basics.js";
+
 
 export function setPasswd() {
     const passwd = document.getElementById("setPasswd");
@@ -105,9 +107,10 @@ export async function logoutButton() {
 				if(refreshToken){
 					localStorage.removeItem("refresh_token");
 				}
+                handleRoute("/login/");
 				showLoggedOutState();
                 checkAccessToken();
-                handleRoute("/login/");
+				handleUrlChange();
             } catch (error) {
                 console.log("Error in logout", error);
             }
@@ -139,8 +142,9 @@ export async function logout() {;
 		if(refreshToken){
 			localStorage.removeItem("refresh_token");
 		}
-		showLoggedOutState();
         handleRoute("/login/");
+		showLoggedOutState();
+		handleUrlChange();
     } catch (error) {
         console.log("Error in logout", error);
     }
