@@ -344,6 +344,7 @@ function start_game() {
   document.getElementById("myForm").style.display = "none";
     document.getElementById("roomInfo").style.display = "none";
     document.getElementById("versusScreen").style.display = "none";
+    document.getElementById("gameContainer").style.display = "block"; 
     document.getElementById("board").style.display = "block";
     if (username == connected_users[0]){
       document.getElementById("left_player").innerText = username;

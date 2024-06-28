@@ -56,18 +56,57 @@
   color: var(--COLOR-BASE-FONT); /* Darker text color */
 }
 
-/* Game board styling */
-#board {
-  background-color: var(--COLOR-BASE-FONT);
-  border: 5px solid greenyellow;
-  margin: 0 auto;
-}
-
+/* Ensure the game container is set up for Flexbox */
 #gameContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 50px;
-  width: 100%;
-  justify-content: center;
-}
+    display: flex;
+    flex-direction: column; /* Arrange items in a column */
+    align-items: center;
+    width: 100%;
+    margin-top: 50px;
+  }
+  
+  /* Flexbox for the player wrapper */
+  .player-wrapper {
+    display: flex;
+    flex-direction: row; /* Arrange items in a row */
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  /* Styles for player containers to ensure they are properly aligned */
+  .player-container {
+    font-size: 24px;
+    color: var(--COLOR-BASE-FONT);
+    padding: 10px;
+  }
+  
+  /* Align Player1 closer to the game board */
+  .player-left {
+    margin-left: 200px; /* Adjust this value to position Player1 closer to the board */
+  }
+  
+  /* Align Player2 closer to the game board */
+  .player-right {
+    margin-right: 200px; /* Adjust this value to position Player2 closer to the board */
+  }
+  
+  /* Adjust the board styles to fit within the new layout */
+  #board {
+    background-color: var(--COLOR-BASE-BACKGROUND);
+    border: 5px solid var(--COLOR-BASE-ACCENT);
+    margin: 0 auto;
+  }
+  
+  /* Style for controls container */
+  .controls-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  /* Style for reset button */
+  #resetGameButton {
+    margin-bottom: 10px;
+  }  
