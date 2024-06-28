@@ -54,10 +54,7 @@ class Tournament(models.Model):
             self.delete()
 
     def get_participants(self):
-        obj = []
-        for participant in self.participants.all():
-            obj.append(participant.display_name)
-        return obj
+        return [participant.user.username for participant in self.participants.all()]
 
     def get_state(self):
         return self.state

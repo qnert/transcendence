@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
   <div id="newContent">
-    <h2>Welcome to <em>{{ lobby.name }},</em></h2>
+      <h2>Welcome to <em>{{ lobby.name }}, </em>
+            <h3 id="lobby-state">State: {{ lobby.state }}</h3>
+      </h2>
 
-    <h3 id="tournament-lobby-state">State: {{ lobby.state }}</h3>
+    <div id="lobby-header-box" class=borderedBox>
 
-    <div class=borderedBox>
+        <div class="form-check form-switch" id="lobby-status-switch-box">
+            <input class="form-check-input" type="checkbox" role="switch" name="readyState" id="lobby-status-switch" unchecked>
+            <label class="form-check-label" for="lobby-status-switch">Set Ready Status</label>
+        </div>
 
         <table class="table" id="lobby-participants-list">
             <thead class="thead-dark">
@@ -16,18 +21,9 @@
             </thead>
 
             <tbody>
-                {% for participant in lobby.participants %}
-                <tr>
-                    <td>{{ participant }}</td>
-                    <td>participant status</td>
-                </tr>
-                {% endfor %}
-                <tr>
-                    <div id="lobby-status-switch-box">
-                        <label class="form-check-label" for="lobby-status-switch">Set Ready Status</label>
-                        <input class="form-check-input" type="checkbox" name="readyState" id="lobby-status-switch" unchecked>
-                    </div>
-                </tr>
+
+                {% include 'tournament_participants.html' %}
+
             </tbody>
 
         </table>

@@ -1,31 +1,45 @@
 #newContent {
 
-    #lobby-status-switch-box{
-        input {
-            border: solid 1px var(--COLOR-BASE-ACCENT);
+/* =====================  TOP  ===================== */
+
+    #lobby-header-box{
+
+        #lobby-status-switch-box{
+            input {
+                border: solid 1px var(--COLOR-BASE-ACCENT);
+            }
         }
-    }
 
-    #lobby-chat-log-box {
-        width: 100%;
-
-        #lobby-chat-log {
-            min-height: 100px;
-            resize: none;
-            margin: 0;
-            padding-top :0;
-            padding-bottom: 0;
-            box-sizing: border-box;
-        }
-    }
-
-    #lobby-participants-list {
-        margin: 0;
-        td,
-        th {
+        #lobby-participants-list {
             border: none;
+            margin: 0;
+            td,
+            th {
+                border: none;
+            }
+        }
+
+        #lobby-chat-log-box {
+            width: 100%;
+
+            #lobby-chat-log {
+                min-height: 100px;
+                resize: none;
+                margin: 0;
+                padding-top :0;
+                padding-bottom: 0;
+                box-sizing: border-box;
+            }
         }
     }
+
+/* =====================  GAME BOX  ===================== */
+
+
+
+
+
+/* =====================  BOTTOM  ===================== */
 
     #lobby-chat-input-box {
         width: 75%;
@@ -41,4 +55,5 @@
             margin-bottom: 1%;
         }
     }
+
 }

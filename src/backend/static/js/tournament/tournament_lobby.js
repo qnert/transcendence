@@ -18,19 +18,25 @@ export function tournamentLobbyInit(lobbyName, userName) {
         let message = "";
         if (data.username) {
             message = `${data.username}: ${data.message}`;
-        } else {
+        } else if (data.message) {
             message = `${data.message}`;
         }
 
         // only put newline (before) if chat log is not empty
         // always scroll to the last message
-        if (!tournamentLobbyChatLog.value){
-            tournamentLobbyChatLog.value += message;
+        if (message){
+            if (!tournamentLobbyChatLog.value){
+                tournamentLobbyChatLog.value += message;
+            }
+            else{
+                tournamentLobbyChatLog.value += "\n" + message;
+            }
+            tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
         }
-        else{
-            tournamentLobbyChatLog.value += "\n" + message;
+
+        if (data.participants) {
+            updateParticipantsList(data.participants);
         }
-        tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
 
     };
 
@@ -53,6 +59,23 @@ export function tournamentLobbyInit(lobbyName, userName) {
         }
         tournamentLobbyChatInput.value = "";
     };
+}
+
+// =========================== HELPERS ===============================
+
+function updateParticipantsList(participants) {
+    const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
+    participantsList.innerHTML = '';  // Clear the current list
+    participants.forEach(participant => {
+        const row = document.createElement("tr");
+        const participantCell = document.createElement("td");
+        participantCell.textContent = participant;
+        const statusCell = document.createElement("td");
+        statusCell.textContent = 'participant status';  // Replace with actual status if available
+        row.appendChild(participantCell);
+        row.appendChild(statusCell);
+        participantsList.appendChild(row);
+    });
 }
 
 // =========================== CLEAN UP ===============================
