@@ -9,4 +9,8 @@
       text-align: left;
     }
   }
+  #profile-picture{
+	aspect-ratio: 1/1;
+	border-radius: 10%;
+  }
 }

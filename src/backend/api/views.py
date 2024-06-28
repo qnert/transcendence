@@ -48,12 +48,15 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from api.decorators import *
 import validators
+from django.contrib.auth import authenticate, update_session_auth_hash
 
 # TODO make this dynamic if we deploy to server
 # possible solution inside a function:
 #     scheme = request.scheme  # 'http' or 'https'
 #     host = request.get_host()  # 'localhost:8000' or '192.168.1.x:8000'
 #     redirect_uri = f"{scheme}://{host}/oauth/callback/"
+
+
 REDIRECT_URI = "http://0.0.0.0:8000/callback/"
 UID = os.environ.get('UID_42')
 SECRET = os.environ.get('SECRET_42')
@@ -83,11 +86,13 @@ def get_friends_profile(request):
 
 
 def login_status(request):
-	if request.method == "GET":
-		loginStatus = request.user.is_logged_in
-		return JsonResponse({'loginStatus': loginStatus}, status=200)
-	else:
-		return JsonResponse({'error': 'Method not allowed'}, status=405)
+    if request.method == "GET":
+        if isinstance(request.user, AnonymousUser):
+            return JsonResponse ({'error': 'User not logged in'})
+        loginStatus = request.user.is_logged_in
+        return JsonResponse({'loginStatus': loginStatus}, status=200)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
 def activate_two_FA(request):
@@ -121,11 +126,13 @@ def deactivate_two_FA(request):
 
 def check_login_status(request):
     if request.method == "GET":
-        if request.user.is_authenticated:
+        if isinstance(request.user, AnonymousUser):
+            return JsonResponse ({'error': 'User not logged in'})
+        elif request.user.is_authenticated:
             login_status = request.user.is_logged_in
             return JsonResponse({'status': login_status})
         else:
-            return JsonResponse({'error': 'user is not logged in'})
+            return JsonResponse({'error': login_status})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
@@ -360,12 +367,13 @@ def set_new_passwd(request):
         user = request.user
         data = json.loads(request.body)
         old_passwd = data.get('old_passwd')
-        if not authenticate(username=user.username, password=old_passwd):
+        if not user.check_password(old_passwd):
             return JsonResponse({'error': 'Incorrect old Password'}, status=403)
         new_passwd = data.get('password')
         user.set_password(new_passwd)
         user.save()
-        return JsonResponse({'message': 'New password set successfully'})
+        update_session_auth_hash(request, user)
+        return JsonResponse({'message': 'New password set successfully'}, status=200)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 

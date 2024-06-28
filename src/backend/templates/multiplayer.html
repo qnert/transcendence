@@ -42,14 +42,16 @@
       <div id="player2" class="player-name">waiting...</div>
       <input id="startRemoteGame" type="button" value="Start Game" style="display: none" />
     </div>
-    <div id="gameContainer">
-      <div id="left_player" style="display: none">Left text....</div>
-      <canvas id="board" style="display: none"></canvas>
-      <div id="right_player" style="display: none">Right text....</div>
-    </div>
-    <div id="board_info">
-      <input id="resetRemoteGameButton" type="button" value="Reset Game" style="display: none" />
-      <p>Control the player by using Up and Down arrow keys</p>
+    <div id="gameContainer" style="display: none;">
+      <div class="player-wrapper">
+        <div id="left_player" class="player-container player-left">Player1</div>
+        <canvas id="board"></canvas>
+        <div id="right_player" class="player-container player-right">Player2</div>
+      </div>
+      <div class="controls-container">
+        <input id="resetRemoteGameButton" type="button" value="Reset Game" style="display: none" />
+        <p>Control the player by using Up and Down arrow keys</p>
+      </div>
     </div>
   </div>
 {% endblock %}
