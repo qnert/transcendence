@@ -11,7 +11,15 @@ function reset() {
 export function startGameButton() {
     const gameButton = document.getElementById("startGameButton");
     if (gameButton) {
-        gameButton.onclick = () => start_game();
+        gameButton.onclick = () => {
+            document.getElementById('myForm').style.display = 'none';
+
+            document.getElementById('gameContainer').style.display = 'block';
+
+            document.getElementById('resetGameButton').style.display = 'block';
+
+            start_game();
+        };
     }
 }
 

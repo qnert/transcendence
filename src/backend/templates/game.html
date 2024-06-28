@@ -8,38 +8,43 @@
     <h1>Pong Game</h1>
     <form class="borderedBox" id="myForm">
       <label for="ballSpeed" id="labelBallSpeed">Ball Speed:</label>
-      <input id="ballSpeed" type="number" max="12" min="4" value="8" required />
+      <input id="ballSpeed" type="number" max="12" min="4" value="8" required="">
 
       <label for="maxScore" id="labelMaxScore">Max Score:</label>
-      <input id="maxScore" type="number" max="12" min="4" value="8" required />
+      <input id="maxScore" type="number" max="12" min="4" value="8" required="">
 
       <label for="background" id="labelBackground">Background Color:</label>
-      <input id="background" type="color" value="#ffffff" required />
+      <input id="background" type="color" value="#ffffff" required="">
 
       <label for="borders" id="labelBorders">Border Color:</label>
-      <input id="borders" type="color" value="#0000ff" required />
+      <input id="borders" type="color" value="#0000ff" required="">
 
       <label for="ballColor" id="labelBallColor">Ball Color:</label>
-      <input id="ballColor" type="color" value="#0000ff" required />
+      <input id="ballColor" type="color" value="#0000ff" required="">
 
       <label for="advancedMode" id="labelAdvancedMode">Advanced Mode:</label>
-      <input id="advancedMode" type="checkbox" required />
+      <input id="advancedMode" type="checkbox" required="">
 
       <label for="powerUps" id="labelPowerUps">Power Ups:</label>
-      <input id="powerUps" type="checkbox" required />
+      <input id="powerUps" type="checkbox" required="">
 
       <label for="AI" id="labelAI">AI enabled:</label>
-      <input id="AI" type="checkbox" required />
+      <input id="AI" type="checkbox" required="">
 
       <p>Please enter values between 4 and 12 and leave no field empty!</p>
-      <input id="startGameButton" type="button" value="Start Game" />
+      <input id="startGameButton" type="button" value="Start Game">
     </form>
-    <div id="gameContainer">
-      <div id="left_player" style="display: none">Player1</div>
-      <canvas id="board" style="display: none"></canvas>
-      <div id="right_player" style="display: none">Player2</div>
-      <input id="resetGameButton" type="button" value="Reset Game" style="display: none" />
-      <p>Control the left player by using W and S keys and control the right player by using Up and Down arrow keys</p>
+    <div id="gameContainer" style="display: none;">
+      <div class="player-wrapper">
+        <div id="left_player" class="player-container player-left">Player1</div>
+        <canvas id="board"></canvas>
+        <div id="right_player" class="player-container player-right">Player2</div>
+      </div>
+      <div class="controls-container">
+        <input id="resetGameButton" type="button" value="Reset Game" style="display: none">
+        <p>Control the left player by using W and S keys and control the right player by using Up and Down arrow keys</p>
+        <p>When playing against the AI you can control your player by using Up and Down arrow keys</p>
+      </div>
     </div>
   </div>
 {% endblock %}
