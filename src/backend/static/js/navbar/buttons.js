@@ -1,4 +1,5 @@
 import { handleRoute, handleRouteToken } from "../basics.js";
+import { getLoginStatus } from "../basics.js";
 
 export function soloGame() {
     const soloGameButton = document.getElementById("game");
@@ -54,14 +55,17 @@ export function defaultButton() {
     }
 }
 
-export function homeButton() {
+
+export async function homeButton() {
     const homeButton = document.getElementById("homeButton");
     if (homeButton) {
-        const newHomeButton = homeButton.cloneNode(true);
-        homeButton.parentNode.replaceChild(newHomeButton, homeButton);
-        newHomeButton.onclick = function (event) {
+        homeButton.onclick = async function (event) {
             event.preventDefault();
-            handleRouteToken("/home/");
+			if(await getLoginStatus())
+            	await handleRouteToken("/home/");
+			else{
+				await handleRoute("/login/");
+			}
         };
     }
 }

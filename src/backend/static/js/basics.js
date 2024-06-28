@@ -1,8 +1,8 @@
-import { searchFriends } from "./friends/action_friends.js";
-import { generateQRCode, validateOTP, handleCheckbox, checkBox } from "./profile/2FA.js";
+import { searchFriends, updateFriendDropdown } from "./friends/action_friends.js";
+import { generateQRCode, validateOTPButton, handleCheckbox, checkBox } from "./profile/2FA.js";
 import { bindProfileButton } from "./profile/buttons.js";
 import { bindSaveChangesButton } from "./profile/buttons.js";
-import { checkAccessToken, setNewPasswd } from "./profile/profile.js";
+import { checkAccessToken, setNewPasswdButton } from "./profile/profile.js";
 import { loginButton, homeButton, soloGame, multiplayerGame, defaultButton, tournamentButton } from "./navbar/buttons.js";
 import { login, logoutButton, oauth, setPasswd, logout } from "./navbar/logging.js";
 import { checkLoginStatus } from "./login_check.js";
@@ -12,14 +12,16 @@ import { fetchProfileData } from "./profile/fetch_profile.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
 import { matchHistoryButton, getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton } from "./profile/buttons.js";
 import { showLoggedInState, showLoggedOutState } from "./navbar/navbar.js";
-import { tournamentHubEventLoop } from "./tournament/tournament_hub.js";
+import { tournamentHubEventLoop} from "./tournament/tournament_hub.js";
 import { tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
+import { twoFAStatus } from "./profile/2FA.js";
+import { jumpNextField } from "./profile/profile.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
 });
 
-function handleUrlChange() {
+export function handleUrlChange() {
     close_multi_on_change();
     close_solo_on_change();
     tournamentLobbyCloseSocket();
@@ -27,27 +29,47 @@ function handleUrlChange() {
 
 const originalPushState = window.history.pushState;
 window.history.pushState = function (state, title, url) {
+	const currentUrl = window.location.href;
+	if(currentUrl.includes("2FA") && (!twoFAStatus())){
+		logout();
+	}
     originalPushState.apply(window.history, arguments);
     handleUrlChange();
 };
 
-window.addEventListener("popstate", function (event) {
+const originalReplaceState = window.history.replaceStateState;
+window.history.replaceState = function (state, title, url) {
+    originalPushState.apply(window.history, arguments);
+    handleUrlChange();
+};
+
+window.addEventListener("popstate", async function (event) {
     if (event.state && event.state.path) {
         if (event.state.path === "/login/") {
-            if (getLoginStatus) {
-                updateContentToken("/home/");
+            if (await getLoginStatus()) {
+				window.history.replaceState({ path: "/home/" }, "", "/home/");
+                await updateContentToken("/home/");
             } else {
-                updateContent("/login/");
+                await updateContent("/login/");
             }
-        } else {
-            // TODO replaceState ?
-            updateContentToken(event.state.path);
+		}else if(event.state.path === "/2FA/"){
+			if (await twoFAStatus()) {
+				window.history.replaceState({ path: "/home/" }, "", "/home/");
+				await updateContentToken("/home/");
+			} else {
+				await updateContent("/login/");
+			}
+		}else if(event.state.path.includes("tournament/lobby")){
+			window.history.replaceState({ path: "/tournament/hub/" }, "", "/tournament/hub/");
+			await updateContentToken("/tournament/hub/");
+		}else {
+			await updateContent(event.state.path);
         }
     }
     handleUrlChange();
 });
 
-async function updateContentToken(path) {
+export async function updateContentToken(path) {
     const token = localStorage.getItem("access_token");
 
     try {
@@ -93,7 +115,13 @@ function updateContent(path) {
     })
         .then((response) => {
             if (!response.ok) {
-                throw new Error("Unexpected Error");
+				if (response.status === 401) {
+					handle401Error();
+					return;
+				}
+				else{
+					throw new Error("Unexpected Error");
+				}
             }
             return response.text();
         })
@@ -147,16 +175,17 @@ export function reattachEventListeners() {
     pieChartButton();
     resetGameButton();
     resetRemoteGameButton();
-    setNewPasswd();
+    setNewPasswdButton();
     setPasswd();
     searchFriends();
     soloGame();
     startGameButton();
     startRemoteGame();
+	jumpNextField();
 
     tournamentButton();
     tournamentHubEventLoop();
-    validateOTP();
+    validateOTPButton();
 }
 
 export let chatSocket;
@@ -194,6 +223,7 @@ export async function handle401Error() {
     }
     handleRoute("/login/");
     showLoggedOutState();
+	handleUrlChange();
 }
 
 window.onload = async function () {
@@ -206,7 +236,8 @@ window.onload = async function () {
         let display_name = words[4];
         await fetchFriendsData(display_name);
     } else if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/") {
-        loadFriends();
+        await loadFriends();
+		await updateFriendDropdown();
     } else if (currentUrl.includes("game")) {
         document.getElementById("background").value = "#ffffff"; // Default to white
         document.getElementById("borders").value = "#0000ff"; // Default to blue
@@ -235,6 +266,11 @@ export async function getLoginStatus() {
             if (response.status === 401) {
                 return false;
             }
+			else if(response.status === 400){
+				return false;
+			}
+			else
+				return false
         }
     } catch (error) {
         console.error("Error in getLoginStatus:", error);
@@ -249,23 +285,27 @@ window.onload = async function () {
     if (currentUrl.includes("/profile/")) {
         await fetchProfileData();
         await checkBox();
+    } else if (currentUrl.includes("/2FA/")) {
+        showLoggedOutState();
+        return;
     } else if (currentUrl.includes("/friend/")) {
         let words = currentUrl.split("/");
         let display_name = words[4];
         await fetchFriendsData(display_name);
     } else if (currentUrl.includes("game")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+        document.getElementById("background").value = "#ffffff";
+        document.getElementById("borders").value = "#0000ff";
+        document.getElementById("ballColor").value = "#0000ff";
     } else if (currentUrl.includes("multiplayer")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+        document.getElementById("background").value = "#ffffff";
+        document.getElementById("borders").value = "#0000ff";
+        document.getElementById("ballColor").value = "#0000ff";
     } else if (currentUrl.includes("history")) {
         await getGameHistory();
     }
-    if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/") {
-        loadFriends();
+    if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/" || currentUrl.includes("/2FA/")) {
+        await loadFriends();
+        await updateFriendDropdown();
     }
     if (await getLoginStatus()) {
         const username = await getUsername();

@@ -1,15 +1,19 @@
 import { checkAccessToken } from "../profile/profile.js";
 import { getAccessToken } from "../security/jwt.js";
-import { handle401Error, handleRoute, handleRouteToken } from "../basics.js";
+import { getUsername, handle401Error, handleRoute, handleRouteToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
 import { friendSocket } from "../friends/action_friends.js";
 import { showLoggedOutState } from "./navbar.js";
+import { updateFriendDropdown } from "../friends/action_friends.js";
+import { showLoggedInState } from "./navbar.js";
+import { handleUrlChange } from "../basics.js";
+
 
 export function setPasswd() {
     const passwd = document.getElementById("setPasswd");
     if (passwd) {
-        passwd.addEventListener("click", async function (event) {
+        passwd.onclick = async function (event) {
             event.preventDefault();
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
@@ -42,14 +46,14 @@ export function setPasswd() {
                     console.error("something went wrong");
                 }
             }
-        });
+        };
     }
 }
 
 export function oauth() {
     const registerButton = document.getElementById("registerButton");
     if (registerButton) {
-        registerButton.addEventListener("click", (event) => {
+        registerButton.onclick = async function (event){
             event.preventDefault();
             fetch("/api/oauth/", {
                 method: "GET",
@@ -71,7 +75,7 @@ export function oauth() {
                 .catch((error) => {
                     console.error("Error during fetch:", error);
                 });
-        });
+        };
     }
 }
 
@@ -103,9 +107,10 @@ export async function logoutButton() {
 				if(refreshToken){
 					localStorage.removeItem("refresh_token");
 				}
+                handleRoute("/login/");
 				showLoggedOutState();
                 checkAccessToken();
-                handleRoute("/login/");
+				handleUrlChange();
             } catch (error) {
                 console.log("Error in logout", error);
             }
@@ -137,8 +142,9 @@ export async function logout() {;
 		if(refreshToken){
 			localStorage.removeItem("refresh_token");
 		}
-		showLoggedOutState();
         handleRoute("/login/");
+		showLoggedOutState();
+		handleUrlChange();
     } catch (error) {
         console.log("Error in logout", error);
     }
@@ -167,7 +173,7 @@ async function storeJWT() {
 }
 
 
-export function login() {
+export async function login() {
     const Login = document.getElementById("loginFormContent");
     if (Login) {
         Login.onsubmit = async function (event) {
@@ -201,15 +207,14 @@ export function login() {
                     await getAccessToken(username, password, csrftoken);
 					await storeJWT();
                     handleRouteToken("/2FA/");
-					loadFriends();
-                    checkAccessToken();
 				}
 				else {
 					await getAccessToken(username, password, csrftoken);
 					await storeJWT();
                     handleRoute("/home/");
-                    loadFriends();
-                    checkAccessToken();
+					showLoggedInState(username);
+                    await loadFriends();
+					await updateFriendDropdown();
                 }
             } catch (error) {
                 console.error("Login error:", error);

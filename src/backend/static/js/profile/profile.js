@@ -4,56 +4,88 @@ import { showLoggedOutState, showLoggedInState } from "../navbar/navbar.js";
 import { getCookie } from "../security/csrft.js";
 
 
+export async function jumpNextField() {
+	const passwd = document.getElementById("newPasswordForm");
+	const passwdInput = document.getElementById("confirmNewPasswd");
+	if (passwd) {
+	  const inputs = passwd.querySelectorAll('input');
+	  inputs.forEach((input, index) => {
+		input.onkeydown = async function (event){
+		  if (event.key === 'Enter') {
+			event.preventDefault();
+			const nextInput = inputs[index + 1];
+			const oldInput = inputs[index];
+			if (nextInput) {
+				nextInput.focus();
+				if(oldInput === passwdInput){
+					console.log("test")
+					setNewPasswd();
+				}
+			}
+			}
+		};
+	  });
+	}
+  }
 
-export function setNewPasswd() {
+
+
+
+export async function setNewPasswdButton(){
     const passwd = document.getElementById("newPasswdButton");
     if (passwd) {
         passwd.onclick = async function (event) {
             event.preventDefault();
-            const oldPassword = document.getElementById("oldPassword").value;
-            const password = document.getElementById("password").value;
-            const confirmPassword = document.getElementById("confirmPassword").value;
-			if (password.length < 3) {
-				alert("Please enter a Password with atleast 4");
-				return;
-			}
-			else if (password !== confirmPassword) {
-				alert("Passwords do not match! Try again!");
-			}
-			else {
-				const newPassword = passwd.cloneNode(true);
-				passwd.parentNode.replaceChild(newPassword, passwd);
-                const csrftoken = getCookie("csrftoken");
-                const token = localStorage.getItem("access_token");
-                try {
-                    const response = await fetch("/api/set_new_passwd/", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRFToken": csrftoken,
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({ password: confirmPassword, old_passwd: oldPassword }),
-                    });
-                    if (!response.ok) {
-						if(response.status === 401){
-							handle401Error();
-							alert(response.error);
-							return;
-						}
-						else if(response.status === 403){
-							alert("Incorrect old Password");
-							return ;
-						}
-                    }
-                    alert("Setting your new password was successful!");
-                } catch (error) {
-                    console.error("something went wrong");
-                }
-            }
-        };
-    }
+			setNewPasswd();
+		}
+	}
 }
+
+
+export async function setNewPasswd(){
+	const oldPassword = document.getElementById("oldPassword").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmNewPasswd").value;
+	if (password.length < 4) {
+		alert("Please enter a Password with atleast 4");
+		return;
+	}
+	else if (password !== confirmPassword) {
+		alert("Passwords do not match! Try again!");
+	}
+	else {
+        const csrftoken = getCookie("csrftoken");
+        const token = localStorage.getItem("access_token");
+        try {
+            const response = await fetch("/api/set_new_passwd/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken,
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ password: confirmPassword, old_passwd: oldPassword }),
+            });
+            if (!response.ok) {
+				if(response.status === 401){
+					handle401Error();
+					alert(response.error);
+					return;
+				}
+				else if(response.status === 403){
+					alert("Incorrect old Password");
+					return ;
+				}
+            }
+			else{
+				alert("Setting your new password was successful!");
+			}
+        } catch (error) {
+            console.error("something went wrong");
+        }
+    }
+};
+
 
 async function getUsernameFromBackend() {
     try {

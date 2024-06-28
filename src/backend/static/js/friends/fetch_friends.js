@@ -7,82 +7,83 @@ import { blockUser, unblockUser } from "../chat/fetch_chat.js";
 window.acceptRequest = acceptRequest;
 window.denyRequest = denyRequest;
 
-export function loadFriends() {
-  if (friendSocket) {
-    fetch("/api/friends/")
-        .then((response) => response.json())
-        .then((data) => {
-            const friendList = document.getElementById("friendList");
-            if (friendList) {
-              friendList.innerHTML = "";
-              data.forEach((friend) => {
-                  const li = document.createElement("li");
-                  li.id = `friend-${friend.user_id}`;
-                  li.dataset.friendId = friend.user_id;
-
-                  const img = document.createElement("img");
-                  img.src = friend.profile_picture_url;
-                  img.alt = friend.display_name;
-
-                  const statusText = document.createElement("span");
-                  statusText.id = `chat-status-${friend.user_id}`;
-                  statusText.className = "status-text " + (friend.is_online ? "online" : "offline");
-                  statusText.textContent = friend.is_online ? "online" : "offline";
-
-                  const friendDetails = document.createElement("div");
-                  friendDetails.className = "friend-details";
-                  friendDetails.appendChild(img);
-                  friendDetails.appendChild(statusText);
-
-                  const friendInfo = document.createElement("div");
-                  friendInfo.className = "friend-info";
-
-                  const nameAndButtons = document.createElement("div");
-                  nameAndButtons.className = "name-and-buttons";
-
-                  const span_name = document.createElement("span");
-                  span_name.textContent = friend.display_name;
-
-                  const messageButton = document.createElement("button");
-                  messageButton.textContent = "Message";
-                  messageButton.onclick = () => selectFriend(friend.user_id, friend.display_name);
-
-                  const blockButton = document.createElement("button");
-                  blockButton.textContent = "Block";
-                  blockButton.onclick = () => blockUser(friend.user_id);
-
-                  const unblockButton = document.createElement("button");
-                  unblockButton.textContent = "Unblock";
-                  unblockButton.onclick = () => unblockUser(friend.user_id);
-                  unblockButton.style.display = "none";
-
-                  if (friend.is_blocked) {
-                      messageButton.style.display = "none";
-                      blockButton.style.display = "none";
-                      statusText.style.display = "none";
-                      unblockButton.style.display = "inline";
-                  }
-
-                  if (friend.blocked_by) {
-                      statusText.style.display = "none";
-                  }
-
-                  nameAndButtons.appendChild(span_name);
-                  nameAndButtons.appendChild(messageButton);
-                  nameAndButtons.appendChild(blockButton);
-                  nameAndButtons.appendChild(unblockButton);
-
-                  friendInfo.appendChild(nameAndButtons);
-
-                  li.appendChild(friendDetails);
-                  li.appendChild(friendInfo);
-                  friendList.appendChild(li);
-            });
-            }
-        })
-        .catch((error) => console.error("Error loading friends:", error));
+export async function loadFriends() {
+	if (friendSocket) {
+	  try {
+		const response = await fetch("/api/friends/");
+		const data = await response.json();
+		const friendList = document.getElementById("friendList");
+		if (friendList) {
+		  friendList.innerHTML = "";
+		  data.forEach((friend) => {
+			const li = document.createElement("li");
+			li.id = `friend-${friend.user_id}`;
+			li.dataset.friendId = friend.user_id;
+  
+			const img = document.createElement("img");
+			img.src = friend.profile_picture_url;
+			img.alt = friend.display_name;
+  
+			const statusText = document.createElement("span");
+			statusText.id = `chat-status-${friend.user_id}`;
+			statusText.className = "status-text " + (friend.is_online ? "online" : "offline");
+			statusText.textContent = friend.is_online ? "online" : "offline";
+  
+			const friendDetails = document.createElement("div");
+			friendDetails.className = "friend-details";
+			friendDetails.appendChild(img);
+			friendDetails.appendChild(statusText);
+  
+			const friendInfo = document.createElement("div");
+			friendInfo.className = "friend-info";
+  
+			const nameAndButtons = document.createElement("div");
+			nameAndButtons.className = "name-and-buttons";
+  
+			const span_name = document.createElement("span");
+			span_name.textContent = friend.display_name;
+  
+			const messageButton = document.createElement("button");
+			messageButton.textContent = "Message";
+			messageButton.onclick = () => selectFriend(friend.user_id, friend.display_name);
+  
+			const blockButton = document.createElement("button");
+			blockButton.textContent = "Block";
+			blockButton.onclick = () => blockUser(friend.user_id);
+  
+			const unblockButton = document.createElement("button");
+			unblockButton.textContent = "Unblock";
+			unblockButton.onclick = () => unblockUser(friend.user_id);
+			unblockButton.style.display = "none";
+  
+			if (friend.is_blocked) {
+			  messageButton.style.display = "none";
+			  blockButton.style.display = "none";
+			  statusText.style.display = "none";
+			  unblockButton.style.display = "inline";
+			}
+  
+			if (friend.blocked_by) {
+			  statusText.style.display = "none";
+			}
+  
+			nameAndButtons.appendChild(span_name);
+			nameAndButtons.appendChild(messageButton);
+			nameAndButtons.appendChild(blockButton);
+			nameAndButtons.appendChild(unblockButton);
+  
+			friendInfo.appendChild(nameAndButtons);
+  
+			li.appendChild(friendDetails);
+			li.appendChild(friendInfo);
+			friendList.appendChild(li);
+		  });
+		}
+	  } catch (error) {
+		console.error("Error loading friends:", error);
+	  }
+	}
   }
-}
 
 export function updateUserStatus() {
     fetch("/api/friends_online_status/")

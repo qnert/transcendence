@@ -3,9 +3,9 @@ import { loadFriends, pendingFriendRequest } from "./friends/fetch_friends.js";
 import { loadChatHTML } from "./chat/action_chat.js";
 import { initFriendSocket } from "./friends/action_friends.js";
 import { friendSocket } from "./friends/action_friends.js";
+import { handleRoute } from "./basics.js";
 
 export async function checkLoginStatus() {
-    const currentUrl = window.location.href;
     const csrftoken = getCookie("csrftoken");
     try {
         const response = await fetch("/api/check_login_status/", {
@@ -17,6 +17,10 @@ export async function checkLoginStatus() {
         });
 
         if (!response.ok) {
+			if(response.status === 400){
+				handleRoute("/login/");
+				return;
+			}
             throw new Error("Getting login status failed");
         }
 
@@ -35,7 +39,7 @@ export async function checkLoginStatus() {
         if (response.ok && !friendSocket) { //check friendSocket to see if the user is already online
           initFriendSocket();
           loadChatHTML();
-          loadFriends();
+          await loadFriends();
           pendingFriendRequest();
         }
       } catch (error) {

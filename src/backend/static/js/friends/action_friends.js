@@ -65,29 +65,29 @@ function displayAlert(friendName, requestId) {
     alertsContainer.appendChild(alertDiv);
 }
 
-export function updateFriendDropdown() {
-  if (friendSocket) {
-    fetch("/api/friends/")
-        .then((response) => response.json())
-        .then((data) => {
-            const friendsMenu = document.getElementById("friends-list");
-			if(friendsMenu){
-				friendsMenu.innerHTML = ""; // Clear existing content
-	
-				if (data.length === 0) {
-					const noFriendsElement = document.createElement("li");
-					noFriendsElement.id = "no-friends";
-					noFriendsElement.innerHTML = `<span class="dropdown-item">No friends found</span>`;
-					friendsMenu.appendChild(noFriendsElement);
-				} else {
-					data.forEach((friend) => {
-						const friendItem = document.createElement("li");
-						var onlineStatus = '<span style="visibility: hidden;" class="status-dot offline"></span>';
-	
-						if (!friend.blocked_by && !friend.is_blocked) onlineStatus = '<span class="status-dot offline"></span>';
-						friendItem.className = "friend-item d-flex align-items-center justify-content-between px-2 py-1";
-						friendItem.id = `friend-${friend.user_id}`;
-						friendItem.innerHTML = `
+export async function updateFriendDropdown() {
+	if (friendSocket) {
+	  try {
+		const response = await fetch("/api/friends/");
+		const data = await response.json();
+		const friendsMenu = document.getElementById("friends-list");
+		if (friendsMenu) {
+		  friendsMenu.innerHTML = ""; // Clear existing content
+  
+		  if (data.length === 0) {
+			const noFriendsElement = document.createElement("li");
+			noFriendsElement.id = "no-friends";
+			noFriendsElement.innerHTML = `<span class="dropdown-item">No friends found</span>`;
+			friendsMenu.appendChild(noFriendsElement);
+		  } else {
+			data.forEach((friend) => {
+			  const friendItem = document.createElement("li");
+			  var onlineStatus = '<span style="visibility: hidden;" class="status-dot offline"></span>';
+  
+			  if (!friend.blocked_by && !friend.is_blocked) onlineStatus = '<span class="status-dot offline"></span>';
+			  friendItem.className = "friend-item d-flex align-items-center justify-content-between px-2 py-1";
+			  friendItem.id = `friend-${friend.user_id}`;
+			  friendItem.innerHTML = `
 				<div class="d-flex align-items-center">
 				  ${onlineStatus}
 				  <img src="${friend.profile_picture_url}" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 8px;">
@@ -102,14 +102,16 @@ export function updateFriendDropdown() {
 				  </ul>
 				</div>
 			  `;
-						friendsMenu.appendChild(friendItem);
-					});
-				}
-				updateUserStatus();
-			}
-        });
+			  friendsMenu.appendChild(friendItem);
+			});
+		  }
+		  updateUserStatus();
+		}
+	  } catch (error) {
+		console.error("Error updating friend dropdown:", error);
+	  }
+	}
   }
-}
 
 function removeAlert(element) {
     const alertDiv = element.closest(".alert");
