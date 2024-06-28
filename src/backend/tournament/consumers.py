@@ -22,7 +22,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             self.lobby_group_name,
             {
                 "type": "chat.message",
-                "message": f"{self.username} joined the channel.",
+                "message": f"{self.username} joined the channel",
             }
         )
         await self.accept()
@@ -33,7 +33,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             self.lobby_group_name,
             {
                 "type": "chat.message",
-                "message": f"{self.username} has left the channel.",
+                "message": f"{self.username} has left the channel",
             }
         )
         await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)

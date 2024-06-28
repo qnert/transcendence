@@ -1,6 +1,38 @@
 #newContent {
-    #chat-input-submit {
+
+    #lobby-chat-log-box {
+        width: 100%;
+
+        #lobby-chat-log {
+            min-height: 100px;
+            resize: none;
+            margin: 0;
+            padding-top :0;
+            padding-bottom: 0;
+            box-sizing: border-box;
+        }
+    }
+
+    #lobby-participants-list {
+        margin: 0;
+        td,
+        th {
+            border: none;
+        }
+    }
+
+    #lobby-chat-input-box {
+        width: 75%;
         position: fixed;
-        top: 50%;
+        bottom: 5px;
+        display: flex;
+        flex-direction: row;
+        gap: 1%;
+        input {
+            text-align: left;
+        }
+        button {
+            margin-bottom: 1%;
+        }
     }
 }

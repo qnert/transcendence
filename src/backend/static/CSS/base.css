@@ -1,5 +1,5 @@
 :root {
-    --COLOR-BODY-BACKGROUND:  rgb(218, 218, 218, 1);
+    --COLOR-BODY-BACKGROUND: rgb(218, 218, 218, 1);
     --COLOR-BASE-BACKGROUND: white;
     --COLOR-BASE-FONT: black;
     --COLOR-BASE-ACCENT: #007bff;
@@ -35,10 +35,11 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
+    height: 100%;
     width: 100%; /* Full viewport width */
-    padding-top: 70px; /* Add padding to account for the navbar */
-    padding-bottom: 70px;
+    min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
+    padding-top: 70px;
+    padding-bottom: 35px;
 
     h1,
     h2,
@@ -72,14 +73,6 @@ body {
             border-radius: 5px;
             border: 1px solid var(--COLOR-BASE-FONT);
             box-shadow: 0 0 5px var(--COLOR-BASE-SHADOW);
-        }
-
-        .chat-input-submit {
-            display: flex;
-            flex-direction: row;
-            margin: auto;
-            width: 100%;
-            gap: 1%;
         }
 
         .form-check {
