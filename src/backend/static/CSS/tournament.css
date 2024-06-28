@@ -1,5 +1,11 @@
 #newContent {
 
+    #lobby-status-switch-box{
+        input {
+            border: solid 1px var(--COLOR-BASE-ACCENT);
+        }
+    }
+
     #lobby-chat-log-box {
         width: 100%;
 
