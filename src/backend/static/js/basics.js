@@ -12,8 +12,8 @@ import { fetchProfileData } from "./profile/fetch_profile.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
 import { matchHistoryButton, getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton } from "./profile/buttons.js";
 import { showLoggedInState, showLoggedOutState } from "./navbar/navbar.js";
-import { tournamentHubEventLoop } from "./tournament/tournament_hub.js";
-import { tournamentLobbyEventLoop, tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
+import { tournamentHubEventLoop} from "./tournament/tournament_hub.js";
+import { tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 import { twoFAStatus } from "./profile/2FA.js";
 import { jumpNextField } from "./profile/profile.js";
 
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
 });
 
-function handleUrlChange() {
+export function handleUrlChange() {
     close_multi_on_change();
     close_solo_on_change();
     tournamentLobbyCloseSocket();
@@ -52,15 +52,18 @@ window.addEventListener("popstate", async function (event) {
             } else {
                 await updateContent("/login/");
             }
-			}else if(event.state.path === "/2FA/"){
-				if (await twoFAStatus()) {
-					window.history.replaceState({ path: "/home/" }, "", "/home/");
-					await updateContentToken("/home/");
-				} else {
-					await updateContent("/login/");
-				}
-			}else {
-				await updateContent(event.state.path);
+		}else if(event.state.path === "/2FA/"){
+			if (await twoFAStatus()) {
+				window.history.replaceState({ path: "/home/" }, "", "/home/");
+				await updateContentToken("/home/");
+			} else {
+				await updateContent("/login/");
+			}
+		}else if(event.state.path.includes("tournament/lobby")){
+			window.history.replaceState({ path: "/tournament/hub/" }, "", "/tournament/hub/");
+			await updateContentToken("/tournament/hub/");
+		}else {
+			await updateContent(event.state.path);
         }
     }
     handleUrlChange();
@@ -182,7 +185,6 @@ export function reattachEventListeners() {
 
     tournamentButton();
     tournamentHubEventLoop();
-    tournamentLobbyEventLoop();
     validateOTPButton();
 }
 
@@ -221,6 +223,7 @@ export async function handle401Error() {
     }
     handleRoute("/login/");
     showLoggedOutState();
+	handleUrlChange();
 }
 
 window.onload = async function () {
