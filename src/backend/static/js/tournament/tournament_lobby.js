@@ -13,13 +13,31 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
     tournamentLobbySocket.onmessage = function (event) {
         const data = JSON.parse(event.data);
+
+        // TODO get display_name aswell
         let message = "";
         if (data.username) {
             message = `${data.username}: ${data.message}`;
-        } else {
+        } else if (data.message) {
             message = `${data.message}`;
         }
-        tournamentLobbyChatLog.value += message + "\n";
+
+        // only put newline (before) if chat log is not empty
+        // always scroll to the last message
+        if (message){
+            if (!tournamentLobbyChatLog.value){
+                tournamentLobbyChatLog.value += message;
+            }
+            else{
+                tournamentLobbyChatLog.value += "\n" + message;
+            }
+            tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
+        }
+
+        if (data.participants) {
+            updateParticipantsList(data.participants);
+        }
+
     };
 
     tournamentLobbyChatInput.focus();
@@ -31,13 +49,33 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
     tournamentLobbyChatSubmit.onclick = function () {
         const message = tournamentLobbyChatInput.value;
-        tournamentLobbySocket.send(
-            JSON.stringify({
-                message: message,
-            })
-        );
+        console.log("message");
+        if (message.trim() !== "") {
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    message: message,
+                })
+            );
+        }
         tournamentLobbyChatInput.value = "";
     };
+}
+
+// =========================== HELPERS ===============================
+
+function updateParticipantsList(participants) {
+    const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
+    participantsList.innerHTML = '';  // Clear the current list
+    participants.forEach(participant => {
+        const row = document.createElement("tr");
+        const participantCell = document.createElement("td");
+        participantCell.textContent = participant;
+        const statusCell = document.createElement("td");
+        statusCell.textContent = 'participant status';  // Replace with actual status if available
+        row.appendChild(participantCell);
+        row.appendChild(statusCell);
+        participantsList.appendChild(row);
+    });
 }
 
 // =========================== CLEAN UP ===============================

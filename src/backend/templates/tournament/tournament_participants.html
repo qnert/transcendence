@@ -1,5 +1,6 @@
-<ul class="list-group">Lobby Participants:
-{% for participant in participants %}
-<li class="list-group-item" value="{{ participant }}">{{ participant}}</li>
+{% for participant in lobby.participants %}
+<tr>
+    <td>{{ participant }}</td>
+    <td>participant status</td>
+</tr>
 {% endfor %}
-</ul>

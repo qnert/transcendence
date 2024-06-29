@@ -17,14 +17,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         # self.chatname = f'{self.user_profile. {self.username}'
 
         await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
-
         await self.channel_layer.group_send(
             self.lobby_group_name,
             {
                 "type": "chat.message",
-                "message": f"{self.username} joined the channel.",
+                "message": f"{self.username} joined the channel",
             }
         )
+        await self.send_updated_participants()
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -33,9 +33,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             self.lobby_group_name,
             {
                 "type": "chat.message",
-                "message": f"{self.username} has left the channel.",
+                "message": f"{self.username} has left the channel",
             }
         )
+        await self.send_updated_participants()
         await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
 
     async def receive(self, text_data):
@@ -64,3 +65,19 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             "type": "chat.message",
             "message": f"{username} {message}",
         }
+
+    async def send_updated_participants(self):
+        participants = await database_sync_to_async(self.tournament.get_participants)()
+        await self.channel_layer.group_send(
+            self.lobby_group_name,
+            {
+                'type': 'update_participants',
+                'participants': participants,
+            }
+        )
+
+    async def update_participants(self, event):
+        participants = event['participants']
+        await self.send(text_data=json.dumps({
+            'participants': participants,
+        }))

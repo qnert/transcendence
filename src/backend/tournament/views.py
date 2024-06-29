@@ -21,13 +21,18 @@ def tournament_lobby(request, lobby_name):
             user_profile = UserProfile.objects.get(user=request.user)
             tournament = Tournament.objects.get(name=lobby_name)
             tournament.add_participant(user_profile=user_profile)
+            lobby = {
+                "name": lobby_name,
+                "participants": tournament.get_participants(),
+                "state": tournament.get_state()
+            }
         except UserProfile.DoesNotExist:
             return JsonResponse({"error": "User profile not found!"}, status=401)
         except Tournament.DoesNotExist:
             return JsonResponse({"error": "Lobby not found!"}, status=404)
         except ValidationError as e:
             return JsonResponse({"error": e.message}, status=400)
-        return render(request, "tournament_lobby.html", {"lobby_name": lobby_name})
+        return render(request, "tournament_lobby.html", {"lobby": lobby})
 
 
 def tournament_api_get_list(request):
@@ -63,4 +68,3 @@ def tournament_api_create(request):
                 return JsonResponse({"error": "Tournament exists already!"}, status=400)
             Tournament.objects.create(name=tournament_name, created_by=user_profile)
             return JsonResponse({"message": "Success"}, status=201)
-
