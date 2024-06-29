@@ -77,12 +77,20 @@ class TournamentModelTest(TestCase):
         """ checks for default values in a tournament user """
         self.tournament.add_participant(self.user_profiles[0])
         tournament_user = self.tournament.participants.first()
-        self.assertFalse(tournament_user.is_ready)
-        self.assertEqual(tournament_user.wins, 0)
-        self.assertEqual(tournament_user.losses, 0)
-        self.assertEqual(tournament_user.goals_scored, 0)
-        self.assertEqual(tournament_user.goals_conceded, 0)
+        # TODO import default settings from tournament modules
+        test_values = {
+            "is_ready": False,
+            "wins": 0,
+            "losses": 0,
+            "goals_scored": 0,
+            "goals_conceded": 0
+        }
+        for key, value in test_values.items():
+            self.assertEqual(getattr(tournament_user, key), value)
 
+#    def test_tournament_get_settings(self):
+#        print(self.tournament.get_settings())
+#        print(self.tournament)
 
 # class TournamentEndPointTest(TestCase):
 #

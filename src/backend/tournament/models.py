@@ -8,16 +8,22 @@ MAX_PARTICIPANTS = 4
 
 class Tournament(models.Model):
 
+
+    # TODO declare DEFAULT_SETTINGS here
+
+
     name = models.CharField(max_length=50, unique=True)
+    # participants (Foreign Key to TournamentUser)
     state = models.CharField(max_length=10, default='setup')
     created_at = models.DateField(default=date.today)
     created_by = models.ForeignKey(UserProfile, related_name='created_tournaments',
                                    null=True, on_delete=models.CASCADE)
-    # participants (Foreign Key to TournamentUser)
+    game_settings = models.JSONField(default=dict)
 
-    #  TODO implement
-    #  game_settings = models.JSONFIELD
-    #  set_settings, get_settings methods
+    # TODO implement
+    # list of matches
+    # match-name could be something like:
+        # {forbidden_character}_tournament_{lobby_name}_{game_id}
 
     class Meta:
         ordering = ['name']
@@ -53,6 +59,9 @@ class Tournament(models.Model):
     def get_participants(self):
         return [participant.userprofile.user.username for participant in self.participants.all()]
 
+    def get_settings(self):
+        return self.game_settings
+
     def get_state(self):
         return self.state
 
@@ -67,12 +76,23 @@ class Tournament(models.Model):
         # New instance being forced to 'setup'
         if not self.pk:
             self.state = 'setup'
+        self.game_settings = {
+            "max_score": 8,
+            "ball_speed": 8,
+            "background_color": 0,
+            "border_color": 0,
+            "ball_color": 0,
+            "advanced_mode": False,
+            "power_ups": False
+        }
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        names = [participant.userprofile.user.username for participant in self.participants.all()]
-        return f'Tournament name: {self.name}\nHost: {self.created_by.display_name}\nUsers: {", ".join(names)}'
+    def set_settings(settings: dict):
+        pass
+        # TODO implement
 
+    def __str__(self):
+        return self.name
 
 class TournamentUser(models.Model):
 
