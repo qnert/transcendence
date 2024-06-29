@@ -44,7 +44,7 @@ class TournamentModelTest(TestCase):
         with self.assertRaises(ValidationError):
             self.tournament.add_participant(self.user_profiles[0])
 
-    def test_remove_player(self):
+    def test_tournament_remove_player(self):
         """ checks remove_participant method """
         count_initial = self.tournament.get_participant_count()
         self.tournament.add_participant(self.user_profiles[0])
@@ -52,12 +52,12 @@ class TournamentModelTest(TestCase):
         self.tournament.remove_participant(self.user_profiles[0])
         self.assertEqual(self.tournament.get_participant_count(), count_initial)
 
-    def test_delete_if_empty(self):
+    def test_tournament_delete_if_empty(self):
         """ checks delete if empty method """
         self.tournament.delete_if_empty()
         self.assertFalse(Tournament.objects.filter(name='Test Tournament').exists())
 
-    def test_advancing_state(self):
+    def test_tournament_advancing_state(self):
         """ checks advanving tournament state """
         self.assertEqual(self.tournament.get_state(), 'setup')
         self.tournament.advance_state()
@@ -65,7 +65,7 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.assertEqual(self.tournament.get_state(), 'finished')
 
-    def test_get_host(self):
+    def test_tournament_get_host(self):
         """ checks for correct get_host method """
         # calling it on empty particpants should raise ValidationError
         with self.assertRaises(ValidationError):
