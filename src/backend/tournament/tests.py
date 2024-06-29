@@ -65,6 +65,24 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.assertEqual(self.tournament.get_state(), 'finished')
 
+    def test_get_host(self):
+        """ checks for correct get_host method """
+        # calling it on empty particpants should raise ValidationError
+        with self.assertRaises(ValidationError):
+            self.tournament.get_host()
+        self.tournament.add_participant(self.user_profiles[0])
+        self.assertEqual(self.tournament.get_host(), self.tournament.participants.first())
+
+    def test_tournament_user_default_values(self):
+        """ checks for default values in a tournament user """
+        self.tournament.add_participant(self.user_profiles[0])
+        tournament_user = self.tournament.participants.first()
+        self.assertFalse(tournament_user.is_ready)
+        self.assertEqual(tournament_user.wins, 0)
+        self.assertEqual(tournament_user.losses, 0)
+        self.assertEqual(tournament_user.goals_scored, 0)
+        self.assertEqual(tournament_user.goals_conceded, 0)
+
 
 # class TournamentEndPointTest(TestCase):
 #

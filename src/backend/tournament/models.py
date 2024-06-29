@@ -42,6 +42,11 @@ class Tournament(models.Model):
         if self.participants.count() == 0:
             self.delete()
 
+    def get_host(self):
+        if self.participants.count() > 0:
+            return self.participants.first()
+        raise ValidationError("No Users yet!")
+
     def get_participant_count(self):
         return self.participants.count()
 
