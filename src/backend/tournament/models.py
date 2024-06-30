@@ -17,17 +17,13 @@ DEFAULT_GAME_SETTINGS = {
 class Tournament(models.Model):
 
     name = models.CharField(max_length=50, unique=True)
-    # participants (Foreign Key to TournamentUser)
     state = models.CharField(max_length=10, default='setup')
     created_at = models.DateField(default=date.today)
     created_by = models.ForeignKey(UserProfile, related_name='created_tournaments',
                                    null=True, on_delete=models.CASCADE)
     game_settings = models.JSONField(default=dict)
-
-    # TODO implement
-    # list of matches
-    # match-name could be something like:
-        # {forbidden_character}_tournament_{lobby_name}_{game_id}
+    # participants (Foreign Key <- TournamentUser)
+    # matches (Foreign Key <- TournamentUser)
 
     class Meta:
         ordering = ['name']
@@ -47,6 +43,11 @@ class Tournament(models.Model):
         else:
             raise ValidationError("Invalid state transition")
         self.save(update_fields=['state'])
+
+    def create_game(self):
+        #TODO implement
+        if self.state is not 'playing':
+            raise ValidationError("Cannot create games in this phase")
 
     def delete_if_empty(self):
         if self.participants.count() == 0:
@@ -77,10 +78,10 @@ class Tournament(models.Model):
             raise ValidationError("User is not a participant!")
 
     def save(self, *args, **kwargs):
-        # New instances will get 'setup' state and DEFAULT_GAME_SETTINGS
+        # New instances should default to state 'setup' and DEFAULT_GAME_SETTINGS
         if not self.pk:
             self.state = 'setup'
-        self.game_settings = DEFAULT_GAME_SETTINGS
+            self.game_settings = DEFAULT_GAME_SETTINGS
         super().save(*args, **kwargs)
 
     def set_game_settings(self, new_game_settings: dict):
@@ -92,9 +93,11 @@ class Tournament(models.Model):
             if not isinstance(new_game_settings[key], type(DEFAULT_GAME_SETTINGS[key])):
                 raise ValidationError(f"Invalid game setting value type, expected {type(DEFAULT_GAME_SETTINGS[key])}!")
         self.game_settings = new_game_settings
+        self.save(update_fields=['game_settings'])
 
     def __str__(self):
         return self.name
+
 
 class TournamentUser(models.Model):
 
@@ -106,6 +109,22 @@ class TournamentUser(models.Model):
     losses = models.IntegerField(default=0)
     goals_scored = models.IntegerField(default=0)
     goals_conceded = models.IntegerField(default=0)
+    # matches_home (OneToOneField <- TournamentMatch)
+    # matches_away (OneToOneField <- TournamentMatch)
 
     def __str__(self):
         return f'{self.userprofile.user.username} in {self.tournament.name}'
+
+
+class TournamentMatch(models.Model):
+
+    tournament = models.ForeignKey(Tournament, related_name='matches', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, unique=True)
+    is_finished = models.BooleanField(default=False)
+    player_home = models.OneToOneField(TournamentUser, related_name='matches_home', on_delete=models.CASCADE)
+    player_away = models.OneToOneField(TournamentUser, related_name='matches_away', on_delete=models.CASCADE)
+    goals_home = models.IntegerField(default=0)
+    goals_away = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.player_home.userprofile.user.username} versus {self.player_away.userprofile.user.username}'

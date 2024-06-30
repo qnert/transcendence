@@ -107,6 +107,9 @@ class TournamentModelTest(TestCase):
         for key, value in test_values.items():
             self.assertEqual(getattr(tournament_user, key), value)
 
+    # def test_tournament_game_creation():
+    # TODO implement
+
 
 # class TournamentEndPointTest(TestCase):
 #
