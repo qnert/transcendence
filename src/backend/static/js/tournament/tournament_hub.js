@@ -65,6 +65,7 @@ async function joinTournament() {
 }
 
 async function enterTournamentLobby(tournamentName) {
+    // TODO check if tournament exists
   const pathToLobby = "/tournament/lobby/" + tournamentName + "/";
   const userName = getUserNameFromDOM();
   await handleRouteToken(pathToLobby);

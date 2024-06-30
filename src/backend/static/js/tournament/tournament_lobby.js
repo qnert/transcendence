@@ -9,6 +9,7 @@ export function tournamentLobbyInit(lobbyName, userName) {
     const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
+    const tournamentLobbyStatusToggler = document.getElementById("lobby-status-switch");
     tournamentLobbySocket = new WebSocket("ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
 
     tournamentLobbySocket.onmessage = function (event) {
@@ -38,6 +39,9 @@ export function tournamentLobbyInit(lobbyName, userName) {
             updateParticipantsList(data.participants);
         }
 
+        if (data.status){   
+            console.log("socket action");
+        }
     };
 
     tournamentLobbyChatInput.focus();
@@ -49,7 +53,6 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
     tournamentLobbyChatSubmit.onclick = function () {
         const message = tournamentLobbyChatInput.value;
-        console.log("message");
         if (message.trim() !== "") {
             tournamentLobbySocket.send(
                 JSON.stringify({
@@ -59,6 +62,21 @@ export function tournamentLobbyInit(lobbyName, userName) {
         }
         tournamentLobbyChatInput.value = "";
     };
+
+    tournamentLobbyStatusToggler.addEventListener('change', function () {
+        if (tournamentLobbyStatusToggler.checked) {
+            
+            tournamentLobbySocket.send(JSON.stringify({
+                status:true,
+            }));
+
+
+
+        }
+        else {
+            console.log("not checked");
+        }
+    });
 }
 
 // =========================== HELPERS ===============================

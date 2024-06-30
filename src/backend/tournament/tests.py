@@ -107,6 +107,17 @@ class TournamentModelTest(TestCase):
         for key, value in test_values.items():
             self.assertEqual(getattr(tournament_user, key), value)
 
+    def test_tournament_get_user_by(self):
+        pass
+
+    def test_tournament_user_toggle_ready_state(self):
+        self.tournament.add_participant(self.user_profiles[0])
+        # cant save tournament_user in a variable because its just a copy that wont
+        # know about the change
+        self.assertEqual(False, self.tournament.participants.first().is_ready)
+        self.tournament.toggle_ready_state_by(self.user_profiles[0])
+        self.assertEqual(True, self.tournament.participants.first().is_ready)
+
     # def test_tournament_game_creation():
     # TODO implement
 

@@ -44,20 +44,23 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
-        message = f"{self.nickname}: {message}"
+        text_data_json["status"]
 
-        await self.channel_layer.group_send(
-            self.lobby_group_name,
-            {
-                'type': 'chat_message',
-                'message': message,
-            }
-        )
+
+#        text_data_json = json.loads(text_data)
+#        message = text_data_json["message"]
+#        message = f"{self.nickname}: {message}"
+#
+#        await self.channel_layer.group_send(
+#            self.lobby_group_name,
+#            {
+#                'type': 'chat_message',
+#                'message': message,
+#            }
+#        )
 
     async def chat_message(self, event):
         message = event["message"]
-
         await self.send(text_data=json.dumps({
             'message': message,
         }))
@@ -70,9 +73,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         }
 
     async def send_updated_participants(self):
-        states = await database_sync_to_async(self.tournament.get_participants_states)()
+        statuses = await database_sync_to_async(self.tournament.get_participants_statuses)()
         names = await database_sync_to_async(self.tournament.get_participants_names)()
-        participants = [{'name': name, 'state': state} for name, state in zip(names, states)]
+        participants = [{'name': name, 'status': status} for name, status in zip(names, statuses)]
         await self.channel_layer.group_send(
             self.lobby_group_name,
             {

@@ -69,7 +69,7 @@ class Tournament(models.Model):
     def get_participants_names(self):
         return [f'{participant.user_profile.display_name}({participant.user_profile.user.username})' for participant in self.participants.all()]
 
-    def get_participants_states(self):
+    def get_participants_statuses(self):
         return [participant.is_ready for participant in self.participants.all()]
 
     def get_participants(self):
@@ -108,6 +108,11 @@ class Tournament(models.Model):
 
     def __str__(self):
         return self.name
+
+    def toggle_ready_state_by(self, user_profile: UserProfile):
+        tournament_user = TournamentUser.objects.filter(tournament=self, user_profile=user_profile).first()
+        tournament_user.is_ready = not tournament_user.is_ready
+        tournament_user.save()
 
 
 class TournamentUser(models.Model):

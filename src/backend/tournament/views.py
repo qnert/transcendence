@@ -25,7 +25,7 @@ def tournament_lobby(request, lobby_name):
                 "name": lobby_name,
                 "state": tournament.get_state(),
                 "names": tournament.get_participants_names(),
-                "states": tournament.get_participants_states(),
+                "statuses": tournament.get_participants_statuses(),
             }
         except UserProfile.DoesNotExist:
             return JsonResponse({"error": "User profile not found!"}, status=401)
