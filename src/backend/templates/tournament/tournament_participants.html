@@ -1,6 +1,6 @@
-{% for participant in lobby.participants %}
 <tr>
-    <td>{{ participant }}</td>
-    <td>participant status</td>
+    {% for particpant in participants %}
+    <td>{{ participant.name }}</td>
+    <td>{{ participant.state }}</td>
+    {% endfor %}
 </tr>
-{% endfor %}

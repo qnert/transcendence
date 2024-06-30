@@ -48,11 +48,11 @@ class TournamentModelTest(TestCase):
 
     def test_tournament_remove_player(self):
         """ checks remove_participant method """
-        count_initial = self.tournament.get_participant_count()
+        count_initial = self.tournament.get_participants_count()
         self.tournament.add_participant(self.user_profiles[0])
-        self.assertEqual(self.tournament.get_participant_count(), count_initial + 1)
+        self.assertEqual(self.tournament.get_participants_count(), count_initial + 1)
         self.tournament.remove_participant(self.user_profiles[0])
-        self.assertEqual(self.tournament.get_participant_count(), count_initial)
+        self.assertEqual(self.tournament.get_participants_count(), count_initial)
 
     def test_tournament_delete_if_empty(self):
         """ checks delete if empty method """

@@ -29,11 +29,11 @@ class Tournament(models.Model):
         ordering = ['name']
 
     def add_participant(self, user_profile: UserProfile):
-        if self.participants.filter(userprofile=user_profile).exists():
+        if self.participants.filter(user_profile=user_profile).exists():
             raise ValidationError("User is already a participant!")
         if self.participants.count() >= MAX_PARTICIPANTS:
             raise ValidationError("Maximum number of participants reached!")
-        TournamentUser.objects.create(tournament=self, userprofile=user_profile)
+        TournamentUser.objects.create(tournament=self, user_profile=user_profile)
 
     def advance_state(self):
         if self.state == 'setup':
@@ -46,7 +46,7 @@ class Tournament(models.Model):
 
     def create_game(self):
         #TODO implement
-        if self.state is not 'playing':
+        if self.state != 'playing':
             raise ValidationError("Cannot create games in this phase")
 
     def delete_if_empty(self):
@@ -58,11 +58,22 @@ class Tournament(models.Model):
             return self.participants.first()
         raise ValidationError("No Users yet!")
 
-    def get_participant_count(self):
+    def get_participant_by(self, username):
+        if self.participants.filter(user_profile__user__username=username):
+            return self.participants.filter(user_profile__user__username=username).first()
+        raise ValidationError("User not found!")
+
+    def get_participants_count(self):
         return self.participants.count()
 
+    def get_participants_names(self):
+        return [f'{participant.user_profile.display_name}({participant.user_profile.user.username})' for participant in self.participants.all()]
+
+    def get_participants_states(self):
+        return [participant.is_ready for participant in self.participants.all()]
+
     def get_participants(self):
-        return [participant.userprofile.user.username for participant in self.participants.all()]
+        return self.participants.all()
 
     def get_game_settings(self):
         return self.game_settings
@@ -71,7 +82,7 @@ class Tournament(models.Model):
         return self.state
 
     def remove_participant(self, user_profile: UserProfile):
-        participant = self.participants.filter(userprofile=user_profile).first()
+        participant = self.participants.filter(user_profile=user_profile).first()
         if participant:
             participant.delete()
         else:
@@ -102,7 +113,7 @@ class Tournament(models.Model):
 class TournamentUser(models.Model):
 
     tournament = models.ForeignKey(Tournament, related_name='participants', on_delete=models.CASCADE)
-    userprofile = models.ForeignKey(UserProfile, related_name='tournament_members',
+    user_profile = models.ForeignKey(UserProfile, related_name='tournament_members',
                                     on_delete=models.CASCADE, null=True)
     is_ready = models.BooleanField(default=False)
     wins = models.IntegerField(default=0)
@@ -113,7 +124,7 @@ class TournamentUser(models.Model):
     # matches_away (OneToOneField <- TournamentMatch)
 
     def __str__(self):
-        return f'{self.userprofile.user.username} in {self.tournament.name}'
+        return f'{self.user_profile.user.username} in {self.tournament.name}'
 
 
 class TournamentMatch(models.Model):
@@ -127,4 +138,4 @@ class TournamentMatch(models.Model):
     goals_away = models.IntegerField(default=0)
 
     def __str__(self):
-        return f'{self.player_home.userprofile.user.username} versus {self.player_away.userprofile.user.username}'
+        return f'{self.player_home.user_profile.user.username} versus {self.player_away.user_profile.user.username}'

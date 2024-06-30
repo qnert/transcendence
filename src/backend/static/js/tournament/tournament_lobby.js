@@ -65,17 +65,31 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
 function updateParticipantsList(participants) {
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
-    participantsList.innerHTML = '';  // Clear the current list
+    participantsList.innerHTML = '';
+
     participants.forEach(participant => {
+        // create row
         const row = document.createElement("tr");
-        const participantCell = document.createElement("td");
-        participantCell.textContent = participant;
+
+        // create cell for participant
+        const participantCell = document.createElement("td")
+        participantCell.textContent = participant.name
+
+        // create cell for participant status
         const statusCell = document.createElement("td");
-        statusCell.textContent = 'participant status';  // Replace with actual status if available
+        if (participant.state){
+            statusCell.textContent = '✅';
+        }
+        else{
+            statusCell.textContent = '❌';
+        }
+
+        // append cells and row to table element
         row.appendChild(participantCell);
         row.appendChild(statusCell);
         participantsList.appendChild(row);
     });
+
 }
 
 // =========================== CLEAN UP ===============================

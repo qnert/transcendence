@@ -4,13 +4,12 @@ from .models import Tournament
 
 @admin.register(Tournament)
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'host', 'get_participants', 'state')
+    list_display = ('name', 'host', 'participants', 'state')
     search_fields = ('name', 'created_by__user__username')
+
+    def participants(self, obj):
+        return obj.get_participants_names()
 
     def host(self, obj):
         return obj.created_by.user.username
 
-    def get_participants(self, obj):
-        return ", ".join([participant.user.username for participant in obj.participants.all()])
-
-    get_participants.short_description = 'Participants'
