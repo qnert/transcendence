@@ -10,3 +10,4 @@ env/
 .vscode
 src/backend/staticfiles
 src/grafana-data/
+src/backend/*/migrations/*

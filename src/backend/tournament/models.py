@@ -4,13 +4,17 @@ from datetime import date
 from api.models import UserProfile
 
 MAX_PARTICIPANTS = 4
-
+DEFAULT_GAME_SETTINGS = {
+    "ball_speed": 8,
+    "max_score": 8,
+    "background_color": 0,
+    "border_color": 0,
+    "ball_color": 0,
+    "advanced_mode": False,
+    "power_ups": False
+}
 
 class Tournament(models.Model):
-
-
-    # TODO declare DEFAULT_SETTINGS here
-
 
     name = models.CharField(max_length=50, unique=True)
     # participants (Foreign Key to TournamentUser)
@@ -59,7 +63,7 @@ class Tournament(models.Model):
     def get_participants(self):
         return [participant.userprofile.user.username for participant in self.participants.all()]
 
-    def get_settings(self):
+    def get_game_settings(self):
         return self.game_settings
 
     def get_state(self):
@@ -73,23 +77,21 @@ class Tournament(models.Model):
             raise ValidationError("User is not a participant!")
 
     def save(self, *args, **kwargs):
-        # New instance being forced to 'setup'
+        # New instances will get 'setup' state and DEFAULT_GAME_SETTINGS
         if not self.pk:
             self.state = 'setup'
-        self.game_settings = {
-            "max_score": 8,
-            "ball_speed": 8,
-            "background_color": 0,
-            "border_color": 0,
-            "ball_color": 0,
-            "advanced_mode": False,
-            "power_ups": False
-        }
+        self.game_settings = DEFAULT_GAME_SETTINGS
         super().save(*args, **kwargs)
 
-    def set_settings(settings: dict):
-        pass
-        # TODO implement
+    def set_game_settings(self, new_game_settings: dict):
+        if not new_game_settings or new_game_settings is None:
+            raise ValidationError("No Empty Object allowed!")
+        for key in new_game_settings:
+            if key not in DEFAULT_GAME_SETTINGS:
+                raise ValidationError(f"Invalid game setting key: {key}")
+            if not isinstance(new_game_settings[key], type(DEFAULT_GAME_SETTINGS[key])):
+                raise ValidationError(f"Invalid game setting value type, expected {type(DEFAULT_GAME_SETTINGS[key])}!")
+        self.game_settings = new_game_settings
 
     def __str__(self):
         return self.name

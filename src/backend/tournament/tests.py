@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from api.models import User, UserProfile
-from tournament.models import Tournament, MAX_PARTICIPANTS
+from tournament.models import Tournament, MAX_PARTICIPANTS, DEFAULT_GAME_SETTINGS
 
 
 class TournamentModelTest(TestCase):
@@ -25,10 +25,12 @@ class TournamentModelTest(TestCase):
         self.assertEqual(self.tournament.created_by, self.host_profile)
         self.assertEqual(self.tournament.participants.count(), 0)
 
-    def test_tournament_creation_default_state(self):
-        """ checks default tournament state """
-        tournament = Tournament.objects.create(name='State Tournament', state='playing', created_by=self.host_profile)
+    def test_tournament_creation_default_values(self):
+        """ checks if tournament creation results in correct default values """
+        RANDOM_GAME_SETTINGS = {}
+        tournament = Tournament.objects.create(name='default', state='playing', game_settings=RANDOM_GAME_SETTINGS)
         self.assertEqual(tournament.get_state(), 'setup')
+        self.assertEqual(tournament.get_game_settings(), DEFAULT_GAME_SETTINGS)
 
     def test_tournament_add_participant_limit(self):
         """ checks add_participant method and max_player_limit """
@@ -57,7 +59,7 @@ class TournamentModelTest(TestCase):
         self.tournament.delete_if_empty()
         self.assertFalse(Tournament.objects.filter(name='Test Tournament').exists())
 
-    def test_tournament_advancing_state(self):
+    def test_tournament_advance_state(self):
         """ checks advanving tournament state """
         self.assertEqual(self.tournament.get_state(), 'setup')
         self.tournament.advance_state()
@@ -73,11 +75,28 @@ class TournamentModelTest(TestCase):
         self.tournament.add_participant(self.user_profiles[0])
         self.assertEqual(self.tournament.get_host(), self.tournament.participants.first())
 
+    def test_tournament_set_game_settings(self):
+        with self.assertRaises(ValidationError):
+            self.tournament.set_game_settings(None)
+            self.tournament.set_game_settings({})
+            self.tournament.set_game_settings({"bullshit-key": 1})
+            self.tournament.set_game_settings({"ball_speed": "bullshit_value"})
+        NEW_GAME_SETTINGS = {
+            "ball_speed": 5,
+            "max_score": 4,
+            "background_color": 123,
+            "border_color": 255,
+            "ball_color": 0,
+            "advanced_mode": True,
+            "power_ups": True
+        }
+        self.tournament.set_game_settings(NEW_GAME_SETTINGS)
+        self.assertEqual(self.tournament.get_game_settings(), NEW_GAME_SETTINGS)
+
     def test_tournament_user_default_values(self):
         """ checks for default values in a tournament user """
         self.tournament.add_participant(self.user_profiles[0])
         tournament_user = self.tournament.participants.first()
-        # TODO import default settings from tournament modules
         test_values = {
             "is_ready": False,
             "wins": 0,
@@ -88,9 +107,6 @@ class TournamentModelTest(TestCase):
         for key, value in test_values.items():
             self.assertEqual(getattr(tournament_user, key), value)
 
-#    def test_tournament_get_settings(self):
-#        print(self.tournament.get_settings())
-#        print(self.tournament)
 
 # class TournamentEndPointTest(TestCase):
 #
