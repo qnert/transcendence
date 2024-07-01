@@ -28,9 +28,16 @@
 
         </table>
 
+
         <div id="lobby-chat-log-box" >
             <textarea class="form-control" id="lobby-chat-log" readonly></textarea>
         </div>
+
+    </div>
+
+    <div class="borderedBox" id="lobby-game-settings-box">
+
+        {% include 'tournament_game_settings.html' with game_settings=lobby.game_settings %}
 
     </div>
 

@@ -1,15 +1,15 @@
 {% for participant in participants %}
 <tr>
     <td>
-        {{ participant.name }}
         {% if forloop.first %}
         👑
         {% else %}
         🐸
         {% endif %}
+        {{ participant.name }}
     </td>
-        <td>
-            {% if participant.status %}
+    <td>
+         {% if participant.status %}
         ✅
         {% else %}
         ❌
