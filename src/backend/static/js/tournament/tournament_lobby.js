@@ -15,7 +15,9 @@ export function tournamentLobbyInit(lobbyName, userName) {
     tournamentLobbySocket.onmessage = function (event) {
         const data = JSON.parse(event.data);
 
-        // TODO get display_name aswell
+
+        // TODO simplify 
+
         let message = "";
         if (data.username) {
             message = `${data.username}: ${data.message}`;
@@ -60,6 +62,7 @@ export function tournamentLobbyInit(lobbyName, userName) {
     };
 
     tournamentLobbyStatusToggler.onchange = function () {
+        // TODO simplify
         if (tournamentLobbyStatusToggler.checked) {
             tournamentLobbySocket.send(JSON.stringify({
                 status:true,
@@ -75,40 +78,9 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
 // =========================== HELPERS ===============================
 
-function updateParticipantsList(participants) {
-
-    // TODO mb get the view instead?
+async function updateParticipantsList(participants_html) {
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
-    participantsList.innerHTML = '';
-
-    participants.forEach((participant, index) => {
-        // create row
-        const row = document.createElement("tr");
-
-        // create cell for participant
-        const participantCell = document.createElement("td")
-        if (index == 0){
-            participantCell.textContent = participant.name + "👑"
-        }
-        else {
-            participantCell.textContent = participant.name
-        }
-
-        // create cell for participant status
-        const statusCell = document.createElement("td");
-        if (participant.status){
-            statusCell.textContent = '✅';
-        }
-        else{
-            statusCell.textContent = '❌';
-        }
-
-        // append cells and row to table element
-        row.appendChild(participantCell);
-        row.appendChild(statusCell);
-        participantsList.appendChild(row);
-    });
-
+    participantsList.innerHTML = participants_html;
 }
 
 // =========================== CLEAN UP ===============================

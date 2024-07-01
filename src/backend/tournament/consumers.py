@@ -4,6 +4,7 @@ from .models import Tournament
 from api.models import UserProfile
 from api.models import User
 from channels.db import database_sync_to_async
+from django.template.loader import render_to_string
 
 
 class TournamentConsumer(AsyncWebsocketConsumer):
@@ -19,9 +20,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         first_participant = await database_sync_to_async(lambda: self.tournament.participants.first())()
         if self.tournament_user == first_participant:
-            self.nickname = f'{self.user_profile.display_name}({self.username}) 👑'
+            self.nickname = f'👑 {self.user_profile.display_name}({self.username})'
         else:
-            self.nickname = f'{self.user_profile.display_name}({self.username})'
+            self.nickname = f'🐸 {self.user_profile.display_name}({self.username})'
 
         await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
         await self.channel_layer.group_send(
@@ -82,19 +83,18 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         }
 
     async def send_updated_participants(self):
-        statuses = await database_sync_to_async(self.tournament.get_participants_statuses)()
-        names = await database_sync_to_async(self.tournament.get_participants_names)()
-        participants = [{'name': name, 'status': status} for name, status in zip(names, statuses)]
+        participants = await database_sync_to_async(self.tournament.get_participants_names_and_statuses)()
+        participants_html = await database_sync_to_async(render_to_string)('tournament_participants.html', {'participants': participants})
         await self.channel_layer.group_send(
             self.lobby_group_name,
             {
                 'type': 'update_participants',
-                'participants': participants,
+                'participants': participants_html,
             }
         )
 
     async def update_participants(self, event):
-        participants = event['participants']
+        participants_html = event['participants']
         await self.send(text_data=json.dumps({
-            'participants': participants,
+            'participants': participants_html,
         }))

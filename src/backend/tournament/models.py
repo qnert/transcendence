@@ -26,7 +26,7 @@ class Tournament(models.Model):
     # matches (Foreign Key <- TournamentUser)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['created_at']
 
     def add_participant(self, user_profile: UserProfile):
         if self.participants.filter(user_profile=user_profile).exists():
@@ -71,6 +71,12 @@ class Tournament(models.Model):
 
     def get_participants_statuses(self):
         return [participant.is_ready for participant in self.participants.all()]
+
+    def get_participants_names_and_statuses(self):
+        statuses = self.get_participants_statuses()
+        names = self.get_participants_names()
+        participants_list = [{'name': name, 'status': status} for name, status in zip(names, statuses)]
+        return participants_list
 
     def get_participants(self):
         return self.participants.all()
@@ -130,6 +136,7 @@ class TournamentUser(models.Model):
     # matches_home (OneToOneField <- TournamentMatch)
     # matches_away (OneToOneField <- TournamentMatch)
 
+    # makes sure the host is always the first in the participants list
     class Meta:
         ordering = ["created_at"]
 
