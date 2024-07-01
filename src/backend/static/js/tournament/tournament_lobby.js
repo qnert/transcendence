@@ -77,16 +77,22 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
 function updateParticipantsList(participants) {
 
+    // TODO mb get the view instead?
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
     participantsList.innerHTML = '';
 
-    participants.forEach(participant => {
+    participants.forEach((participant, index) => {
         // create row
         const row = document.createElement("tr");
 
         // create cell for participant
         const participantCell = document.createElement("td")
-        participantCell.textContent = participant.name
+        if (index == 0){
+            participantCell.textContent = participant.name + "👑"
+        }
+        else {
+            participantCell.textContent = participant.name
+        }
 
         // create cell for participant status
         const statusCell = document.createElement("td");

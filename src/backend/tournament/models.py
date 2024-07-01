@@ -126,8 +126,12 @@ class TournamentUser(models.Model):
     losses = models.IntegerField(default=0)
     goals_scored = models.IntegerField(default=0)
     goals_conceded = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
     # matches_home (OneToOneField <- TournamentMatch)
     # matches_away (OneToOneField <- TournamentMatch)
+
+    class Meta:
+        ordering = ["created_at"]
 
     def __str__(self):
         return f'{self.user_profile.user.username} in {self.tournament.name}'

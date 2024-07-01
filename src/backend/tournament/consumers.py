@@ -16,7 +16,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         self.username = self.scope["url_route"]["kwargs"]["username"]
         self.tournament_user = await database_sync_to_async(self.tournament.get_participant_by)(self.username)
         self.user_profile = await database_sync_to_async(lambda: self.tournament_user.user_profile)()
-        self.nickname = f'{self.user_profile.display_name}({self.username})'
+
+        first_participant = await database_sync_to_async(lambda: self.tournament.participants.first())()
+        if self.tournament_user == first_participant:
+            self.nickname = f'{self.user_profile.display_name}({self.username}) 👑'
+        else:
+            self.nickname = f'{self.user_profile.display_name}({self.username})'
 
         await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
         await self.channel_layer.group_send(
@@ -30,6 +35,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+
         await database_sync_to_async(self.tournament.remove_participant)(self.user_profile)
         await self.channel_layer.group_send(
             self.lobby_group_name,
@@ -61,7 +67,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                         'message': message,
                     }
             )
-
 
     async def chat_message(self, event):
         message = event["message"]

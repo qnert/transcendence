@@ -1,6 +1,9 @@
 <tr>
     {% for particpant in participants %}
-    <td>{{ participant.name }}</td>
+    <td>
+        {{ participant.name }}
+        {% if forloop.first %}👑{% endif %}
+    </td>
     <td>{{ participant.state }}</td>
     {% endfor %}
 </tr>
