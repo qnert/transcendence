@@ -11,12 +11,6 @@
         }
 
         #lobby-participants-list {
-            border: none;
-            margin: 0;
-            td,
-            th {
-                border: none;
-            }
         }
 
         #lobby-chat-log-box {
