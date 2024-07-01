@@ -15,7 +15,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         self.lobby_group_name = f"chat_{self.lobby_name}"
         self.tournament = await database_sync_to_async(Tournament.objects.get)(name=self.lobby_name)
         self.username = self.scope["url_route"]["kwargs"]["username"]
-        self.tournament_user = await database_sync_to_async(self.tournament.get_participant_by)(self.username)
+        self.tournament_user = await database_sync_to_async(self.tournament.get_participant_by)(username=self.username)
         self.user_profile = await database_sync_to_async(lambda: self.tournament_user.user_profile)()
 
         first_participant = await database_sync_to_async(lambda: self.tournament.participants.first())()
