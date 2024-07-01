@@ -39,8 +39,8 @@ body {
     height: 100%;
     width: 100%; /* Full viewport width */
     min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
-    padding-top: 70px;
-    padding-bottom: 35px;
+    padding-top: 75px;
+    padding-bottom: 150px;
 
     h1,
     h2,
