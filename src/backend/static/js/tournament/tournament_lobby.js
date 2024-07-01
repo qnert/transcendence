@@ -10,6 +10,7 @@ export function tournamentLobbyInit(lobbyName, userName) {
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
     const tournamentLobbyStatusToggler = document.getElementById("lobby-status-switch");
+    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form")
     tournamentLobbySocket = new WebSocket("ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
 
     tournamentLobbySocket.onmessage = function (event) {
@@ -62,6 +63,7 @@ export function tournamentLobbyInit(lobbyName, userName) {
     };
 
     tournamentLobbyStatusToggler.onchange = function () {
+        // TODO event prevent default?
         // TODO simplify
         if (tournamentLobbyStatusToggler.checked) {
             tournamentLobbySocket.send(JSON.stringify({
@@ -74,6 +76,36 @@ export function tournamentLobbyInit(lobbyName, userName) {
             }));
         }
     };
+
+    if (tournamentLobbySettingsForm) {
+        tournamentLobbySettingsForm.onsubmit = function (event) {
+            event.preventDefault();
+
+            // TODO simplify
+            const ballSpeed = document.getElementById('ballSpeed').value;
+            const maxScore = document.getElementById('maxScore').value;
+            const backgroundColor = document.getElementById('background').value;
+            const borderColor = document.getElementById('borders').value;
+            const ballColor = document.getElementById('ballColor').value;
+            const advancedMode = document.getElementById('advancedMode').checked;
+            const powerUps = document.getElementById('powerUps').checked;
+
+            const gameSettings = {
+                "ball_speed": ballSpeed,
+                "max_score": maxScore,
+                "background_color": backgroundColor,
+                "border_color": borderColor,
+                "ball_color": ballColor,
+                "advanced_mode": advancedMode,
+                "power_ups": powerUps,
+            }
+
+            tournamentLobbySocket.send(JSON.stringify({
+                "game_settings": gameSettings,
+            }));
+        }
+    }
+
 }
 
 // =========================== HELPERS ===============================

@@ -19,13 +19,9 @@
                     <th scope="col" >Status</th>
                 </tr>
             </thead>
-
             <tbody>
-
                 {% include 'tournament_participants.html' with participants=lobby.participants %}
-
             </tbody>
-
         </table>
 
       <table class="table" id="lobby-game-settings-list">
@@ -36,7 +32,7 @@
           </tr>
         </thead>
         <tbody>
-          {% include 'tournament_game_settings.html' with game_settings=lobby.game_settings %}
+          {% include 'tournament_game_settings_list.html' with game_settings=lobby.game_settings %}
         </tbody>
       </table>
 
@@ -45,6 +41,10 @@
         </div>
 
     </div>
+
+    {% if lobby.is_host %}
+        {% include 'tournament_game_settings_edit.html' %}
+    {% endif %}
 
     <div class="borderedBox" id="lobby-chat-input-box">
       <input class="form-control" id="lobby-chat-message-input" placeholder="Enter your message"  type="text" />

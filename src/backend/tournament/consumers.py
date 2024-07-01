@@ -55,6 +55,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         # on status update
         if "status" in text_data_json:
+            # TODO notify everyone by message
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
             await self.send_updated_participants()
 
@@ -68,6 +69,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                         'message': message,
                     }
             )
+
+        if "game_settings" in text_data_json:
+            game_settings = text_data_json['game_settings']
+            await database_sync_to_async(self.tournament.set_game_settings)(game_settings)
+            # TODO notify everyone by message
+            # TODO update game info box
+
 
     async def chat_message(self, event):
         message = event["message"]

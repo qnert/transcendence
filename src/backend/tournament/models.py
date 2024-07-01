@@ -5,14 +5,16 @@ from api.models import UserProfile
 
 MAX_PARTICIPANTS = 4
 DEFAULT_GAME_SETTINGS = {
-    "ball_speed": 8,
-    "max_score": 8,
-    "background_color": 0,
-    "border_color": 0,
-    "ball_color": 0,
+    "ball_speed": '8',
+    "max_score": '8',
+    "background_color": '0',
+    "border_color": '0',
+    "ball_color": '0',
     "advanced_mode": False,
     "power_ups": False
 }
+
+# TODO simplify with chatGPT
 
 class Tournament(models.Model):
 
@@ -58,10 +60,16 @@ class Tournament(models.Model):
             return self.participants.first()
         raise ValidationError("No Users yet!")
 
-    def get_participant_by(self, username):
-        if self.participants.filter(user_profile__user__username=username):
-            return self.participants.filter(user_profile__user__username=username).first()
-        raise ValidationError("User not found!")
+    def get_participant_by(self, user_profile=None, username=None):
+        if isinstance(user_profile, UserProfile):
+            participant = self.participants.filter(user_profile=user_profile).first()
+        elif isinstance(username, str):
+            participant = self.participants.filter(user_profile__user__username=username).first()
+        else:
+            raise ValidationError("No user profile or username provided!")
+        if not participant:
+            raise ValidationError("User not found!")
+        return participant
 
     def get_participants_count(self):
         return self.participants.count()
@@ -86,6 +94,13 @@ class Tournament(models.Model):
 
     def get_state(self):
         return self.state
+
+    def is_host(self, user_profile=None, username=None):
+        if isinstance(user_profile, UserProfile):
+            return self.get_participant_by(user_profile=user_profile) == self.get_host()
+        elif isinstance(username, str):
+            return self.get_participant_by(username=username) == self.get_host()
+        raise ValidationError("Wrong parameters given!")
 
     def remove_participant(self, user_profile: UserProfile):
         participant = self.participants.filter(user_profile=user_profile).first()

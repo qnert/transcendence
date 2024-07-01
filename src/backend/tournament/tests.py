@@ -82,11 +82,11 @@ class TournamentModelTest(TestCase):
             self.tournament.set_game_settings({"bullshit-key": 1})
             self.tournament.set_game_settings({"ball_speed": "bullshit_value"})
         NEW_GAME_SETTINGS = {
-            "ball_speed": 5,
-            "max_score": 4,
-            "background_color": 123,
-            "border_color": 255,
-            "ball_color": 0,
+            "ball_speed": '5',
+            "max_score": '4',
+            "background_color": '123',
+            "border_color": '255',
+            "ball_color": '0',
             "advanced_mode": True,
             "power_ups": True
         }
@@ -107,8 +107,22 @@ class TournamentModelTest(TestCase):
         for key, value in test_values.items():
             self.assertEqual(getattr(tournament_user, key), value)
 
-    def test_tournament_get_user_by(self):
-        pass
+    def test_get_user_by_methods(self):
+        self.tournament.add_participant(self.user_profiles[0])
+        self.tournament.add_participant(self.user_profiles[1])
+        tmp = self.tournament.get_participant_by(user_profile=self.user_profiles[1])
+        username = self.user_profiles[1].user.username
+        tmp_2 = self.tournament.get_participant_by(username=username)
+        self.assertEqual(tmp, tmp_2)
+
+
+    def test_is_host(self):
+        self.tournament.add_participant(self.user_profiles[0])
+        self.tournament.add_participant(self.user_profiles[1])
+        self.assertEqual(True, self.tournament.is_host(user_profile=self.user_profiles[0]))
+        self.assertEqual(True, self.tournament.is_host(username=self.user_profiles[0].user.username))
+        self.assertEqual(False, self.tournament.is_host(user_profile=self.user_profiles[1]))
+        self.assertEqual(False, self.tournament.is_host(username=self.user_profiles[1].user.username))
 
     def test_tournament_user_toggle_ready_state(self):
         self.tournament.add_participant(self.user_profiles[0])
