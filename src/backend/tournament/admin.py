@@ -4,7 +4,7 @@ from .models import Tournament
 
 @admin.register(Tournament)
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'host', 'participants', 'state')
+    list_display = ('name', 'host', 'participants', 'state', 'statuses')
     search_fields = ('name', 'created_by__user__username')
 
     def participants(self, obj):
@@ -12,4 +12,7 @@ class TournamentAdmin(admin.ModelAdmin):
 
     def host(self, obj):
         return obj.created_by.user.username
+
+    def statuses(self, obj):
+        return obj.get_participants_statuses()
 

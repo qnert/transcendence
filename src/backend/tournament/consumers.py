@@ -43,21 +43,25 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await database_sync_to_async(self.tournament.delete_if_empty)()
 
     async def receive(self, text_data):
+
         text_data_json = json.loads(text_data)
-        text_data_json["status"]
 
+        # on status update
+        if "status" in text_data_json:
+            await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
+            await self.send_updated_participants()
 
-#        text_data_json = json.loads(text_data)
-#        message = text_data_json["message"]
-#        message = f"{self.nickname}: {message}"
-#
-#        await self.channel_layer.group_send(
-#            self.lobby_group_name,
-#            {
-#                'type': 'chat_message',
-#                'message': message,
-#            }
-#        )
+        # on regular message
+        if "message" in text_data_json:
+            message = f"{self.nickname}: {text_data_json['message']}"
+            await self.channel_layer.group_send(
+                    self.lobby_group_name,
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                    }
+            )
+
 
     async def chat_message(self, event):
         message = event["message"]

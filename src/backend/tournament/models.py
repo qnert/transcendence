@@ -111,9 +111,10 @@ class Tournament(models.Model):
 
     def toggle_ready_state_by(self, user_profile: UserProfile):
         tournament_user = TournamentUser.objects.filter(tournament=self, user_profile=user_profile).first()
+        if not tournament_user:
+            raise ValidationError("Toggling state of a user that is not a participant!")
         tournament_user.is_ready = not tournament_user.is_ready
         tournament_user.save()
-
 
 class TournamentUser(models.Model):
 

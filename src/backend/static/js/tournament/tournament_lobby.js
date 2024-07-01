@@ -38,10 +38,6 @@ export function tournamentLobbyInit(lobbyName, userName) {
         if (data.participants) {
             updateParticipantsList(data.participants);
         }
-
-        if (data.status){   
-            console.log("socket action");
-        }
     };
 
     tournamentLobbyChatInput.focus();
@@ -63,25 +59,24 @@ export function tournamentLobbyInit(lobbyName, userName) {
         tournamentLobbyChatInput.value = "";
     };
 
-    tournamentLobbyStatusToggler.addEventListener('change', function () {
+    tournamentLobbyStatusToggler.onchange = function () {
         if (tournamentLobbyStatusToggler.checked) {
-            
             tournamentLobbySocket.send(JSON.stringify({
                 status:true,
             }));
-
-
-
         }
         else {
-            console.log("not checked");
+            tournamentLobbySocket.send(JSON.stringify({
+                status:false,
+            }));
         }
-    });
+    };
 }
 
 // =========================== HELPERS ===============================
 
 function updateParticipantsList(participants) {
+
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
     participantsList.innerHTML = '';
 
@@ -95,7 +90,7 @@ function updateParticipantsList(participants) {
 
         // create cell for participant status
         const statusCell = document.createElement("td");
-        if (participant.state){
+        if (participant.status){
             statusCell.textContent = '✅';
         }
         else{
@@ -114,7 +109,6 @@ function updateParticipantsList(participants) {
 
 export function tournamentLobbyCloseSocket() {
     if (tournamentLobbySocket) {
-        console.log("[DEBUG] closing tournamentLobbySocket");
         tournamentLobbySocket.close();
         tournamentLobbySocket = null;
     }
