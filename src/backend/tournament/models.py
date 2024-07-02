@@ -30,6 +30,9 @@ class Tournament(models.Model):
     class Meta:
         ordering = ['created_at']
 
+    def are_participants_ready(self):
+        # TODO implement
+
     def add_participant(self, user_profile: UserProfile):
         if self.participants.filter(user_profile=user_profile).exists():
             raise ValidationError("User is already a participant!")

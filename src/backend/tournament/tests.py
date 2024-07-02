@@ -115,7 +115,6 @@ class TournamentModelTest(TestCase):
         tmp_2 = self.tournament.get_participant_by(username=username)
         self.assertEqual(tmp, tmp_2)
 
-
     def test_is_host(self):
         self.tournament.add_participant(self.user_profiles[0])
         self.tournament.add_participant(self.user_profiles[1])
@@ -132,31 +131,5 @@ class TournamentModelTest(TestCase):
         self.tournament.toggle_ready_state_by(self.user_profiles[0])
         self.assertEqual(True, self.tournament.participants.first().is_ready)
 
-    # def test_tournament_game_creation():
-    # TODO implement
-
-
-# class TournamentEndPointTest(TestCase):
-#
-#    @classmethod
-#    def setUpTestData(cls):
-#        """ sets up a user to send the requests from """
-#
-#        cls.client = Client()
-#        cls.username = User.objects.create_user(
-#            username='testuser', password='1234', email='testuser@some_domain.com')
-#        cls.user_profile = UserProfile.objects.create(user=cls.username)
-#
-#    def setUp(self):
-#        """ sets up a user to send the requests from """
-#
-#        self.client.login(username='testuser', password='1234')
-#
-#    def test_create_tournament(self):
-#        """ checks create_tournament endpoint """
-#
-#        url = reverse('create')
-#        data = {'tournament_name': 'tournament1'}
-#        response = self.client.post(url, json.dumps(data), content_type='application/json')
-#        self.assertEqual(response.status_code, 201)
-#        self.assertTrue(Tournament.objects.filter(name="tournament1").exists())
+    #def test_tournament_are_participants_ready(self):
+    #def test_tournament_create_game(self):
