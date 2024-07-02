@@ -12,7 +12,7 @@ class TournamentModelTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        """ sets up nine test users, one tournament and adds them to the class """
+        """ sets up a tournament and MAX_PARTCIPANTS no. of test users"""
         cls.users = []
         cls.user_profiles = []
         for index in range(MAX_PARTICIPANTS + 1):
