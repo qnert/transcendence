@@ -3,6 +3,10 @@ from django.core.exceptions import ValidationError
 from api.models import User, UserProfile
 from tournament.models import Tournament, MAX_PARTICIPANTS, DEFAULT_GAME_SETTINGS
 
+# Hint:
+# variables that hold database instances wont know about changes
+# need to account for that when testing for changes
+
 
 class TournamentModelTest(TestCase):
 
@@ -125,11 +129,24 @@ class TournamentModelTest(TestCase):
 
     def test_tournament_user_toggle_ready_state(self):
         self.tournament.add_participant(self.user_profiles[0])
-        # cant save tournament_user in a variable because its just a copy that wont
-        # know about the change
         self.assertEqual(False, self.tournament.participants.first().is_ready)
         self.tournament.toggle_ready_state_by(self.user_profiles[0])
         self.assertEqual(True, self.tournament.participants.first().is_ready)
 
-    #def test_tournament_are_participants_ready(self):
+    def test_tournament_are_participants_ready(self):
+        self.tournament.add_participant(self.user_profiles[0])
+        self.tournament.add_participant(self.user_profiles[1])
+        self.tournament.add_participant(self.user_profiles[2])
+        self.tournament.add_participant(self.user_profiles[3])
+        self.assertFalse(self.tournament.are_participants_ready())
+
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[1])
+        self.assertFalse(self.tournament.are_participants_ready())
+
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[2])
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[3])
+        self.assertTrue(self.tournament.are_participants_ready())
+
+
     #def test_tournament_create_game(self):

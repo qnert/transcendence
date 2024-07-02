@@ -16,6 +16,7 @@ DEFAULT_GAME_SETTINGS = {
 
 # TODO simplify with chatGPT
 
+
 class Tournament(models.Model):
 
     name = models.CharField(max_length=50, unique=True)
@@ -31,7 +32,10 @@ class Tournament(models.Model):
         ordering = ['created_at']
 
     def are_participants_ready(self):
-        # TODO implement
+        for participant in self.participants.all():
+            if not participant.is_ready:
+                return False
+        return True
 
     def add_participant(self, user_profile: UserProfile):
         if self.participants.filter(user_profile=user_profile).exists():
@@ -140,11 +144,11 @@ class Tournament(models.Model):
         tournament_user.is_ready = not tournament_user.is_ready
         tournament_user.save()
 
+
 class TournamentUser(models.Model):
 
     tournament = models.ForeignKey(Tournament, related_name='participants', on_delete=models.CASCADE)
-    user_profile = models.ForeignKey(UserProfile, related_name='tournament_members',
-                                    on_delete=models.CASCADE, null=True)
+    user_profile = models.ForeignKey(UserProfile, related_name='tournament_members', on_delete=models.CASCADE, null=True)
     is_ready = models.BooleanField(default=False)
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
