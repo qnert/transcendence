@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt  # TODO remove
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from tournament.models import Tournament
 from api.models import UserProfile
 import json
@@ -26,6 +26,7 @@ def tournament_lobby(request, lobby_name):
                 "participants": tournament.get_participants_names_and_statuses(),
                 "game_settings": tournament.get_game_settings(),
                 "is_host": tournament.is_host(user_profile),
+                "are_participants_ready": tournament.are_participants_ready(),
             }
         except UserProfile.DoesNotExist:
             return JsonResponse({"error": "User profile not found!"}, status=401)
@@ -36,16 +37,18 @@ def tournament_lobby(request, lobby_name):
         return render(request, "tournament_lobby.html", {"lobby": lobby})
 
 
+#   TODO deprecated?
 def tournament_api_get_list(request):
     if request.method == "GET":
         tournaments = list(Tournament.objects.all().values())
         return render(request, 'tournament_list.html', {'tag': 'option', 'tournaments': tournaments})
 
 
-def tournament_api_get_participants(request):
+#   TODO deprecated?
+def tournament_api_get_participants(request, lobby_name):
     if request.method == "GET":
         try:
-            user_profile = UserProfile.objects.get(user=request.user)
+            #user_profile = UserProfile.objects.get(user=request.user)
             tournament = Tournament.objects.get(name=lobby_name)
             participants = tournament.get_participants_names_and_statuses()
         except UserProfile.DoesNotExist:
@@ -57,6 +60,7 @@ def tournament_api_get_participants(request):
         return render(request, 'tournament_participants.html', {'participants': participants})
 
 
+#   TODO deprecated?
 def tournament_api_get_state(request):
     if request.method == "GET":
         tournament_name = request.GET.get("tournament_name")

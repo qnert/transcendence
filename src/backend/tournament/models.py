@@ -56,7 +56,7 @@ class Tournament(models.Model):
         self.save(update_fields=['state'])
 
     def create_game(self):
-        #TODO implement
+        # TODO implement
         if self.state != 'playing':
             raise ValidationError("Cannot create games in this phase")
 
@@ -84,7 +84,10 @@ class Tournament(models.Model):
         return self.participants.count()
 
     def get_participants_names(self):
-        return [f'{participant.user_profile.display_name}({participant.user_profile.user.username})' for participant in self.participants.all()]
+        obj = []
+        for participant in self.participants.all():
+            obj.append(f'{participant.user_profile.display_name}({participant.user_profile.user.username})')
+        return obj
 
     def get_participants_statuses(self):
         return [participant.is_ready for participant in self.participants.all()]
@@ -150,7 +153,8 @@ class Tournament(models.Model):
 class TournamentUser(models.Model):
 
     tournament = models.ForeignKey(Tournament, related_name='participants', on_delete=models.CASCADE)
-    user_profile = models.ForeignKey(UserProfile, related_name='tournament_members', on_delete=models.CASCADE, null=True)
+    user_profile = models.ForeignKey(UserProfile, related_name='tournament_members',
+                                     on_delete=models.CASCADE, null=True)
     is_ready = models.BooleanField(default=False)
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)

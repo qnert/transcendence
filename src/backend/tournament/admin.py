@@ -18,4 +18,3 @@ class TournamentAdmin(admin.ModelAdmin):
 
     def settings(self, obj):
         return obj.get_game_settings()
-
