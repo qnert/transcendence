@@ -80,6 +80,7 @@ class TournamentModelTest(TestCase):
         self.assertEqual(self.tournament.get_host(), self.tournament.participants.first())
 
     def test_tournament_set_game_settings(self):
+        """ checks set_game_settings method """
         with self.assertRaises(ValidationError):
             self.tournament.set_game_settings(None)
             self.tournament.set_game_settings({})
@@ -112,6 +113,7 @@ class TournamentModelTest(TestCase):
             self.assertEqual(getattr(tournament_user, key), value)
 
     def test_get_user_by_methods(self):
+        """ Checks get_user_by (username or user_profile) method behaviour """
         self.tournament.add_participant(self.user_profiles[0])
         self.tournament.add_participant(self.user_profiles[1])
         tmp = self.tournament.get_participant_by(user_profile=self.user_profiles[1])
@@ -120,21 +122,31 @@ class TournamentModelTest(TestCase):
         self.assertEqual(tmp, tmp_2)
 
     def test_is_host(self):
+        """ Checks is_host method behaviour """
         self.tournament.add_participant(self.user_profiles[0])
         self.tournament.add_participant(self.user_profiles[1])
-        self.assertEqual(True, self.tournament.is_host(user_profile=self.user_profiles[0]))
-        self.assertEqual(True, self.tournament.is_host(username=self.user_profiles[0].user.username))
-        self.assertEqual(False, self.tournament.is_host(user_profile=self.user_profiles[1]))
-        self.assertEqual(False, self.tournament.is_host(username=self.user_profiles[1].user.username))
+        self.assertTrue(self.tournament.is_host(user_profile=self.user_profiles[0]))
+        self.assertTrue(self.tournament.is_host(username=self.user_profiles[0].user.username))
+        self.assertFalse(self.tournament.is_host(user_profile=self.user_profiles[1]))
+        self.assertFalse(self.tournament.is_host(username=self.user_profiles[1].user.username))
 
     def test_tournament_user_toggle_ready_state(self):
+        """ Checks toggle_ready_state method behaviour """
         self.tournament.add_participant(self.user_profiles[0])
-        self.assertEqual(False, self.tournament.participants.first().is_ready)
+        self.assertFalse(self.tournament.participants.first().is_ready)
         self.tournament.toggle_ready_state_by(self.user_profiles[0])
-        self.assertEqual(True, self.tournament.participants.first().is_ready)
+        self.assertTrue(self.tournament.participants.first().is_ready)
 
     def test_tournament_are_participants_ready(self):
+        """ Checks are_participants_ready method behaviour """
         self.tournament.add_participant(self.user_profiles[0])
+        self.assertFalse(self.tournament.are_participants_ready())
+
+        # This test checks the where all particitpants are ready, but MAX_PARTICIPANTS has not been reached
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
+        self.assertFalse(self.tournament.are_participants_ready())
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
+
         self.tournament.add_participant(self.user_profiles[1])
         self.tournament.add_participant(self.user_profiles[2])
         self.tournament.add_participant(self.user_profiles[3])
@@ -148,5 +160,4 @@ class TournamentModelTest(TestCase):
         self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[3])
         self.assertTrue(self.tournament.are_participants_ready())
 
-
-    #def test_tournament_create_game(self):
+# def test_tournament_create_game(self):

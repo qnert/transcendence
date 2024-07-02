@@ -32,6 +32,8 @@ class Tournament(models.Model):
         ordering = ['created_at']
 
     def are_participants_ready(self):
+        if self.participants.count() < MAX_PARTICIPANTS:
+            return False
         for participant in self.participants.all():
             if not participant.is_ready:
                 return False
