@@ -18,13 +18,19 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
 
         // TODO simplify 
-
         let message = "";
-        if (data.username) {
-            message = `${data.username}: ${data.message}`;
-        } else if (data.message) {
-            message = `${data.message}`;
+        if (data.message){
+            message = data.message;
         }
+        else if (data.notification){
+            message = data.notification;
+        }
+
+        //if (data.username) {
+        //    message = `${data.username}: ${data.message}`;
+        //} else if (data.message) {
+        //    message = `${data.message}`;
+        //}
 
         // only put newline (before) if chat log is not empty
         // always scroll to the last message
@@ -41,6 +47,11 @@ export function tournamentLobbyInit(lobbyName, userName) {
         if (data.participants) {
             updateParticipantsList(data.participants);
         }
+
+        if (data.game_settings) {
+            updateGameSettingsList(data.game_settings);
+        }
+
     };
 
     tournamentLobbyChatInput.focus();
@@ -113,6 +124,11 @@ export function tournamentLobbyInit(lobbyName, userName) {
 async function updateParticipantsList(participants_html) {
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
     participantsList.innerHTML = participants_html;
+}
+
+async function updateGameSettingsList(game_settings_html) {
+    const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName('tbody')[0];
+    gameSettingsList.innerHTML = game_settings_html;
 }
 
 // =========================== CLEAN UP ===============================
