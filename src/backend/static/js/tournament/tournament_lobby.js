@@ -11,13 +11,12 @@ export function tournamentLobbyInit(lobbyName, userName) {
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
     const tournamentLobbyStatusToggler = document.getElementById("lobby-status-switch");
     const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form")
+    const tournamentLobbyAdvanceState = document.getElementById("lobby-advance-state-button");
     tournamentLobbySocket = new WebSocket("ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
 
     tournamentLobbySocket.onmessage = function (event) {
         const data = JSON.parse(event.data);
 
-
-        // TODO simplify 
         let message = "";
         if (data.message){
             message = data.message;
@@ -25,12 +24,6 @@ export function tournamentLobbyInit(lobbyName, userName) {
         else if (data.notification){
             message = data.notification;
         }
-
-        //if (data.username) {
-        //    message = `${data.username}: ${data.message}`;
-        //} else if (data.message) {
-        //    message = `${data.message}`;
-        //}
 
         // only put newline (before) if chat log is not empty
         // always scroll to the last message
@@ -48,8 +41,16 @@ export function tournamentLobbyInit(lobbyName, userName) {
             updateParticipantsList(data.participants);
         }
 
-        if (data.game_settings) {
-            updateGameSettingsList(data.game_settings);
+        if (data.game_settings_list) {
+            updateGameSettingsList(data.game_settings_list);
+        }
+
+        // TODO implement
+        if (data.game_settings_editor) {
+            console.log("got something");
+        }
+        if (data.advance_button) {
+            console.log("received advance button");
         }
 
     };
@@ -88,6 +89,12 @@ export function tournamentLobbyInit(lobbyName, userName) {
         }
     };
 
+    if (tournamentLobbyAdvanceState){
+        tournamentLobbyAdvanceState.onclick = function (event) {
+            event.preventDefault();
+            advanceState();
+        }
+    }
     if (tournamentLobbySettingsForm) {
         tournamentLobbySettingsForm.onsubmit = function (event) {
             event.preventDefault();
@@ -112,7 +119,7 @@ export function tournamentLobbyInit(lobbyName, userName) {
             }
 
             tournamentLobbySocket.send(JSON.stringify({
-                "game_settings": gameSettings,
+                "game_settings_edited": gameSettings,
             }));
         }
     }
@@ -129,6 +136,10 @@ async function updateParticipantsList(participants_html) {
 async function updateGameSettingsList(game_settings_html) {
     const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName('tbody')[0];
     gameSettingsList.innerHTML = game_settings_html;
+}
+
+async function advanceState(){
+    console.log("button pressed");
 }
 
 // =========================== CLEAN UP ===============================

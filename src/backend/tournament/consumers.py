@@ -22,7 +22,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
 
-        # Setup Channel and accept connection
         self.lobby_name = self.scope["url_route"]["kwargs"]["lobby_name"]
         self.lobby_group_name = f"chat_{self.lobby_name}"
         self.username = self.scope["url_route"]["kwargs"]["username"]
@@ -30,20 +29,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         # Setup necessary database variables
+        # Notify Group about joining and which will trigger rendering on all sockets
         await self.update_db_variables()
-
-        # Notify Group about joining and sending them new data to render
-        await self.update_content(notification=MSG_JOIN)
+        await self.send_chat_notification(MSG_JOIN)
 
     async def disconnect(self, close_code):
 
-        # Remove participant
-        await database_sync_to_async(self.tournament.remove_participant)(self.user_profile)
-
+        # Remove Participant from Lobby in DB
         # Notify Group about leaving and sending them new data to render
-        await self.update_content(notification=MSG_LEAVE)
-
         # Clean Group, Tournament if necessary
+        await database_sync_to_async(self.tournament.remove_participant)(self.user_profile)
+        await self.send_chat_notification(MSG_LEAVE)
         await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
         await database_sync_to_async(self.tournament.delete_if_empty)()
 
@@ -51,19 +47,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         text_data_json = json.loads(text_data)
 
-        #   TODO participant Event?
-        #   TODO notification Event?
-
-        #   TODO should be renamed in front/ and backend
         #   Status Event:
         #   Toggle profiles status, update variables, update content for all users
         if "status" in text_data_json:
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
-            await self.update_db_variables()
             if await database_sync_to_async(lambda: self.tournament_user.is_ready)():
-                await self.update_content(notification=MSG_IS_READY)
+                await self.send_chat_notification(MSG_IS_NOT_READY)
             else:
-                await self.update_content(notification=MSG_IS_NOT_READY)
+                await self.send_chat_notification(MSG_IS_READY)
 
         #   Message Event:
         #   Post message to all users
@@ -72,31 +63,30 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         #   Settings Event:
         #   Change settings in database, update variables, update content for all users
-        if "game_settings" in text_data_json:
-            game_settings = text_data_json['game_settings']
-            await database_sync_to_async(self.tournament.set_game_settings)(game_settings)
-            await self.update_db_variables()
-            await self.update_content(notification=MSG_SETTINGS_CHANGED)
+        if "game_settings_edited" in text_data_json:
+            game_settings_edited = text_data_json['game_settings_edited']
+            await database_sync_to_async(self.tournament.set_game_settings)(game_settings_edited)
+            await self.send_chat_notification(MSG_SETTINGS_CHANGED)
 
 #   ==========================     UPDATE ROUTINES
 
     async def build_nickname(self):
-        if await database_sync_to_async(self.tournament.is_host)(username=self.username):
+        if self.is_host:
             return f'👑 {self.user_profile.display_name}({self.username})'
         return f'🐸 {self.user_profile.display_name}({self.username})'
 
-    async def update_content(self, notification=None, message=None):
-        if notification:
-            await self.send_chat_notification(notification)
-        elif message:
-            await self.send_chat_message(message)
+    async def update_content(self):
         await self.send_participant_list()
-        await self.send_game_settings()
+        await self.send_game_settings_list()
+        if self.is_host:
+            await self.send_game_settings_editor()
+            await self.send_advance_button()
 
     async def update_db_variables(self):
         self.tournament = await database_sync_to_async(Tournament.objects.get)(name=self.lobby_name)
         self.tournament_user = await database_sync_to_async(self.tournament.get_participant_by)(username=self.username)
         self.user_profile = await database_sync_to_async(lambda: self.tournament_user.user_profile)()
+        self.is_host = await database_sync_to_async(self.tournament.is_host)(user_profile=self.user_profile)
         self.nickname = await self.build_nickname()
 
 #   ==========================     SEND FUNCTIONS
@@ -122,22 +112,42 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     async def send_participant_list(self):
         participants = await database_sync_to_async(self.tournament.get_participants_names_and_statuses)()
         participants_html = await database_sync_to_async(render_to_string)('tournament_participants.html', {'participants': participants})
-        await self.channel_layer.group_send(
-            self.lobby_group_name,
+        await self.channel_layer.send(
+            self.channel_name,
             {
                 'type': 'event_participants',
                 'participants': participants_html,
             }
         )
 
-    async def send_game_settings(self):
-        game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
-        game_settings_html = await database_sync_to_async(render_to_string)('tournament_game_settings_list.html', {'game_settings': game_settings})
-        await self.channel_layer.group_send(
-            self.lobby_group_name,
+    async def send_game_settings_list(self):
+        game_settings_list = await database_sync_to_async(self.tournament.get_game_settings)()
+        game_settings_list_html = await database_sync_to_async(render_to_string)('tournament_game_settings_list.html', {'game_settings': game_settings_list})
+        await self.channel_layer.send(
+            self.channel_name,
             {
-                'type': 'event_game_settings',
-                'game_settings': game_settings_html,
+                'type': 'event_game_settings_list',
+                'game_settings_list': game_settings_list_html,
+            }
+        )
+
+    async def send_game_settings_editor(self):
+        game_settings_editor_html = await database_sync_to_async(render_to_string)('tournament_game_settings_editor.html')
+        await self.channel_layer.send(
+            self.channel_name,
+            {
+                'type': 'event_game_settings_editor',
+                'game_settings_editor': game_settings_editor_html,
+            }
+        )
+
+    async def send_advance_button(self):
+        advance_button_html = await database_sync_to_async(render_to_string)('tournament_advance_button.html')
+        await self.channel_layer.send(
+            self.channel_name,
+            {
+                'type': 'event_advance_button',
+                'advance_button': advance_button_html,
             }
         )
 
@@ -150,9 +160,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         }))
 
     async def event_chat_notification(self, event):
-        message = event["notification"]
+        await self.update_db_variables()
+        await self.update_content()
+        notification = event["notification"]
         await self.send(text_data=json.dumps({
-            'message': message,
+            'notification': notification,
         }))
 
     async def event_participants(self, event):
@@ -161,8 +173,20 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             'participants': participants_html,
         }))
 
-    async def event_game_settings(self, event):
-        game_settings_html = event['game_settings']
+    async def event_game_settings_list(self, event):
+        game_settings_list_html = event['game_settings_list']
         await self.send(text_data=json.dumps({
-            'game_settings': game_settings_html,
+            'game_settings_list': game_settings_list_html,
+        }))
+    
+    async def event_game_settings_editor(self, event):
+        game_settings_editor_html = event['game_settings_editor']
+        await self.send(text_data=json.dumps({
+            'game_settings_editor': game_settings_editor_html,
+        }))
+
+    async def event_advance_button(self, event):
+        advance_button_html = event['advance_button']
+        await self.send(text_data=json.dumps({
+            'advance_button': advance_button_html,
         }))
