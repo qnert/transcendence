@@ -16,7 +16,7 @@ export function startGameButton() {
 
             document.getElementById('gameContainer').style.display = 'block';
 
-            document.getElementById('resetGameButton').style.display = 'block';
+            document.getElementById('resetGameButton').style.display = 'none';
 
             start_game();
         };
@@ -366,7 +366,7 @@ export function start_game() {
   function check_and_change_dir_ball() {
     if (ball.y > boardHeight - ball.height/2){
       if (advanced_mode == true)
-            ball.y = 1;
+            ball.y = ball.height/2 + 1;
       else{
           ball.y = boardHeight - ball.height / 2;
           ball.speedY *= -1;
@@ -374,7 +374,7 @@ export function start_game() {
     }
     if (ball.y < ball.height/2){
         if (advanced_mode == true)
-            ball.y = boardHeight - ballHeight/2 - 1;
+            ball.y = boardHeight - ballHeight/2;
         else{
             ball.y = ball.height / 2;
             ball.speedY *= -1;
