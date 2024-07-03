@@ -10,19 +10,33 @@
     #lobby-game-info-box {
         justify-content: center;
         align-items: center;
-        margin-bottom: 200px;
+        margin-bottom: 150px;
         #lobby-participants-list {
+        }
+        #lobby-game-settings-edit-box{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content:center;
+            #lobby-game-settings-host-form{
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 10px;
+                justify-content: center;
+                align-items:center;
+            }
         }
     }
 
 /* =====================  BOTTOM  ===================== */
 
     #lobby-footer-box {
-            position: fixed;
-            bottom: 10px;
-            display: grid;
-            `grid-template-columns: auto;
-            column-gap: 10px;
+        padding: 10px;
+        position: fixed;
+        bottom: 10px;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        column-gap: 10px;
         
         #lobby-chat-box{
             #lobby-chat-log-box {
@@ -46,11 +60,12 @@
         }
 
         #lobby-controls-box{
+            height:100%;
             display: flex;
             flex-direction: column;
-            justify-content: start;
+            justify-content: flex-start;
             align-items: center;
-            gap: 10px
+            gap: 10%;
             #lobby-status-switch-box{
                 flex-direction: row;
                 align-items: center;

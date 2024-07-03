@@ -8,7 +8,7 @@
 {% comment %} =============================    HEADER BOX    ===================== {% endcomment %}
 
     <div id="lobby-header-box" class=borderedBox>
-
+        <h1><small>Welcome to Lobby</small> {{ lobby.name }}</h1>
     </div>
 
 
@@ -16,6 +16,7 @@
 
     <div id="lobby-game-info-box" class=borderedBox>
 
+        <h2><em>{{ lobby.state }}</em> - Phase</h2>
         <table class="table" id="lobby-participants-list">
             <thead class="thead-dark">
                 <tr>

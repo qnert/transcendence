@@ -1,24 +1,27 @@
-<form id="lobby-game-settings-host-form">
-  <label for="ballSpeed" id="labelBallSpeed">Ball Speed:</label>
-  <input id="ballSpeed" type="number" max="12" min="4" value="8" required />
+<div id="lobby-game-settings-edit-box">
+  <h2>Edit Game Settings </h2>
 
-  <label for="maxScore" id="labelMaxScore">Max Score:</label>
-  <input id="maxScore" type="number" max="12" min="4" value="8" required />
+  <form id="lobby-game-settings-host-form">
+          <label for="ballSpeed" id="labelBallSpeed">Ball Speed:</label>
+          <input id="ballSpeed" type="number" max="12" min="4" value="8" required />
 
-  <label for="background" id="labelBackground">Background Color:</label>
-  <input id="background" type="color" value="#ffffff" required />
+          <label for="maxScore" id="labelMaxScore">Max Score:</label>
+          <input id="maxScore" type="number" max="12" min="4" value="8" required />
 
-  <label for="borders" id="labelBorders">Border Color:</label>
-  <input id="borders" type="color" value="#0000ff" required />
+          <label for="background" id="labelBackground">Background Color:</label>
+          <input id="background" type="color" value="#ffffff" required />
 
-  <label for="ballColor" id="labelBallColor">Ball Color:</label>
-  <input id="ballColor" type="color" value="#0000ff" required />
+          <label for="borders" id="labelBorders">Border Color:</label>
+          <input id="borders" type="color" value="#0000ff" required />
 
-  <label for="advancedMode" id="labelAdvancedMode">Advanced Mode:</label>
-  <input id="advancedMode" type="checkbox" />
+          <label for="ballColor" id="labelBallColor">Ball Color:</label>
+          <input id="ballColor" type="color" value="#0000ff" required />
 
-  <label for="powerUps" id="labelPowerUps">Power Ups:</label>
-  <input id="powerUps" type="checkbox" />
+          <label for="advancedMode" id="labelAdvancedMode">Advanced Mode:</label>
+          <input id="advancedMode" type="checkbox" />
 
-  <button type="submit" id="lobby-game-settings-host-form-submit"  form="lobby-game-settings-host-form" class="btn btn-primary">Save Settings</button>
-</form>
+          <label for="powerUps" id="labelPowerUps">Power Ups:</label>
+          <input id="powerUps" type="checkbox" />
+  </form>
+      <button type="submit" id="lobby-game-settings-host-form-submit"  form="lobby-game-settings-host-form" class="btn btn-primary">Save Settings</button>
+</div>
