@@ -25,7 +25,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% include 'tournament_participants.html' with participants=lobby.participants %}
+                {% comment %} tournament_participants.html {% endcomment %}
             </tbody>
         </table>
 
@@ -36,14 +36,13 @@
                 <th scope="col">Value</th>
               </tr>
             </thead>
-            <tbody>
-                {% include 'tournament_game_settings_list.html' with game_settings=lobby.game_settings %}
+            <tbody> 
+                {% comment %} tournament_game_settings_list.html {% endcomment %}
             </tbody>
         </table>
 
-        {% if lobby.is_host %}
-            {% include 'tournament_game_settings_editor.html' %}
-        {% endif %}
+        <div id="lobby-game-settings-editor-box">
+        </div>
 
     </div>
 
@@ -67,9 +66,9 @@
                 <input class="form-check-input" type="checkbox" role="switch" name="readyState" id="lobby-status-switch" unchecked>
                 <label class="form-check-label" for="lobby-status-switch">Set Ready Status</label>
             </div>
-            {% if lobby.is_host %}
-                {% include 'tournament_advance_button.html' %}
-            {% endif %}
+            <div id="lobby-advance-button-box">
+                {% comment %} tournament_advance_button.html {% endcomment %}
+            </div>
         </div>
     </div>
 

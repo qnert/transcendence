@@ -14,46 +14,8 @@ export function tournamentLobbyInit(lobbyName, userName) {
     const tournamentLobbyAdvanceState = document.getElementById("lobby-advance-state-button");
     tournamentLobbySocket = new WebSocket("ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
 
-    tournamentLobbySocket.onmessage = function (event) {
-        const data = JSON.parse(event.data);
+    tournamentLobbySocket.onmessage = (event) => socketMessageHandler(event, tournamentLobbyChatLog);
 
-        let message = "";
-        if (data.message){
-            message = data.message;
-        }
-        else if (data.notification){
-            message = data.notification;
-        }
-
-        // only put newline (before) if chat log is not empty
-        // always scroll to the last message
-        if (message){
-            if (!tournamentLobbyChatLog.value){
-                tournamentLobbyChatLog.value += message;
-            }
-            else{
-                tournamentLobbyChatLog.value += "\n" + message;
-            }
-            tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
-        }
-
-        if (data.participants) {
-            updateParticipantsList(data.participants);
-        }
-
-        if (data.game_settings_list) {
-            updateGameSettingsList(data.game_settings_list);
-        }
-
-        // TODO implement
-        if (data.game_settings_editor) {
-            console.log("got something");
-        }
-        if (data.advance_button) {
-            console.log("received advance button");
-        }
-
-    };
 
     tournamentLobbyChatInput.focus();
     tournamentLobbyChatInput.onkeyup = function (event) {
@@ -123,19 +85,55 @@ export function tournamentLobbyInit(lobbyName, userName) {
             }));
         }
     }
-
 }
+
+
+
 
 // =========================== HELPERS ===============================
 
-async function updateParticipantsList(participants_html) {
-    const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
-    participantsList.innerHTML = participants_html;
+const socketMessageHandler = (event, tournamentLobbyChatLog) => {
+        const data = JSON.parse(event.data);
+        let message = "";
+ 
+        if (data.message){ message = data.message; }
+        else if (data.notification){ message = data.notification; }
+        if (message) { updateChatLog(message, tournamentLobbyChatLog); }
+        else if (data.participants) { updateParticipantsList(data.participants); }
+        else if (data.game_settings_list) { updateGameSettingsList(data.game_settings_list); }
+        else if (data.game_settings_editor) { renderGameSettingsEditor(data.game_settings_editor); }
+        else if (data.advance_button) { renderAdvanceButton(data.advance_button); }
+        attachLobbyEventListeners();
 }
 
-async function updateGameSettingsList(game_settings_html) {
+// =========================== Server Side Rendering ===============================
+
+function updateChatLog(message, tournamentLobbyChatLog) {
+    // put no newline on first message
+    if (!tournamentLobbyChatLog.value) { tournamentLobbyChatLog.value += message; }
+    else { tournamentLobbyChatLog.value += "\n" + message; }
+    // scroll so new messages can be seen
+    tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
+}
+
+function updateParticipantsList(participantsHTML) {
+    const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
+    participantsList.innerHTML = participantsHTML;
+}
+
+function updateGameSettingsList(gameSettingsHTML) {
     const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName('tbody')[0];
-    gameSettingsList.innerHTML = game_settings_html;
+    gameSettingsList.innerHTML = gameSettingsHTML;
+}
+
+function renderGameSettingsEditor(gameSettingsEditorHTML) {
+    const gameInfoBox = document.getElementById("lobby-game-settings-editor-box");
+    gameInfoBox.innerHTML = gameSettingsEditorHTML;
+}
+
+function renderAdvanceButton(advanceButtonHTML) {
+    const controlsBox = document.getElementById("lobby-advance-button-box");
+    controlsBox.innerHTML = advanceButtonHTML;
 }
 
 async function advanceState(){
