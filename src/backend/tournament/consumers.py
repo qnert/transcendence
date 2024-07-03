@@ -46,23 +46,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
 
         text_data_json = json.loads(text_data)
+        
+        if "message" in text_data_json:
+            await self.send_chat_message(text_data_json['message'])
 
-        #   Status Event:
-        #   Toggle profiles status, update variables, update content for all users
-        if "status" in text_data_json:
+        if "status_change" in text_data_json:
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
             if await database_sync_to_async(lambda: self.tournament_user.is_ready)():
                 await self.send_chat_notification(MSG_IS_NOT_READY)
             else:
                 await self.send_chat_notification(MSG_IS_READY)
 
-        #   Message Event:
-        #   Post message to all users
-        if "message" in text_data_json:
-            await self.send_chat_message(text_data_json['message'])
-
-        #   Settings Event:
-        #   Change settings in database, update variables, update content for all users
         if "game_settings_edited" in text_data_json:
             game_settings_edited = text_data_json['game_settings_edited']
             await database_sync_to_async(self.tournament.set_game_settings)(game_settings_edited)

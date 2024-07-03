@@ -16,7 +16,6 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
     tournamentLobbySocket.onmessage = (event) => socketMessageHandler(event, tournamentLobbyChatLog);
 
-
     tournamentLobbyChatInput.focus();
     tournamentLobbyChatInput.onkeyup = function (event) {
         if (event.key === "Enter") {
@@ -27,8 +26,7 @@ export function tournamentLobbyInit(lobbyName, userName) {
     tournamentLobbyChatSubmit.onclick = function () {
         const message = tournamentLobbyChatInput.value;
         if (message.trim() !== "") {
-            tournamentLobbySocket.send(
-                JSON.stringify({
+            tournamentLobbySocket.send(JSON.stringify({
                     message: message,
                 })
             );
@@ -37,58 +35,11 @@ export function tournamentLobbyInit(lobbyName, userName) {
     };
 
     tournamentLobbyStatusToggler.onchange = function () {
-        // TODO event prevent default?
-        // TODO simplify
-        if (tournamentLobbyStatusToggler.checked) {
-            tournamentLobbySocket.send(JSON.stringify({
-                status:true,
-            }));
-        }
-        else {
-            tournamentLobbySocket.send(JSON.stringify({
-                status:false,
-            }));
-        }
+        tournamentLobbySocket.send(JSON.stringify({
+            status_change: true,
+        }));
     };
-
-    if (tournamentLobbyAdvanceState){
-        tournamentLobbyAdvanceState.onclick = function (event) {
-            event.preventDefault();
-            advanceState();
-        }
-    }
-    if (tournamentLobbySettingsForm) {
-        tournamentLobbySettingsForm.onsubmit = function (event) {
-            event.preventDefault();
-
-            // TODO simplify
-            const ballSpeed = document.getElementById('ballSpeed').value;
-            const maxScore = document.getElementById('maxScore').value;
-            const backgroundColor = document.getElementById('background').value;
-            const borderColor = document.getElementById('borders').value;
-            const ballColor = document.getElementById('ballColor').value;
-            const advancedMode = document.getElementById('advancedMode').checked;
-            const powerUps = document.getElementById('powerUps').checked;
-
-            const gameSettings = {
-                "ball_speed": ballSpeed,
-                "max_score": maxScore,
-                "background_color": backgroundColor,
-                "border_color": borderColor,
-                "ball_color": ballColor,
-                "advanced_mode": advancedMode,
-                "power_ups": powerUps,
-            }
-
-            tournamentLobbySocket.send(JSON.stringify({
-                "game_settings_edited": gameSettings,
-            }));
-        }
-    }
 }
-
-
-
 
 // =========================== HELPERS ===============================
 
@@ -103,7 +54,38 @@ const socketMessageHandler = (event, tournamentLobbyChatLog) => {
         else if (data.game_settings_list) { updateGameSettingsList(data.game_settings_list); }
         else if (data.game_settings_editor) { renderGameSettingsEditor(data.game_settings_editor); }
         else if (data.advance_button) { renderAdvanceButton(data.advance_button); }
-        attachLobbyEventListeners();
+        
+         /* note: in case this socket has become the host, some eventListeners have to be reattached */
+        attachdynamicEventListeners();
+}
+
+const attachdynamicEventListeners = function () {
+    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form")
+    const tournamentLobbyAdvanceState = document.getElementById("lobby-advance-state-button");
+    if (tournamentLobbyAdvanceState){
+        tournamentLobbyAdvanceState.onclick = function (event) {
+            event.preventDefault();
+            console.log("advance tournament button pressed");
+            // TODO implement
+        }
+    }
+    if (tournamentLobbySettingsForm) {
+        tournamentLobbySettingsForm.onsubmit = function (event) {
+            event.preventDefault();
+            const gameSettings = {
+                "ball_speed": document.getElementById('ballSpeed').value,
+                "max_score": document.getElementById('maxScore').value,
+                "background_color": document.getElementById('background').value,
+                "border_color": document.getElementById('borders').value,
+                "ball_color": document.getElementById('ballColor').value,
+                "advanced_mode": document.getElementById('advancedMode').checked,
+                "power_ups": document.getElementById('powerUps').checked,
+            }
+            tournamentLobbySocket.send(JSON.stringify({
+                "game_settings_edited": gameSettings,
+            }));
+        };
+    }
 }
 
 // =========================== Server Side Rendering ===============================
@@ -134,10 +116,6 @@ function renderGameSettingsEditor(gameSettingsEditorHTML) {
 function renderAdvanceButton(advanceButtonHTML) {
     const controlsBox = document.getElementById("lobby-advance-button-box");
     controlsBox.innerHTML = advanceButtonHTML;
-}
-
-async function advanceState(){
-    console.log("button pressed");
 }
 
 // =========================== CLEAN UP ===============================
