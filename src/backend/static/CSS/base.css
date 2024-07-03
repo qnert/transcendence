@@ -40,7 +40,7 @@ body {
     width: 100%; /* Full viewport width */
     min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
     padding-top: 75px;
-    padding-bottom: 150px;
+    padding-bottom: 75px;
 
     h1,
     h2,

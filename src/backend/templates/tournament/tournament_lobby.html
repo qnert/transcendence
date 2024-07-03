@@ -1,14 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
+
+{% comment %} =============================    NEW_CONTENT    ===================== {% endcomment %}
+
   <div id="newContent">
-      <h2>Welcome to [<em>{{ lobby.name }}</em>, State: {{ lobby.state }}</h2>
+
+{% comment %} =============================    HEADER BOX    ===================== {% endcomment %}
 
     <div id="lobby-header-box" class=borderedBox>
 
-        <div class="form-check form-switch" id="lobby-status-switch-box">
-            <input class="form-check-input" type="checkbox" role="switch" name="readyState" id="lobby-status-switch" unchecked>
-            <label class="form-check-label" for="lobby-status-switch">Set Ready Status</label>
-        </div>
+    </div>
+
+
+{% comment %} =============================    GAME / INFO BOX    ===================== {% endcomment %}
+
+    <div id="lobby-game-info-box" class=borderedBox>
 
         <table class="table" id="lobby-participants-list">
             <thead class="thead-dark">
@@ -22,33 +28,51 @@
             </tbody>
         </table>
 
-      <table class="table" id="lobby-game-settings-list">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">Setting</th>
-            <th scope="col">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% include 'tournament_game_settings_list.html' with game_settings=lobby.game_settings %}
-        </tbody>
-      </table>
+        <table class="table" id="lobby-game-settings-list">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">Setting</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% include 'tournament_game_settings_list.html' with game_settings=lobby.game_settings %}
+            </tbody>
+        </table>
 
-        <div id="lobby-chat-log-box" >
-            <textarea class="form-control" id="lobby-chat-log" readonly></textarea>
+        {% if lobby.is_host %}
+            {% include 'tournament_game_settings_edit.html' %}
+        {% endif %}
+
+    </div>
+
+{% comment %} =============================    FOOTER BOX    ===================== {% endcomment %}
+    
+    <div class="borderedBox" id="lobby-footer-box">
+        
+        <div id="lobby-chat-box">
+            <div id="lobby-chat-log-box" >
+                <textarea class="form-control" id="lobby-chat-log" readonly></textarea>
+            </div>
+            <div id="lobby-chat-input-box">
+              <input class="form-control" id="lobby-chat-message-input" placeholder="Enter your message"  type="text" />
+              <input class="btn btn-primary" id="lobby-chat-message-submit" type="button" value="Send" />
+            </div>
+        </div>
+
+        <div id="lobby-controls-box">
+            <h2>[ {{ lobby.name }} ] [ <em>{{ lobby.state }}</em> ]</h2>
+            <div class="form-check form-switch" id="lobby-status-switch-box">
+                <input class="form-check-input" type="checkbox" role="switch" name="readyState" id="lobby-status-switch" unchecked>
+                <label class="form-check-label" for="lobby-status-switch">Set Ready Status</label>
+            </div>
         </div>
 
     </div>
 
-    {% if lobby.is_host %}
-        {% include 'tournament_game_settings_edit.html' %}
-    {% endif %}
-
-    <div class="borderedBox" id="lobby-chat-input-box">
-      <input class="form-control" id="lobby-chat-message-input" placeholder="Enter your message"  type="text" />
-      <input class="btn btn-primary" id="lobby-chat-message-submit" type="button" value="Send" />
-    </div>
-
     {{ lobby.name|json_script:'lobby_name' }}
+
+
+{% comment %} =============================    END NEW_CONTENT    ===================== {% endcomment %}
   </div>
 {% endblock %}

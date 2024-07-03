@@ -3,50 +3,61 @@
 /* =====================  TOP  ===================== */
 
     #lobby-header-box{
+    }
 
-        #lobby-status-switch-box{
-            input {
-                border: solid 1px var(--COLOR-BASE-ACCENT);
-            }
-        }
+/* =====================  Game / INFO BOX  ===================== */
 
+    #lobby-game-info-box {
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 200px;
         #lobby-participants-list {
-        }
-
-        #lobby-chat-log-box {
-            width: 100%;
-
-            #lobby-chat-log {
-                min-height: 100px;
-                resize: none;
-                margin: 0;
-                padding-top :0;
-                padding-bottom: 0;
-                box-sizing: border-box;
-            }
         }
     }
 
-/* =====================  GAME BOX  ===================== */
-
-
-
-
-
 /* =====================  BOTTOM  ===================== */
 
-    #lobby-chat-input-box {
-        width: 75%;
-        position: fixed;
-        bottom: 5px;
-        display: flex;
-        flex-direction: row;
-        gap: 1%;
-        input {
-            text-align: left;
+    #lobby-footer-box {
+            position: fixed;
+            bottom: 10px;
+            display: grid;
+            `grid-template-columns: auto;
+            column-gap: 10px;
+        
+        #lobby-chat-box{
+            #lobby-chat-log-box {
+                #lobby-chat-log {
+                    min-height: 100px;
+                    resize: none;
+                    margin: 0;
+                    padding-top :0;
+                    padding-bottom: 0;
+                    box-sizing: border-box;
+                }
+            }
+            #lobby-chat-input-box {
+                display: flex;
+                flex-direction: row;
+                gap: 1%;
+                input {
+                    text-align: left;
+                }
+            }
         }
-        button {
-            margin-bottom: 1%;
+
+        #lobby-controls-box{
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            align-items: center;
+            gap: 10px
+            #lobby-status-switch-box{
+                flex-direction: row;
+                align-items: center;
+                input {
+                    border: solid 1px var(--COLOR-BASE-ACCENT);
+                }
+            }
         }
     }
 
