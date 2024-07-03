@@ -7,9 +7,9 @@ MAX_PARTICIPANTS = 4
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '8',
     "max_score": '8',
-    "background_color": '0',
-    "border_color": '0',
-    "ball_color": '0',
+    "background_color": '#ffffff',
+    "border_color": '#0000ff',
+    "ball_color": '#0000ff',
     "advanced_mode": False,
     "power_ups": False
 }

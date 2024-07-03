@@ -52,6 +52,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         if "status_change" in text_data_json:
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
+            # because self.tournament_user doesnt reflect toggle change, the logic is the opposite
             if await database_sync_to_async(lambda: self.tournament_user.is_ready)():
                 await self.send_chat_notification(MSG_IS_NOT_READY)
             else:

@@ -1,6 +1,12 @@
 {% for key, value in game_settings.items %}
 <tr>
     <td>{{ key }}</td>
+    {% if key == "background_color" or key == "border_color" or key == "ball_color" %}
+    <td> 
+        <div class="game-settings-color" style="background-color: {{ value }};"></div>
+    </td>
+    {% else %}
     <td>{{ value }}</td>
+    {% endif %}
 </tr>
 {% endfor %}

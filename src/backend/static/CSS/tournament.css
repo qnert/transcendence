@@ -1,5 +1,12 @@
 #newContent {
 
+    .game-settings-color{
+        width: 20px;
+        height: 20px;
+        border: solid black 2px;
+        margin: 0 auto;
+    }
+
 /* =====================  TOP  ===================== */
 
     #lobby-header-box{
@@ -12,6 +19,8 @@
         align-items: center;
         margin-bottom: 150px;
         #lobby-participants-list {
+        }
+        #lobby-game-settings-list{
         }
         #lobby-game-settings-editor{
             display: flex;
