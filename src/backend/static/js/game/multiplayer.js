@@ -260,8 +260,8 @@ export function resetRemoteGameButton() {
 			const startRemoteGame = document.getElementById("startRemoteGame");
 			if(startRemoteGame){
 				document.getElementById("startRemoteGame").style.display = "none";
-			}	
-          if (id !== 0){ 
+			}
+          if (id !== 0){
             if (username == connected_users[0])
               alert(`${connected_users[1]} left the game!`);
             else
@@ -353,7 +353,7 @@ function start_game() {
   document.getElementById("myForm").style.display = "none";
     document.getElementById("roomInfo").style.display = "none";
     document.getElementById("versusScreen").style.display = "none";
-    document.getElementById("gameContainer").style.display = "block"; 
+    document.getElementById("gameContainer").style.display = "block";
     document.getElementById("board").style.display = "block";
     if (username == connected_users[0]){
       document.getElementById("left_player").innerText = username;
@@ -612,7 +612,7 @@ function start_game() {
   function check_and_change_dir_ball() {
     if (ball.y > boardHeight - ball.height/2){
       if (advanced_mode == true)
-            ball.y = ball.height / 2;
+            ball.y = ball.height/2;
       else{
           ball.y = boardHeight - ball.height / 2;
           ball.speedY *= -1;
@@ -622,7 +622,7 @@ function start_game() {
         if (advanced_mode == true)
             ball.y = boardHeight - ballHeight/2;
         else{
-            ball.y = ball.height / 2;
+            ball.y = ball.height/2;
             ball.speedY *= -1;
         }
     }
