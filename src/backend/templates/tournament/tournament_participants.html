@@ -1,6 +1,19 @@
-{% for participant in lobby.participants %}
-<tr>
-    <td>{{ participant }}</td>
-    <td>participant status</td>
-</tr>
+{% for participant in participants %}
+  <tr>
+    <td>
+      {% if forloop.first %}
+        👑
+      {% else %}
+        🐸
+      {% endif %}
+      {{ participant.name }}
+    </td>
+    <td>
+      {% if participant.status %}
+        ✅
+      {% else %}
+        ❌
+      {% endif %}
+    </td>
+  </tr>
 {% endfor %}

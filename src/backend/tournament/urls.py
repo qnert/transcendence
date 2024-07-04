@@ -11,5 +11,5 @@ urlpatterns = [
     # TODO remove at some point if not used
     path('api/get_list/', views.tournament_api_get_list, name="get_list"),
     path('api/get_state/', views.tournament_api_get_state, name="get_state"),
-    path('api/get_participants/', views.tournament_api_get_participants, name="get_participants"),
+    path('api/get_participants/<str:lobby_name>/', views.tournament_api_get_participants, name="get_participants"),
 ]

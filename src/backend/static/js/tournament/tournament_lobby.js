@@ -9,36 +9,10 @@ export function tournamentLobbyInit(lobbyName, userName) {
     const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
+    const tournamentLobbyStatusToggler = document.getElementById("lobby-status-switch");
     tournamentLobbySocket = new WebSocket("ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
 
-    tournamentLobbySocket.onmessage = function (event) {
-        const data = JSON.parse(event.data);
-
-        // TODO get display_name aswell
-        let message = "";
-        if (data.username) {
-            message = `${data.username}: ${data.message}`;
-        } else if (data.message) {
-            message = `${data.message}`;
-        }
-
-        // only put newline (before) if chat log is not empty
-        // always scroll to the last message
-        if (message){
-            if (!tournamentLobbyChatLog.value){
-                tournamentLobbyChatLog.value += message;
-            }
-            else{
-                tournamentLobbyChatLog.value += "\n" + message;
-            }
-            tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
-        }
-
-        if (data.participants) {
-            updateParticipantsList(data.participants);
-        }
-
-    };
+    tournamentLobbySocket.onmessage = (event) => socketMessageHandler(event, tournamentLobbyChatLog);
 
     tournamentLobbyChatInput.focus();
     tournamentLobbyChatInput.onkeyup = function (event) {
@@ -49,7 +23,6 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
     tournamentLobbyChatSubmit.onclick = function () {
         const message = tournamentLobbyChatInput.value;
-        console.log("message");
         if (message.trim() !== "") {
             tournamentLobbySocket.send(
                 JSON.stringify({
@@ -59,30 +32,111 @@ export function tournamentLobbyInit(lobbyName, userName) {
         }
         tournamentLobbyChatInput.value = "";
     };
+
+    tournamentLobbyStatusToggler.onchange = function () {
+        tournamentLobbySocket.send(
+            JSON.stringify({
+                status_change: true,
+            })
+        );
+    };
 }
 
 // =========================== HELPERS ===============================
 
-function updateParticipantsList(participants) {
-    const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
-    participantsList.innerHTML = '';  // Clear the current list
-    participants.forEach(participant => {
-        const row = document.createElement("tr");
-        const participantCell = document.createElement("td");
-        participantCell.textContent = participant;
-        const statusCell = document.createElement("td");
-        statusCell.textContent = 'participant status';  // Replace with actual status if available
-        row.appendChild(participantCell);
-        row.appendChild(statusCell);
-        participantsList.appendChild(row);
-    });
+const socketMessageHandler = (event, tournamentLobbyChatLog) => {
+    const data = JSON.parse(event.data);
+    let message = "";
+
+    if (data.message) {
+        message = data.message;
+    } else if (data.notification) {
+        message = data.notification;
+    }
+    if (message) {
+        updateChatLog(message, tournamentLobbyChatLog);
+    } else if (data.participants) {
+        updateParticipantsList(data.participants);
+    } else if (data.game_settings_list) {
+        updateGameSettingsList(data.game_settings_list);
+    } else if (data.game_settings_editor) {
+        renderGameSettingsEditor(data.game_settings_editor);
+    } else if (data.advance_button) {
+        renderAdvanceButton(data.advance_button);
+    }
+
+    /* note: in case this socket has become the host, some eventListeners have to be reattached */
+    attachdynamicEventListeners();
+};
+
+const attachdynamicEventListeners = function () {
+    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
+    const tournamentLobbyAdvanceState = document.getElementById("lobby-advance-state-button");
+    if (tournamentLobbyAdvanceState) {
+        tournamentLobbyAdvanceState.onclick = function (event) {
+            event.preventDefault();
+            console.log("advance tournament button pressed");
+            // TODO implement
+        };
+    }
+    if (tournamentLobbySettingsForm) {
+        tournamentLobbySettingsForm.onsubmit = function (event) {
+            event.preventDefault();
+            const gameSettings = {
+                ball_speed: document.getElementById("ballSpeed").value,
+                max_score: document.getElementById("maxScore").value,
+                background_color: document.getElementById("background").value,
+                border_color: document.getElementById("borders").value,
+                ball_color: document.getElementById("ballColor").value,
+                advanced_mode: document.getElementById("advancedMode").checked,
+                power_ups: document.getElementById("powerUps").checked,
+            };
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    game_settings_edited: gameSettings,
+                })
+            );
+        };
+    }
+};
+
+// =========================== Server Side Rendering ===============================
+
+function updateChatLog(message, tournamentLobbyChatLog) {
+    // put no newline on first message
+    if (!tournamentLobbyChatLog.value) {
+        tournamentLobbyChatLog.value += message;
+    } else {
+        tournamentLobbyChatLog.value += "\n" + message;
+    }
+    // scroll so new messages can be seen
+    tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
+}
+
+function updateParticipantsList(participantsHTML) {
+    const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName("tbody")[0];
+    participantsList.innerHTML = participantsHTML;
+}
+
+function updateGameSettingsList(gameSettingsHTML) {
+    const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName("tbody")[0];
+    gameSettingsList.innerHTML = gameSettingsHTML;
+}
+
+function renderGameSettingsEditor(gameSettingsEditorHTML) {
+    const gameInfoBox = document.getElementById("lobby-game-settings-editor-box");
+    gameInfoBox.innerHTML = gameSettingsEditorHTML;
+}
+
+function renderAdvanceButton(advanceButtonHTML) {
+    const controlsBox = document.getElementById("lobby-advance-button-box");
+    controlsBox.innerHTML = advanceButtonHTML;
 }
 
 // =========================== CLEAN UP ===============================
 
 export function tournamentLobbyCloseSocket() {
     if (tournamentLobbySocket) {
-        console.log("[DEBUG] closing tournamentLobbySocket");
         tournamentLobbySocket.close();
         tournamentLobbySocket = null;
     }

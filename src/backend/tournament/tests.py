@@ -2,13 +2,18 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from api.models import User, UserProfile
 from tournament.models import Tournament, MAX_PARTICIPANTS, DEFAULT_GAME_SETTINGS
+from tournament.consumers import TournamentConsumer
+
+# Hint:
+# variables that hold database instances wont know about changes
+# need to account for that when testing for changes
 
 
 class TournamentModelTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        """ sets up nine test users, one tournament and adds them to the class """
+        """ sets up a tournament and MAX_PARTCIPANTS no. of test users"""
         cls.users = []
         cls.user_profiles = []
         for index in range(MAX_PARTICIPANTS + 1):
@@ -48,11 +53,11 @@ class TournamentModelTest(TestCase):
 
     def test_tournament_remove_player(self):
         """ checks remove_participant method """
-        count_initial = self.tournament.get_participant_count()
+        count_initial = self.tournament.get_participants_count()
         self.tournament.add_participant(self.user_profiles[0])
-        self.assertEqual(self.tournament.get_participant_count(), count_initial + 1)
+        self.assertEqual(self.tournament.get_participants_count(), count_initial + 1)
         self.tournament.remove_participant(self.user_profiles[0])
-        self.assertEqual(self.tournament.get_participant_count(), count_initial)
+        self.assertEqual(self.tournament.get_participants_count(), count_initial)
 
     def test_tournament_delete_if_empty(self):
         """ checks delete if empty method """
@@ -76,17 +81,18 @@ class TournamentModelTest(TestCase):
         self.assertEqual(self.tournament.get_host(), self.tournament.participants.first())
 
     def test_tournament_set_game_settings(self):
+        """ checks set_game_settings method """
         with self.assertRaises(ValidationError):
             self.tournament.set_game_settings(None)
             self.tournament.set_game_settings({})
             self.tournament.set_game_settings({"bullshit-key": 1})
             self.tournament.set_game_settings({"ball_speed": "bullshit_value"})
         NEW_GAME_SETTINGS = {
-            "ball_speed": 5,
-            "max_score": 4,
-            "background_color": 123,
-            "border_color": 255,
-            "ball_color": 0,
+            "ball_speed": '5',
+            "max_score": '4',
+            "background_color": '123',
+            "border_color": '255',
+            "ball_color": '0',
             "advanced_mode": True,
             "power_ups": True
         }
@@ -107,31 +113,69 @@ class TournamentModelTest(TestCase):
         for key, value in test_values.items():
             self.assertEqual(getattr(tournament_user, key), value)
 
-    # def test_tournament_game_creation():
-    # TODO implement
+    def test_get_user_by_methods(self):
+        """ Checks get_user_by (username or user_profile) method behaviour """
+        self.tournament.add_participant(self.user_profiles[0])
+        self.tournament.add_participant(self.user_profiles[1])
+        tmp = self.tournament.get_participant_by(user_profile=self.user_profiles[1])
+        username = self.user_profiles[1].user.username
+        tmp_2 = self.tournament.get_participant_by(username=username)
+        self.assertEqual(tmp, tmp_2)
+
+    def test_is_host(self):
+        """ Checks is_host method behaviour """
+        self.tournament.add_participant(self.user_profiles[0])
+        self.tournament.add_participant(self.user_profiles[1])
+        self.assertTrue(self.tournament.is_host(user_profile=self.user_profiles[0]))
+        self.assertTrue(self.tournament.is_host(username=self.user_profiles[0].user.username))
+        self.assertFalse(self.tournament.is_host(user_profile=self.user_profiles[1]))
+        self.assertFalse(self.tournament.is_host(username=self.user_profiles[1].user.username))
+
+    def test_tournament_user_toggle_ready_state(self):
+        """ Checks toggle_ready_state method behaviour """
+        self.tournament.add_participant(self.user_profiles[0])
+        self.assertFalse(self.tournament.participants.first().is_ready)
+        self.tournament.toggle_ready_state_by(self.user_profiles[0])
+        self.assertTrue(self.tournament.participants.first().is_ready)
+
+    def test_tournament_are_participants_ready(self):
+        """ Checks are_participants_ready method behaviour """
+        self.tournament.add_participant(self.user_profiles[0])
+        self.assertFalse(self.tournament.are_participants_ready())
+
+        # This test checks the where all particitpants are ready, but MAX_PARTICIPANTS has not been reached
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
+        self.assertFalse(self.tournament.are_participants_ready())
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
+
+        self.tournament.add_participant(self.user_profiles[1])
+        self.tournament.add_participant(self.user_profiles[2])
+        self.tournament.add_participant(self.user_profiles[3])
+        self.assertFalse(self.tournament.are_participants_ready())
+
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[1])
+        self.assertFalse(self.tournament.are_participants_ready())
+
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[2])
+        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[3])
+        self.assertTrue(self.tournament.are_participants_ready())
+
+# def test_tournament_create_game(self):
 
 
-# class TournamentEndPointTest(TestCase):
-#
-#    @classmethod
-#    def setUpTestData(cls):
-#        """ sets up a user to send the requests from """
-#
-#        cls.client = Client()
-#        cls.username = User.objects.create_user(
-#            username='testuser', password='1234', email='testuser@some_domain.com')
-#        cls.user_profile = UserProfile.objects.create(user=cls.username)
-#
-#    def setUp(self):
-#        """ sets up a user to send the requests from """
-#
-#        self.client.login(username='testuser', password='1234')
-#
-#    def test_create_tournament(self):
-#        """ checks create_tournament endpoint """
-#
-#        url = reverse('create')
-#        data = {'tournament_name': 'tournament1'}
-#        response = self.client.post(url, json.dumps(data), content_type='application/json')
-#        self.assertEqual(response.status_code, 201)
-#        self.assertTrue(Tournament.objects.filter(name="tournament1").exists())
+class TournamentConsumerTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.users = []
+        cls.user_profiles = []
+        for index in range(MAX_PARTICIPANTS + 1):
+            cls.users.append(User.objects.create_user(
+                username=f'testuser{index}', password='1234', email=f'testuser{index}@some_domain.com'))
+            cls.user_profiles.append(UserProfile.objects.create(user=cls.users[index]))
+        cls.host_profile = cls.user_profiles[0]
+        cls.tournament = Tournament.objects.create(name='Test Tournament', created_by=cls.host_profile)
+
+    def test_first(self):
+        self.assertEqual(True, True)

@@ -33,18 +33,20 @@ body {
 #newContent {
     display: flex;
     flex-direction: column;
+    gap: 20px;
     justify-content: center;
     align-items: center;
     height: 100%;
     width: 100%; /* Full viewport width */
     min-height: calc(100% - 70px); /* Full viewport height minus navbar height */
-    padding-top: 70px;
-    padding-bottom: 35px;
+    padding-top: 75px;
+    padding-bottom: 75px;
 
     h1,
     h2,
     h3 {
-       text-align: center;
+        text-align: center;
+        margin: 0;
     }
 
     .borderedBox {
@@ -58,6 +60,27 @@ body {
         justify-content: center; /* Center items vertically */
         align-items: center; /* Center items horizontally */
         background-color: var(--COLOR-BASE-BACKGROUND);
+
+        table {
+            width: 75%;
+            margin-top: 10px;
+            border: none;
+
+            th,
+            td {
+                border: none;
+                padding: 8px;
+                text-align: center;
+                width: 50%;
+            }
+
+            thead {
+                th {
+                    font-weight: bold;
+                    text-align: center;
+                }
+            }
+        }
 
         input {
             margin-bottom: 5px;
