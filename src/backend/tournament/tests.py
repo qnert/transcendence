@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from api.models import User, UserProfile
 from tournament.models import Tournament, MAX_PARTICIPANTS, DEFAULT_GAME_SETTINGS
+from tournament.consumers import TournamentConsumer
 
 # Hint:
 # variables that hold database instances wont know about changes
@@ -161,3 +162,20 @@ class TournamentModelTest(TestCase):
         self.assertTrue(self.tournament.are_participants_ready())
 
 # def test_tournament_create_game(self):
+
+class TournamentConsumerTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.users = []
+        cls.user_profiles = []
+        for index in range(MAX_PARTICIPANTS + 1):
+            cls.users.append(User.objects.create_user(
+                username=f'testuser{index}', password='1234', email=f'testuser{index}@some_domain.com'))
+            cls.user_profiles.append(UserProfile.objects.create(user=cls.users[index]))
+        cls.host_profile = cls.user_profiles[0]
+        cls.tournament = Tournament.objects.create(name='Test Tournament', created_by=cls.host_profile)
+
+
+    def test_first(self):
+        self.assertEqual(True, True)

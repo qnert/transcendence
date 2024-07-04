@@ -14,7 +14,7 @@ MSG_SETTINGS_CHANGED  = "has changed the match settings"
 
 # Hint:
 # Because of Python, everytime you change something in the DB, variables have to
-# be reinitialised - otherwise they wont reflect the changes!
+# be reinitialised - otherwise they wont reflect the changes (no pointers)!
 # ==> use await self.update_db_variables() whenever you make changes to db
 
 
@@ -22,14 +22,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
 
+        # parse variables from frontend scope
+        # add user to channel group
+        # Setup necessary database variables
+        # Notify Group about joining and which will trigger rendering on all sockets
         self.lobby_name = self.scope["url_route"]["kwargs"]["lobby_name"]
         self.lobby_group_name = f"chat_{self.lobby_name}"
         self.username = self.scope["url_route"]["kwargs"]["username"]
         await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
         await self.accept()
-
-        # Setup necessary database variables
-        # Notify Group about joining and which will trigger rendering on all sockets
         await self.update_db_variables()
         await self.send_chat_notification(MSG_JOIN)
 
@@ -45,8 +46,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
 
+        # Handle Json messages sent from the Frontend to this socket
         text_data_json = json.loads(text_data)
-        
+
         if "message" in text_data_json:
             await self.send_chat_message(text_data_json['message'])
 
@@ -64,6 +66,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             await self.send_chat_notification(MSG_SETTINGS_CHANGED)
 
 #   ==========================     UPDATE ROUTINES
+
+#   all notifications send to a socket will trigger these routines per socket
+#       - reinit db variables
+#       - send prerendered (SSR) dynamic content to Frontend
 
     async def build_nickname(self):
         if self.is_host:
