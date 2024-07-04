@@ -11,6 +11,7 @@ MSG_LEAVE = "has left the lobby"
 MSG_IS_READY = "is ready"
 MSG_IS_NOT_READY = "is not ready"
 MSG_SETTINGS_CHANGED = "has changed the match settings"
+MSG_START = "has started the tournament"
 
 # Hint:
 # Because of Python, everytime you change something in the DB, variables have to
@@ -52,6 +53,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         if "message" in text_data_json:
             await self.send_chat_message(text_data_json['message'])
 
+        if "advanced_state" in text_data_json:
+            await database_sync_to_async(self.tournament.advance_state)()
+            await self.send_chat_notification(MSG_START)
+
         if "status_change" in text_data_json:
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
             # because self.tournament_user doesnt reflect toggle change, the logic is the opposite
@@ -77,14 +82,19 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         return f'🐸 {self.user_profile.display_name}({self.username})'
 
     async def update_content(self):
-        await self.send_participant_list()
-        await self.send_game_settings_list()
-        if self.is_host:
-            await self.send_game_settings_editor()
-            if self.are_participants_ready:
-                await self.send_advance_button()
-            else:
-                await self.send_remove_advance_button()
+        # TODO might be abstracted away and send in one packet / object
+        if self.state == 'setup':
+            await self.send_participant_list()
+            await self.send_game_settings_list()
+            if self.is_host:
+                await self.send_game_settings_editor()
+                if self.are_participants_ready:
+                    await self.send_advance_button()
+                else:
+                    await self.send_remove_advance_button()
+        elif self.state == 'playing':
+            await self.send_remove_setup_content()
+            await self.send_playing_content()
 
     async def update_db_variables(self):
         self.tournament = await database_sync_to_async(Tournament.objects.get)(name=self.lobby_name)
@@ -93,6 +103,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         self.is_host = await database_sync_to_async(self.tournament.is_host)(user_profile=self.user_profile)
         self.nickname = await self.build_nickname()
         self.are_participants_ready = await database_sync_to_async(self.tournament.are_participants_ready)()
+        self.state = await database_sync_to_async(self.tournament.get_state)()
 
 #   ==========================     SEND FUNCTIONS
 
@@ -164,21 +175,47 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 'advance_button': " ",
             }
         )
+    
+    # TODO implement
+    async def send_playing_content(self):
+        game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
+        await self.channel_layer.send(
+            self.channel_name,
+            {
+                'type': 'event_playing_content',
+                'playing_content': {
+                    'game_settings': game_settings,
+                    'username': self.username,
+                    'room_name': self.lobby_name,
+                }
+            }
+        )
+
+    async def send_remove_setup_content(self):
+        await self.channel_layer.send(
+            self.channel_name,
+            {
+                'type': 'event_playing_content',
+                'playing_content': "remove",
+            }
+        )
 
 #   ==========================     EVENT LISTENERS
 
-    async def event_chat_message(self, event):
-        message = event["message"]
-        await self.send(text_data=json.dumps({
-            'message': message,
-        }))
-
+    # Hint:
+    # this function triggers updating vars and rendering for all socket users
     async def event_chat_notification(self, event):
         await self.update_db_variables()
         await self.update_content()
         notification = event["notification"]
         await self.send(text_data=json.dumps({
             'notification': notification,
+        }))
+
+    async def event_chat_message(self, event):
+        message = event["message"]
+        await self.send(text_data=json.dumps({
+            'message': message,
         }))
 
     async def event_participants(self, event):
@@ -203,4 +240,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         advance_button_html = event['advance_button']
         await self.send(text_data=json.dumps({
             'advance_button': advance_button_html,
+        }))
+    
+    async def event_playing_content(self, event):
+        playing_content = event['playing_content']
+        await self.send(text_data=json.dumps({
+            'playing_content': playing_content,
         }))

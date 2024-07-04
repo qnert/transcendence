@@ -44,15 +44,14 @@
         column-gap: 10px;
 
         #lobby-chat-box {
-            #lobby-chat-log-box {
-                #lobby-chat-log {
-                    min-height: 100px;
-                    resize: none;
-                    margin: 0;
-                    padding-top: 0;
-                    padding-bottom: 0;
-                    box-sizing: border-box;
-                }
+            width: 100%;
+            #lobby-chat-log {
+                min-height: 100px;
+                resize: none;
+                margin: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+                box-sizing: border-box;
             }
             #lobby-chat-input-box {
                 display: flex;

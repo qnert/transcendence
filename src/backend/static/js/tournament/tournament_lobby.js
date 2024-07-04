@@ -63,6 +63,8 @@ const socketMessageHandler = (event, tournamentLobbyChatLog) => {
         renderGameSettingsEditor(data.game_settings_editor);
     } else if (data.advance_button) {
         renderAdvanceButton(data.advance_button);
+    } else if (data.playing_content) {
+        renderPlayingContent(data.playing_content);
     }
 
     /* note: in case this socket has become the host, some eventListeners have to be reattached */
@@ -75,8 +77,11 @@ const attachdynamicEventListeners = function () {
     if (tournamentLobbyAdvanceState) {
         tournamentLobbyAdvanceState.onclick = function (event) {
             event.preventDefault();
-            console.log("advance tournament button pressed");
-            // TODO implement
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    advanced_state: 'advance_state',
+                })
+            )
         };
     }
     if (tournamentLobbySettingsForm) {
@@ -129,8 +134,40 @@ function renderGameSettingsEditor(gameSettingsEditorHTML) {
 }
 
 function renderAdvanceButton(advanceButtonHTML) {
-    const controlsBox = document.getElementById("lobby-advance-button-box");
-    controlsBox.innerHTML = advanceButtonHTML;
+    const advanceButtonBox = document.getElementById("lobby-advance-button-box");
+    advanceButtonBox.innerHTML = advanceButtonHTML;
+}
+
+function renderPlayingContent(playingContent) {
+    if (playingContent == 'remove'){
+        const gameInfoBox = document.getElementById("lobby-game-info-box");
+        gameInfoBox.innerHTML = "";
+        const controlsBox = document.getElementById("lobby-controls-box");
+        if (controlsBox){ controlsBox.remove(); }
+        const footerBox = document.getElementById("lobby-footer-box");
+        footerBox.style.display = "flex";
+    }
+    else {
+        initTournamentMatch(playingContent);
+    }
+}
+
+function initTournamentMatch(playingContent){
+    const gameInfoBox = document.getElementById("lobby-game-info-box");
+    gameInfoBox.classList.remove('borderedBox');
+    gameInfoBox.innerHTML = "";
+    
+    // playingContent
+    //  game_settings
+    //  username
+    //  room_name
+
+    const game_settings = playingContent.game_settings;
+    ballSpeed = game_settings.ball_speed;
+    console.log(ballSpeed);
+
+
+
 }
 
 // =========================== CLEAN UP ===============================
@@ -141,3 +178,5 @@ export function tournamentLobbyCloseSocket() {
         tournamentLobbySocket = null;
     }
 }
+
+// =========================== GAME / MATCH  ===============================

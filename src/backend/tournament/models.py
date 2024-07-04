@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from datetime import date
 from api.models import UserProfile
 
-MAX_PARTICIPANTS = 4
+MAX_PARTICIPANTS = 2  # TODO change back after dev
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '8',
     "max_score": '8',
