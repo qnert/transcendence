@@ -45,8 +45,8 @@ body {
     h1,
     h2,
     h3 {
-       text-align: center;
-       margin: 0;
+        text-align: center;
+        margin: 0;
     }
 
     .borderedBox {
@@ -64,17 +64,17 @@ body {
         table {
             width: 75%;
             margin-top: 10px;
-            border:none;
+            border: none;
 
-            th, td {
-                border:none;
+            th,
+            td {
+                border: none;
                 padding: 8px;
                 text-align: center;
                 width: 50%;
             }
 
             thead {
-
                 th {
                     font-weight: bold;
                     text-align: center;

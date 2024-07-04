@@ -163,6 +163,7 @@ class TournamentModelTest(TestCase):
 
 # def test_tournament_create_game(self):
 
+
 class TournamentConsumerTest(TestCase):
 
     @classmethod
@@ -175,7 +176,6 @@ class TournamentConsumerTest(TestCase):
             cls.user_profiles.append(UserProfile.objects.create(user=cls.users[index]))
         cls.host_profile = cls.user_profiles[0]
         cls.tournament = Tournament.objects.create(name='Test Tournament', created_by=cls.host_profile)
-
 
     def test_first(self):
         self.assertEqual(True, True)

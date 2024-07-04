@@ -6,11 +6,11 @@ from api.models import User
 from channels.db import database_sync_to_async
 from django.template.loader import render_to_string
 
-MSG_JOIN              = "has joined the lobby"
-MSG_LEAVE             = "has left the lobby"
-MSG_IS_READY          = "is ready"
-MSG_IS_NOT_READY      = "is not ready"
-MSG_SETTINGS_CHANGED  = "has changed the match settings"
+MSG_JOIN = "has joined the lobby"
+MSG_LEAVE = "has left the lobby"
+MSG_IS_READY = "is ready"
+MSG_IS_NOT_READY = "is not ready"
+MSG_SETTINGS_CHANGED = "has changed the match settings"
 
 # Hint:
 # Because of Python, everytime you change something in the DB, variables have to
@@ -158,11 +158,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def send_remove_advance_button(self):
         await self.channel_layer.send(
-                self.channel_name,
-                {
-                    'type': 'event_advance_button',
-                    'advance_button': " ",
-                }
+            self.channel_name,
+            {
+                'type': 'event_advance_button',
+                'advance_button': " ",
+            }
         )
 
 #   ==========================     EVENT LISTENERS
@@ -192,7 +192,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'game_settings_list': game_settings_list_html,
         }))
-    
+
     async def event_game_settings_editor(self, event):
         game_settings_editor_html = event['game_settings_editor']
         await self.send(text_data=json.dumps({

@@ -48,7 +48,7 @@ def tournament_api_get_list(request):
 def tournament_api_get_participants(request, lobby_name):
     if request.method == "GET":
         try:
-            #user_profile = UserProfile.objects.get(user=request.user)
+            # user_profile = UserProfile.objects.get(user=request.user)
             tournament = Tournament.objects.get(name=lobby_name)
             participants = tournament.get_participants_names_and_statuses()
         except UserProfile.DoesNotExist:

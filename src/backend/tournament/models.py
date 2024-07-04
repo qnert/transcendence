@@ -14,8 +14,6 @@ DEFAULT_GAME_SETTINGS = {
     "power_ups": False
 }
 
-# TODO simplify with chatGPT
-
 
 class Tournament(models.Model):
 

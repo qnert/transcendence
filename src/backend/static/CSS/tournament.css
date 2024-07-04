@@ -1,18 +1,14 @@
 #newContent {
-
-    .game-settings-color{
+    .game-settings-color {
         width: 20px;
         height: 20px;
         border: solid black 2px;
         margin: 0 auto;
     }
 
-/* =====================  TOP  ===================== */
+    /* =====================  HEADER BOX  ===================== */
 
-    #lobby-header-box{
-    }
-
-/* =====================  Game / INFO BOX  ===================== */
+    /* =====================  Game / INFO BOX  ===================== */
 
     #lobby-game-info-box {
         justify-content: center;
@@ -20,24 +16,24 @@
         margin-bottom: 150px;
         #lobby-participants-list {
         }
-        #lobby-game-settings-list{
+        #lobby-game-settings-list {
         }
-        #lobby-game-settings-editor{
+        #lobby-game-settings-editor {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content:center;
-            #lobby-game-settings-host-form{
+            justify-content: center;
+            #lobby-game-settings-host-form {
                 display: grid;
                 grid-template-columns: 2fr 1fr;
                 gap: 10px;
                 justify-content: center;
-                align-items:center;
+                align-items: center;
             }
         }
     }
 
-/* =====================  BOTTOM  ===================== */
+    /* =====================  BOTTOM  ===================== */
 
     #lobby-footer-box {
         padding: 10px;
@@ -46,14 +42,14 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
         column-gap: 10px;
-        
-        #lobby-chat-box{
+
+        #lobby-chat-box {
             #lobby-chat-log-box {
                 #lobby-chat-log {
                     min-height: 100px;
                     resize: none;
                     margin: 0;
-                    padding-top :0;
+                    padding-top: 0;
                     padding-bottom: 0;
                     box-sizing: border-box;
                 }
@@ -68,14 +64,14 @@
             }
         }
 
-        #lobby-controls-box{
-            height:100%;
+        #lobby-controls-box {
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
             gap: 10%;
-            #lobby-status-switch-box{
+            #lobby-status-switch-box {
                 flex-direction: row;
                 align-items: center;
                 input {
@@ -84,5 +80,4 @@
             }
         }
     }
-
 }

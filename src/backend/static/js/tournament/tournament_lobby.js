@@ -10,8 +10,6 @@ export function tournamentLobbyInit(lobbyName, userName) {
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
     const tournamentLobbyStatusToggler = document.getElementById("lobby-status-switch");
-    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form")
-    const tournamentLobbyAdvanceState = document.getElementById("lobby-advance-state-button");
     tournamentLobbySocket = new WebSocket("ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
 
     tournamentLobbySocket.onmessage = (event) => socketMessageHandler(event, tournamentLobbyChatLog);
@@ -26,7 +24,8 @@ export function tournamentLobbyInit(lobbyName, userName) {
     tournamentLobbyChatSubmit.onclick = function () {
         const message = tournamentLobbyChatInput.value;
         if (message.trim() !== "") {
-            tournamentLobbySocket.send(JSON.stringify({
+            tournamentLobbySocket.send(
+                JSON.stringify({
                     message: message,
                 })
             );
@@ -35,76 +34,92 @@ export function tournamentLobbyInit(lobbyName, userName) {
     };
 
     tournamentLobbyStatusToggler.onchange = function () {
-        tournamentLobbySocket.send(JSON.stringify({
-            status_change: true,
-        }));
+        tournamentLobbySocket.send(
+            JSON.stringify({
+                status_change: true,
+            })
+        );
     };
 }
 
 // =========================== HELPERS ===============================
 
 const socketMessageHandler = (event, tournamentLobbyChatLog) => {
-        const data = JSON.parse(event.data);
-        let message = "";
- 
-        if (data.message){ message = data.message; }
-        else if (data.notification){ message = data.notification; }
-        if (message) { updateChatLog(message, tournamentLobbyChatLog); }
-        else if (data.participants) { updateParticipantsList(data.participants); }
-        else if (data.game_settings_list) { updateGameSettingsList(data.game_settings_list); }
-        else if (data.game_settings_editor) { renderGameSettingsEditor(data.game_settings_editor); }
-        else if (data.advance_button) { renderAdvanceButton(data.advance_button); }
-        
-         /* note: in case this socket has become the host, some eventListeners have to be reattached */
-        attachdynamicEventListeners();
-}
+    const data = JSON.parse(event.data);
+    let message = "";
+
+    if (data.message) {
+        message = data.message;
+    } else if (data.notification) {
+        message = data.notification;
+    }
+    if (message) {
+        updateChatLog(message, tournamentLobbyChatLog);
+    } else if (data.participants) {
+        updateParticipantsList(data.participants);
+    } else if (data.game_settings_list) {
+        updateGameSettingsList(data.game_settings_list);
+    } else if (data.game_settings_editor) {
+        renderGameSettingsEditor(data.game_settings_editor);
+    } else if (data.advance_button) {
+        renderAdvanceButton(data.advance_button);
+    }
+
+    /* note: in case this socket has become the host, some eventListeners have to be reattached */
+    attachdynamicEventListeners();
+};
 
 const attachdynamicEventListeners = function () {
-    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form")
+    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
     const tournamentLobbyAdvanceState = document.getElementById("lobby-advance-state-button");
-    if (tournamentLobbyAdvanceState){
+    if (tournamentLobbyAdvanceState) {
         tournamentLobbyAdvanceState.onclick = function (event) {
             event.preventDefault();
             console.log("advance tournament button pressed");
             // TODO implement
-        }
+        };
     }
     if (tournamentLobbySettingsForm) {
         tournamentLobbySettingsForm.onsubmit = function (event) {
             event.preventDefault();
             const gameSettings = {
-                "ball_speed": document.getElementById('ballSpeed').value,
-                "max_score": document.getElementById('maxScore').value,
-                "background_color": document.getElementById('background').value,
-                "border_color": document.getElementById('borders').value,
-                "ball_color": document.getElementById('ballColor').value,
-                "advanced_mode": document.getElementById('advancedMode').checked,
-                "power_ups": document.getElementById('powerUps').checked,
-            }
-            tournamentLobbySocket.send(JSON.stringify({
-                "game_settings_edited": gameSettings,
-            }));
+                ball_speed: document.getElementById("ballSpeed").value,
+                max_score: document.getElementById("maxScore").value,
+                background_color: document.getElementById("background").value,
+                border_color: document.getElementById("borders").value,
+                ball_color: document.getElementById("ballColor").value,
+                advanced_mode: document.getElementById("advancedMode").checked,
+                power_ups: document.getElementById("powerUps").checked,
+            };
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    game_settings_edited: gameSettings,
+                })
+            );
         };
     }
-}
+};
 
 // =========================== Server Side Rendering ===============================
 
 function updateChatLog(message, tournamentLobbyChatLog) {
     // put no newline on first message
-    if (!tournamentLobbyChatLog.value) { tournamentLobbyChatLog.value += message; }
-    else { tournamentLobbyChatLog.value += "\n" + message; }
+    if (!tournamentLobbyChatLog.value) {
+        tournamentLobbyChatLog.value += message;
+    } else {
+        tournamentLobbyChatLog.value += "\n" + message;
+    }
     // scroll so new messages can be seen
     tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
 }
 
 function updateParticipantsList(participantsHTML) {
-    const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName('tbody')[0];
+    const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName("tbody")[0];
     participantsList.innerHTML = participantsHTML;
 }
 
 function updateGameSettingsList(gameSettingsHTML) {
-    const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName('tbody')[0];
+    const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName("tbody")[0];
     gameSettingsList.innerHTML = gameSettingsHTML;
 }
 

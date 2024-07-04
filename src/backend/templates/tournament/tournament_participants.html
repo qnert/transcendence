@@ -1,19 +1,19 @@
 {% for participant in participants %}
-<tr>
+  <tr>
     <td>
-        {% if forloop.first %}
+      {% if forloop.first %}
         👑
-        {% else %}
+      {% else %}
         🐸
-        {% endif %}
-        {{ participant.name }}
+      {% endif %}
+      {{ participant.name }}
     </td>
     <td>
-         {% if participant.status %}
+      {% if participant.status %}
         ✅
-        {% else %}
+      {% else %}
         ❌
-        {% endif %}
+      {% endif %}
     </td>
-</tr>
+  </tr>
 {% endfor %}
