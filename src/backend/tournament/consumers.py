@@ -177,7 +177,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         )
     
     # TODO implement
+    # TODO an algorithm should figure out the room_name
     async def send_playing_content(self):
+        match_html = await database_sync_to_async(render_to_string)('tournament_match_lobby.html')
         game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
         await self.channel_layer.send(
             self.channel_name,
@@ -187,6 +189,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     'game_settings': game_settings,
                     'username': self.username,
                     'room_name': self.lobby_name,
+                    'match_html': match_html,
                 }
             }
         )

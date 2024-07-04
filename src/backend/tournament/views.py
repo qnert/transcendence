@@ -13,7 +13,6 @@ def tournament_hub(request):
         tournaments = list(Tournament.objects.all().values())
         return render(request, 'tournament_hub.html', {'tournaments': tournaments})
 
-
 def tournament_lobby(request, lobby_name):
     if request.method == "GET":
         try:

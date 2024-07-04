@@ -152,24 +152,6 @@ function renderPlayingContent(playingContent) {
     }
 }
 
-function initTournamentMatch(playingContent){
-    const gameInfoBox = document.getElementById("lobby-game-info-box");
-    gameInfoBox.classList.remove('borderedBox');
-    gameInfoBox.innerHTML = "";
-    
-    // playingContent
-    //  game_settings
-    //  username
-    //  room_name
-
-    const game_settings = playingContent.game_settings;
-    ballSpeed = game_settings.ball_speed;
-    console.log(ballSpeed);
-
-
-
-}
-
 // =========================== CLEAN UP ===============================
 
 export function tournamentLobbyCloseSocket() {
@@ -180,3 +162,125 @@ export function tournamentLobbyCloseSocket() {
 }
 
 // =========================== GAME / MATCH  ===============================
+
+let chatSocket;
+let context;
+
+let board;
+let boardWidth = 900;
+let boardHeight = 500;
+
+let playerWidth = 10;
+let playerHeight = 100;
+let playerHeight_power = playerHeight * 1.5;
+let playerSpeedY = 0;
+let playerSpeed_power;
+let prevX = 0;
+let prevY = 0;
+
+let ballWidth = 10;
+let ballHeight = 10;
+let ballSpeed = 0;
+let init_ballSpeed = 0;
+let random = Math.random() > 0.5 ? 1 : -1;
+let ballAngle = random * Math.PI / 4;
+random = Math.random() > 0.5 ? 1 : -1;
+
+let score1 = 0;
+let score2 = 0;
+let maxScore;
+let rally = 0;
+let rallies = [];
+
+let advanced_mode;
+let power_up_mode;
+let size_power_up_used = false;
+let speed_power_up_used = false;
+
+let size_x = boardWidth/2;
+let size_y = boardHeight/4;
+
+let speed_x = boardWidth/2;
+let speed_y = boardHeight/4 * 3;
+
+let player1 = {
+x: 10,
+y: boardHeight / 2 - playerHeight/2,
+width: playerWidth,
+height: playerHeight,
+curr_speedY: 0,
+movespeed: 0
+}
+
+let player2 = {
+x: boardWidth - playerWidth - 10,
+y: boardHeight / 2 - playerHeight/2,
+width: playerWidth,
+height: playerHeight,
+curr_speedY: 0,
+movespeed: 0
+}
+
+let ball = {
+x: boardWidth/2,
+y: boardHeight/2,
+width: ballWidth,
+height: ballHeight,
+speedX: random * ballSpeed * Math.cos(ballAngle),
+speedY: ballSpeed * Math.sin(ballAngle)
+}
+
+let border_color;
+let ball_color;
+let background_color;
+
+let id = 0;
+let countdown = 6;
+let intervalID = 0;
+let items_pushed = 0;
+let username;
+let connected_users;
+
+
+function initTournamentMatch(playingContent){
+    const gameInfoBox = document.getElementById("lobby-game-info-box");
+    gameInfoBox.innerHTML = playingContent.match_html;
+
+    // playingContent
+    //  game_settings
+    //  username
+    //  room_name
+    //  match_html
+
+    let room_name = playingContent.room_name;
+    username = playingContent.username;
+    chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
+
+    const game_settings = playingContent.game_settings;
+
+    ballSpeed = game_settings.ball_speed;
+    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
+    ball.speedY = ballSpeed * Math.sin(ballAngle);
+
+    border_color = game_settings.border_color;
+    ball_color = game_settings.ball_color;
+    background_color = game_settings.background_color;
+    maxScore = game_settings.max_score;
+    advanced_mode = game_settings.advanced_mode;
+    power_up_mode = game_settings.power_ups;
+
+    console.log(ballSpeed);
+    console.log(ball.speedX);
+    console.log(ball.speedY);
+    console.log(border_color);
+    console.log(ball_color);
+    console.log(background_color);
+    console.log(maxScore);
+    console.log(advanced_mode);
+    console.log(power_up_mode);
+
+    chatSocket.onopen = function (event) {
+        console.log("Tournament Match WebSocket opened!");
+        console.log(chatSocket);
+    }
+}
