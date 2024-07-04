@@ -75,7 +75,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.send_game_settings_list()
         if self.is_host:
             await self.send_game_settings_editor()
-            await self.send_advance_button()
+            if self.are_participants_ready:
+                await self.send_advance_button()
+            else:
+                await self.send_remove_advance_button()
 
     async def update_db_variables(self):
         self.tournament = await database_sync_to_async(Tournament.objects.get)(name=self.lobby_name)
@@ -83,6 +86,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         self.user_profile = await database_sync_to_async(lambda: self.tournament_user.user_profile)()
         self.is_host = await database_sync_to_async(self.tournament.is_host)(user_profile=self.user_profile)
         self.nickname = await self.build_nickname()
+        self.are_participants_ready = await database_sync_to_async(self.tournament.are_participants_ready)()
 
 #   ==========================     SEND FUNCTIONS
 
@@ -144,6 +148,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 'type': 'event_advance_button',
                 'advance_button': advance_button_html,
             }
+        )
+
+    async def send_remove_advance_button(self):
+        await self.channel_layer.send(
+                self.channel_name,
+                {
+                    'type': 'event_advance_button',
+                    'advance_button': " ",
+                }
         )
 
 #   ==========================     EVENT LISTENERS
