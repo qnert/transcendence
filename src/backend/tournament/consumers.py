@@ -52,12 +52,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         if "message" in text_data_json:
             await self.send_chat_message(text_data_json['message'])
-
-        if "advanced_state" in text_data_json:
+        
+        elif "advanced_state" in text_data_json:
             await database_sync_to_async(self.tournament.advance_state)()
             await self.send_chat_notification(MSG_START)
-
-        if "status_change" in text_data_json:
+        
+        elif "status_change" in text_data_json:
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
             # because self.tournament_user doesnt reflect toggle change, the logic is the opposite
             if await database_sync_to_async(lambda: self.tournament_user.is_ready)():
@@ -65,7 +65,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             else:
                 await self.send_chat_notification(MSG_IS_READY)
 
-        if "game_settings_edited" in text_data_json:
+        elif "game_settings_edited" in text_data_json:
             game_settings_edited = text_data_json['game_settings_edited']
             await database_sync_to_async(self.tournament.set_game_settings)(game_settings_edited)
             await self.send_chat_notification(MSG_SETTINGS_CHANGED)

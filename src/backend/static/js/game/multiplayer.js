@@ -307,8 +307,11 @@ export function close_multi_on_change(){
     clearInterval(intervalID);
     intervalID = 0;
   }
-  if (chatSocket)
+  if (chatSocket){
+    console.log("multiplayer socket closed");
     chatSocket.close();
+    chatSocket = null;
+  }
 }
 
 function remote_start() {

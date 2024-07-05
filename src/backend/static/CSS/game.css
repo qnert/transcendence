@@ -34,6 +34,9 @@
 
 /* Versus screen styling */
 .versus-screen {
+  display:flex;
+  flex-direction: column;
+  justify-content: space-evenly;
   width: 400px;
   margin: 50px auto;
   border: 2px solid var(--COLOR-BASE-ACCENT);
