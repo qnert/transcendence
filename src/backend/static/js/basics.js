@@ -227,6 +227,7 @@ export async function handle401Error() {
 }
 
 window.onload = async function () {
+    handleUrlChange();
     let currentUrl = window.location.href;
     if (currentUrl.includes("/profile/")) {
         await fetchProfileData();

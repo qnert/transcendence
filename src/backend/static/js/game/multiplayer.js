@@ -113,38 +113,52 @@ export function resetRemoteGameButton() {
   let username;
   let connected_users;
 
-  export function create_join_game(){
-    ballSpeed = document.getElementById("ballSpeed").value;
+export function create_tournament_match(playingContent) {
+    const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+    if (startTournamentMatchButton) 
+        startTournamentMatchButton.onclick = function (event) {
+        event.preventDefault;
+        chatSocket.send(
+            JSON.stringify({
+                type: "start_game",
+                ball_speed_x: ball.speedX,
+                ball_speed_y: ball.speedY,
+                backgroundColor: background_color,
+                borderColor: border_color,
+                ballColor: ball_color,
+                ballSpeed: ballSpeed,
+                maxScore: maxScore,
+                advancedMode: advanced_mode,
+                powerUps: power_up_mode,
+            })
+        );
+    }
+
+    username = playingContent.username;
+    const room_name = playingContent.room_name;
+    // TODO put this directly below
+    const game_settings = playingContent.game_settings;
+
+    // setup game_settings to local vars
+    ballSpeed = game_settings.ball_speed;
     ball.speedX = random * ballSpeed * Math.cos(ballAngle);
     ball.speedY = ballSpeed * Math.sin(ballAngle);
-    border_color = document.getElementById("borders").value;
-    ball_color = document.getElementById("ballColor").value;
-    background_color = document.getElementById("background").value;
-    maxScore = document.getElementById("maxScore").value;
-    advanced_mode = document.getElementById("advancedMode").checked;
-    power_up_mode = document.getElementById("powerUps").checked;
-    let room_name = document.getElementById("room_name").value;
-    if (/[^a-zA-Z0-9]/.test(room_name)){
-      alert('Please enter only alphabetical characters !');
-      return;
+    border_color = game_settings.border_color;
+    ball_color = game_settings.ball_color;
+    background_color = game_settings.background_color;
+    maxScore = game_settings.max_score;
+    advanced_mode = game_settings.advanced_mode;
+    power_up_mode = game_settings.power_ups;
+
+    // TODO check why sockets get opened multiple times
+    if (!chatSocket){
+        chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
     }
-	if (room_name.length < 4 || room_name.trim() === "") {
-        alert("Please enter a Room Name with values atleast 4 characters!");
-        return;
+
+    chatSocket.onopen = function(e) {
+        console.log("Websocket connection opened!");
     }
-    fetch("/username/")
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-      username = data.username;
-      chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
-      chatSocket.onopen = function(e) {
-      console.log("Websocket connection opened!");
-    }
+
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         if (data.type === 'connected_users') {
@@ -165,8 +179,16 @@ export function resetRemoteGameButton() {
                 let html_tag_2 = document.getElementById("player2");
                 html_tag_2.textContent = "waiting...";
             }
-            if (connected_users[0] == username)
-              document.getElementById("startRemoteGame").style.display = "block";
+            if (connected_users[0] == username){
+                const startRemoteGame = document.getElementById("startRemoteGame");
+                const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+                if (startRemoteGame){
+                    startRemoteGame.style.display = "block";
+                }
+                else if (startTournamentMatchButton) {
+                    startTournamentMatchButton.style.display = "block";
+                }
+            }
         }
         else if (data.type === 'connect_error'){
             alert("Room is full!");
@@ -257,10 +279,16 @@ export function resetRemoteGameButton() {
           return;
         }
         else if (data.type == 'disconnected'){
-			const startRemoteGame = document.getElementById("startRemoteGame");
-			if(startRemoteGame){
-				document.getElementById("startRemoteGame").style.display = "none";
-			}
+
+            const startRemoteGame = document.getElementById("startRemoteGame");
+            const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+            if (startRemoteGame){
+                startRemoteGame.style.display = "none";
+            }
+            else if (startTournamentMatchButton) {
+                startTournamentMatchButton.style.display = "none";
+            }
+
           if (id !== 0){
             if (username == connected_users[0])
               alert(`${connected_users[1]} left the game!`);
@@ -286,11 +314,209 @@ export function resetRemoteGameButton() {
         }
         document.getElementById("roomInfo").style.display = "block";
         document.getElementById("versusScreen").style.display = "block";
-        document.getElementById("myForm").style.display = "none";
         document.getElementById("board").style.display = "none";
         document.getElementById("left_player").style.display = "none";
         document.getElementById("right_player").style.display = "none";
+
+        // TODO remove // filter in rest of code
+        //document.getElementById("myForm").style.display = "none";
+        //document.getElementById("resetRemoteGameButton").style.display = "none";
+    };
+}
+
+  export function create_join_game(){
+    ballSpeed = document.getElementById("ballSpeed").value;
+    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
+    ball.speedY = ballSpeed * Math.sin(ballAngle);
+    border_color = document.getElementById("borders").value;
+    ball_color = document.getElementById("ballColor").value;
+    background_color = document.getElementById("background").value;
+    maxScore = document.getElementById("maxScore").value;
+    advanced_mode = document.getElementById("advancedMode").checked;
+    power_up_mode = document.getElementById("powerUps").checked;
+    let room_name = document.getElementById("room_name").value;
+    if (/[^a-zA-Z0-9]/.test(room_name)){
+      alert('Please enter only alphabetical characters !');
+      return;
+    }
+	if (room_name.length < 4 || room_name.trim() === "") {
+        alert("Please enter a Room Name with values atleast 4 characters!");
+        return;
+    }
+    fetch("/username/")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+      username = data.username;
+      chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
+      chatSocket.onopen = function(e) {
+      console.log("Websocket connection opened!");
+    }
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.type === 'connected_users') {
+            connected_users = JSON.parse(data.connected_users)[room_name];
+			const roomInfo =  document.getElementById('roomInfo');
+			if (roomInfo){
+				document.getElementById('roomInfo').textContent = `Welcome to Room ${data.room_name}!`;
+			}
+              if (connected_users.length == 2){
+                let html_tag = document.getElementById("player1");
+                html_tag.textContent = connected_users[0];
+                let html_tag_2 = document.getElementById("player2");
+                html_tag_2.textContent = connected_users[1];
+              }
+              else if (connected_users.length == 1){
+                let html_tag = document.getElementById("player1");
+                html_tag.textContent = connected_users[0];
+                let html_tag_2 = document.getElementById("player2");
+                html_tag_2.textContent = "waiting...";
+            }
+            if (connected_users[0] == username){
+                const startRemoteGame = document.getElementById("startRemoteGame");
+                const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+                if (startRemoteGame){
+                    startRemoteGame.style.display = "block";
+                }
+                else if (startTournamentMatchButton) {
+                    startTournamentMatchButton.style.display = "block";
+                }
+            }
+        }
+        else if (data.type === 'connect_error'){
+            alert("Room is full!");
+            chatSocket.close();
+            return;
+        }
+        else if (data.type === 'start_game'){
+          speed_power_up_used = false;
+          size_power_up_used = false;
+          player1.curr_speedY = playerSpeedY;
+          player2.curr_speedY = playerSpeedY;
+          player1.height = playerHeight;
+          player2.height = playerHeight;
+          player1.y = boardHeight / 2 - playerHeight/2;
+          player2.y = boardHeight / 2 - playerHeight/2;
+          ball.x = boardWidth/2;
+          ball.y = boardHeight/2;
+          size_x = boardWidth/2;
+          size_y = boardHeight/4;
+          speed_x = boardWidth/2;
+          speed_y = boardHeight/4 * 3;
+          ball.speedX = data.ball_speed_x;
+          ball.speedY = data.ball_speed_y;
+          background_color = data.backgroundColor;
+          border_color = data.borderColor;
+          ball_color = data.ballColor;
+          maxScore = data.maxScore;
+          ballSpeed = data.ballSpeed;
+          init_ballSpeed = data.ballSpeed;
+          advanced_mode = data.advancedMode;
+          power_up_mode = data.powerUps;
+          countdown = 6;
+          score1 = 0;
+          score2 = 0;
+          start_game();
+          return;
+        }
+        else if (data.type === 'game_action'){
+          if (data.action == 'move_up'){
+            if (data.player == '1')
+              player1.movespeed = -(player1.curr_speedY);
+            else if (data.player == '2')
+              player2.movespeed = -(player2.curr_speedY);
+          }
+          else if (data.action == 'move_down'){
+            if (data.player == '1')
+              player1.movespeed = player1.curr_speedY;
+            else if (data.player == '2')
+              player2.movespeed = player2.curr_speedY;
+          }
+          else if (data.action == 'stop'){
+            if (data.player == '1')
+              player1.movespeed = 0;
+            else if (data.player == '2')
+              player2.movespeed = 0;
+          }
+          else if (data.action == 'power_up_used_speed'){
+            if (data.player == '1')
+              player1.curr_speedY = playerSpeed_power;
+            else if (data.player == '2')
+              player2.curr_speedY = playerSpeed_power;
+            speed_power_up_used = true;
+          }
+          else if (data.action == 'power_up_used_size'){
+            if (data.player == '1')
+              player1.height = playerHeight_power;
+            else if (data.player == '2')
+              player2.height = playerHeight_power;
+            size_power_up_used = true;
+          }
+          return;
+        }
+        else if (data.type == 'ball_move'){
+            ball.speedX = data.ball_speed_x;
+            ball.speedY = data.ball_speed_y;
+            rally++;
+            return;
+        }
+        else if (data.type == 'reset_game'){
+          if (items_pushed % 2 == 0){
+            rallies.push(rally/2);
+            items_pushed++;
+          }
+          else
+            items_pushed++;
+          reset_game(data);
+          rally = 0;
+          return;
+        }
+        else if (data.type == 'disconnected'){
+            const startRemoteGame = document.getElementById("startRemoteGame");
+            const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+            if (startRemoteGame){
+                startRemoteGame.style.display = "none";
+            }
+            else if (startTournamentMatchButton) {
+                startTournamentMatchButton.style.display = "none";
+            }
+          if (id !== 0){
+            if (username == connected_users[0])
+              alert(`${connected_users[1]} left the game!`);
+            else
+              alert(`${connected_users[0]} left the game!`);
+            reset();
+          }
+          else{
+            if (username == connected_users[0])
+              alert(`${connected_users[1]} left the lobby!`);
+            else
+              alert(`${connected_users[0]} left the lobby!`);
+          }
+          if (id != 0){
+            cancelAnimationFrame(id);
+            id = 0;
+          }
+          if (intervalID != 0){
+            clearInterval(intervalID);
+            intervalID = 0;
+          }
+          return;
+        }
+        document.getElementById("roomInfo").style.display = "block";
+        document.getElementById("versusScreen").style.display = "block";
+        document.getElementById("board").style.display = "none";
+        document.getElementById("left_player").style.display = "none";
+        document.getElementById("right_player").style.display = "none";
+        
+        // TODO check if exist add other button
         document.getElementById("resetRemoteGameButton").style.display = "none";
+        document.getElementById("myForm").style.display = "none";
+
     };
     })
     .catch(error => {
@@ -310,7 +536,6 @@ export function close_multi_on_change(){
   if (chatSocket){
     console.log("multiplayer socket closed");
     chatSocket.close();
-    chatSocket = null;
   }
 }
 
@@ -340,20 +565,23 @@ function reset() {
 	if (roomInfo){
 		document.getElementById("roomInfo").style.display = "none";
 		document.getElementById("versusScreen").style.display = "none";
-		document.getElementById("myForm").style.visibility = "block";
-		document.getElementById("myForm").style.display = "block";
 		document.getElementById("board").style.display = "none";
-		document.getElementById("resetRemoteGameButton").style.display = "none";
 		document.getElementById("left_player").style.display = "none";
 		document.getElementById("right_player").style.display = "none";
 		chatSocket.close();
+
+        // TODO check if exist add other button
+		document.getElementById("myForm").style.visibility = "block";
+		document.getElementById("myForm").style.display = "block";
+		document.getElementById("resetRemoteGameButton").style.display = "none";
 	}
 }
 
-
-
 function start_game() {
-  document.getElementById("myForm").style.display = "none";
+        // TODO check if exist add other button
+        document.getElementById("resetRemoteGameButton").style.display = "none";
+        document.getElementById("myForm").style.display = "none";
+
     document.getElementById("roomInfo").style.display = "none";
     document.getElementById("versusScreen").style.display = "none";
     document.getElementById("gameContainer").style.display = "block";
@@ -368,7 +596,6 @@ function start_game() {
     }
     document.getElementById("left_player").style.display = "block";
     document.getElementById("right_player").style.display = "block";
-    document.getElementById("resetRemoteGameButton").style.display = "none";
     //board vars
     if (check_input_froms() == -1){
       alert("The host entered wrong settings for the game!");
@@ -377,6 +604,8 @@ function start_game() {
     }
     player1.curr_speedY = playerSpeedY;
     player2.curr_speedY = playerSpeedY;
+
+    // TODO check if exist add other button
     document.getElementById("myForm").style.display = "none";
     board = document.getElementById("board");
     board.height = boardHeight;
@@ -500,6 +729,8 @@ function start_game() {
 
     if (check_and_change_score() == 1){
       cancelAnimationFrame(id);
+
+    // TODO check if exist add other button
 	  const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
 	  if(resetRemoteGameButton){
 		  document.getElementById("resetRemoteGameButton").style.display = "block";
