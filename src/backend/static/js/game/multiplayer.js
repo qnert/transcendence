@@ -513,9 +513,14 @@ export function create_tournament_match(playingContent) {
         document.getElementById("left_player").style.display = "none";
         document.getElementById("right_player").style.display = "none";
         
-        // TODO check if exist add other button
-        document.getElementById("resetRemoteGameButton").style.display = "none";
-        document.getElementById("myForm").style.display = "none";
+        const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
+        if (resetRemoteGameButton) {
+            resetRemoteGameButton.style.display = "none";
+        }
+        const myForm =  document.getElementById("myForm");
+        if (myForm) {
+            myForm.style.display = "none";
+        }
 
     };
     })
@@ -571,16 +576,29 @@ function reset() {
 		chatSocket.close();
 
         // TODO check if exist add other button
-		document.getElementById("myForm").style.visibility = "block";
-		document.getElementById("myForm").style.display = "block";
-		document.getElementById("resetRemoteGameButton").style.display = "none";
+        const myForm = document.getElementById("myForm");
+        if (myForm) {
+            myForm.style.visibility = "block";
+            myForm.style.display = "block";
+        }
+        const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
+        if (resetRemoteGameButton) {
+            resetRemoteGameButton.style.display = "none";
+        }
 	}
 }
 
 function start_game() {
-        // TODO check if exist add other button
-        document.getElementById("resetRemoteGameButton").style.display = "none";
-        document.getElementById("myForm").style.display = "none";
+    // TODO check if exist add other button
+    const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
+    if (resetRemoteGameButton) {
+        resetRemoteGameButton.style.display = "none";
+    }
+
+    const myForm = document.getElementById("myForm");
+    if (myForm) {
+        myForm.style.display = "none";
+    }
 
     document.getElementById("roomInfo").style.display = "none";
     document.getElementById("versusScreen").style.display = "none";
@@ -606,7 +624,10 @@ function start_game() {
     player2.curr_speedY = playerSpeedY;
 
     // TODO check if exist add other button
-    document.getElementById("myForm").style.display = "none";
+    if (myForm){
+        myForm.style.display = "none";
+    }
+
     board = document.getElementById("board");
     board.height = boardHeight;
     board.width = boardWidth;
@@ -689,7 +710,7 @@ function start_game() {
     countdown--;
     context.clearRect(0, 0, board.width, board.height);
     context.font = "45px Verdana";
-    context.fillStyle = document.getElementById("ballColor").value;
+    context.fillStyle = ball_color;
     context.textAlign = "center";
     context.fillText(`Game starts in ${countdown}`, board.width / 2, board.height / 2);
     if (countdown <= 0){
