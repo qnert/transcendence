@@ -174,7 +174,9 @@ export function tournamentLobbyCloseSocket() {
 function initTournamentMatch(playingContent) {
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = playingContent.match_html;
+    //gameInfoBox.insertAdjacentElement('afterend', playingContent.match_html);
     //gameInfoBox.insertAdjacentHTML('afterend', playingContent.match_html);
+    //gameInfoBox.style.display = "none";
 
     create_tournament_match(playingContent);
 }

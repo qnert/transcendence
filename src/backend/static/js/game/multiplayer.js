@@ -23,8 +23,10 @@ export function resetRemoteGameButton() {
   let context;
       //board vars
   let board;
-  let boardWidth = 900;
-  let boardHeight = 500;
+// 900
+  let boardWidth = 700;
+// 500
+  let boardHeight = 450;
 
   // player vars
   let playerWidth = 10;
@@ -117,7 +119,7 @@ export function create_tournament_match(playingContent) {
     const startTournamentMatchButton = document.getElementById("startTournamentMatch");
     if (startTournamentMatchButton) 
         startTournamentMatchButton.onclick = function (event) {
-        event.preventDefault;
+        event.preventDefault();
         chatSocket.send(
             JSON.stringify({
                 type: "start_game",
@@ -590,7 +592,7 @@ function reset() {
 
 function start_game() {
     // TODO check if exist add other button
-    const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
+    const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
     if (resetRemoteGameButton) {
         resetRemoteGameButton.style.display = "none";
     }
@@ -604,6 +606,17 @@ function start_game() {
     document.getElementById("versusScreen").style.display = "none";
     document.getElementById("gameContainer").style.display = "block";
     document.getElementById("board").style.display = "block";
+
+    // TODO focus here
+    board = document.getElementById("board");
+    board.style.display = "block";
+    board.focus();
+
+    const gameInfoBox = document.getElementById("gameInfoBox");
+    if (gameInfoBox){
+        gameInfoBox.scrollIntoView({inline: "center", behavior: "instant", block: "start" });
+    }
+
     if (username == connected_users[0]){
       document.getElementById("left_player").innerText = username;
       document.getElementById("right_player").innerText = connected_users[1];
@@ -628,7 +641,7 @@ function start_game() {
         myForm.style.display = "none";
     }
 
-    board = document.getElementById("board");
+    //board = document.getElementById("board");
     board.height = boardHeight;
     board.width = boardWidth;
     context = board.getContext("2d");
@@ -650,6 +663,8 @@ function start_game() {
     window.addEventListener('keydown', (event) => {
       if (username == connected_users[0]){
         if (event.code == 'ArrowUp') {
+          // TODO prevent default
+          event.preventDefault();
           if (player1.y > 0){
             chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '1'}));
           }
@@ -659,6 +674,8 @@ function start_game() {
           }
         }
         if (event.code == 'ArrowDown') {
+          // TODO prevent default
+          event.preventDefault();
           if (player1.y + player1.height < boardHeight){
             chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '1'}));
           }
@@ -670,6 +687,9 @@ function start_game() {
       }
       else{
         if (event.code == 'ArrowUp') {
+
+          // TODO prevent default
+          event.preventDefault();
           if (player2.y > 0){
             chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '2'}));
           }
@@ -679,6 +699,8 @@ function start_game() {
           }
         }
         if (event.code == 'ArrowDown') {
+          // TODO prevent default
+            event.preventDefault();
           if (player2.y + player2.height < boardHeight){
             chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '2'}));
           }
@@ -693,11 +715,15 @@ function start_game() {
     window.addEventListener('keyup', (e) => {
     if (username == connected_users[0]){
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
+        // TODO prevent default
+        e.preventDefault();
         chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '1'}));
       }
     }
     else{
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
+        // TODO prevent default
+        e.preventDefault();
         chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '2'}));
       }
     }
