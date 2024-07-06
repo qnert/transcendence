@@ -8,6 +8,7 @@ from tournament.consumers import TournamentConsumer
 # variables that hold database instances wont know about changes
 # need to account for that when testing for changes
 
+TEST_TOURNAMENT_NAME='test_tournament'
 
 class TournamentModelTest(TestCase):
 
@@ -21,12 +22,12 @@ class TournamentModelTest(TestCase):
                 username=f'testuser{index}', password='1234', email=f'testuser{index}@some_domain.com'))
             cls.user_profiles.append(UserProfile.objects.create(user=cls.users[index]))
         cls.host_profile = cls.user_profiles[0]
-        cls.tournament = Tournament.objects.create(name='Test Tournament', created_by=cls.host_profile)
+        cls.tournament = Tournament.objects.create(name=TEST_TOURNAMENT_NAME, created_by=cls.host_profile)
 
     def test_tournament_creation(self):
         """ checks for tournament creation and initial participants count """
         self.assertIsNotNone(self.tournament)
-        self.assertTrue(Tournament.objects.filter(name='Test Tournament').exists())
+        self.assertTrue(Tournament.objects.filter(name=TEST_TOURNAMENT_NAME).exists())
         self.assertEqual(self.tournament.created_by, self.host_profile)
         self.assertEqual(self.tournament.participants.count(), 0)
 
@@ -62,7 +63,7 @@ class TournamentModelTest(TestCase):
     def test_tournament_delete_if_empty(self):
         """ checks delete if empty method """
         self.tournament.delete_if_empty()
-        self.assertFalse(Tournament.objects.filter(name='Test Tournament').exists())
+        self.assertFalse(Tournament.objects.filter(name=TEST_TOURNAMENT_NAME).exists())
 
     def test_tournament_advance_state(self):
         """ checks advanving tournament state """
@@ -161,21 +162,30 @@ class TournamentModelTest(TestCase):
         self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[3])
         self.assertTrue(self.tournament.are_participants_ready())
 
-# def test_tournament_create_game(self):
+    def test_tournament_get_matches_list(self):
+        """ Checks create match method """
+        self.tournament.add_participant(self.user_profiles[0])
+        self.tournament.add_participant(self.user_profiles[1])
 
+        participants = self.tournament.get_participants()
 
-class TournamentConsumerTest(TestCase):
+        self.tournament.advance_state()
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.users = []
-        cls.user_profiles = []
-        for index in range(MAX_PARTICIPANTS + 1):
-            cls.users.append(User.objects.create_user(
-                username=f'testuser{index}', password='1234', email=f'testuser{index}@some_domain.com'))
-            cls.user_profiles.append(UserProfile.objects.create(user=cls.users[index]))
-        cls.host_profile = cls.user_profiles[0]
-        cls.tournament = Tournament.objects.create(name='Test Tournament', created_by=cls.host_profile)
+        self.tournament.create_match(player_home=participants[0], player_away=participants[1])
+        print(self.tournament.get_matches_list())
 
-    def test_first(self):
-        self.assertEqual(True, True)
+#class TournamentConsumerTest(TestCase):
+#
+#    @classmethod
+#    def setUpTestData(cls):
+#        cls.users = []
+#        cls.user_profiles = []
+#        for index in range(MAX_PARTICIPANTS + 1):
+#            cls.users.append(User.objects.create_user(
+#                username=f'testuser{index}', password='1234', email=f'testuser{index}@some_domain.com'))
+#            cls.user_profiles.append(UserProfile.objects.create(user=cls.users[index]))
+#        cls.host_profile = cls.user_profiles[0]
+#        cls.tournament = Tournament.objects.create(name=TEST_TOURNAMENT_NAME, created_by=cls.host_profile)
+#
+#    def test_first(self):
+#        self.assertEqual(True, True)

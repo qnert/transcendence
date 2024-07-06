@@ -15,6 +15,42 @@ DEFAULT_GAME_SETTINGS = {
 }
 
 
+class TournamentUser(models.Model):
+
+    tournament = models.ForeignKey('Tournament', related_name='participants', on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(UserProfile, related_name='tournament_members',
+                                     on_delete=models.CASCADE, null=True)
+    is_ready = models.BooleanField(default=False)
+    wins = models.IntegerField(default=0)
+    losses = models.IntegerField(default=0)
+    goals_scored = models.IntegerField(default=0)
+    goals_conceded = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    # matches_home (OneToOneField <- TournamentMatch)
+    # matches_away (OneToOneField <- TournamentMatch)
+
+    # makes sure the host is always the first in the participants list
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f'{self.user_profile.display_name}({self.user_profile.user.username})'
+
+
+class TournamentMatch(models.Model):
+
+    tournament = models.ForeignKey('Tournament', related_name='matches', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, unique=True)
+    is_finished = models.BooleanField(default=False)
+    player_home = models.OneToOneField(TournamentUser, related_name='matches_home', on_delete=models.CASCADE)
+    player_away = models.OneToOneField(TournamentUser, related_name='matches_away', on_delete=models.CASCADE)
+    goals_home = models.IntegerField(default=0)
+    goals_away = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.name}'
+
+
 class Tournament(models.Model):
 
     name = models.CharField(max_length=50, unique=True)
@@ -24,7 +60,7 @@ class Tournament(models.Model):
                                    null=True, on_delete=models.CASCADE)
     game_settings = models.JSONField(default=dict)
     # participants (Foreign Key <- TournamentUser)
-    # matches (Foreign Key <- TournamentUser)
+    # matches (Foreign Key <- TournamentMatch)
 
     class Meta:
         ordering = ['created_at']
@@ -53,10 +89,29 @@ class Tournament(models.Model):
             raise ValidationError("Invalid state transition")
         self.save(update_fields=['state'])
 
-    def create_game(self):
+    def get_matches_list(self):
+        return self.matches.all()
+
+    def create_match_list(self):
         # TODO implement
+        # add algorithm that creates games depending on player count
+        pass
+
+    def create_match(self, player_home: TournamentUser, player_away: TournamentUser):
         if self.state != 'playing':
             raise ValidationError("Cannot create games in this phase")
+        tournament_name = self.name
+        # TODO add an id
+        player_home_name = player_home.user_profile.user.username
+        player_away_name = player_away.user_profile.user.username
+        match_name = f'{tournament_name}_{player_home_name}_{player_away_name}'
+        TournamentMatch.objects.create(
+                tournament=self,
+                player_home=player_home,
+                player_away=player_away,
+                name=match_name
+        )
+        print(self.matches.all().first())
 
     def delete_if_empty(self):
         if self.participants.count() == 0:
@@ -163,39 +218,3 @@ class Tournament(models.Model):
             raise ValidationError("Toggling state of a user that is not a participant!")
         tournament_user.is_ready = not tournament_user.is_ready
         tournament_user.save()
-
-
-class TournamentUser(models.Model):
-
-    tournament = models.ForeignKey(Tournament, related_name='participants', on_delete=models.CASCADE)
-    user_profile = models.ForeignKey(UserProfile, related_name='tournament_members',
-                                     on_delete=models.CASCADE, null=True)
-    is_ready = models.BooleanField(default=False)
-    wins = models.IntegerField(default=0)
-    losses = models.IntegerField(default=0)
-    goals_scored = models.IntegerField(default=0)
-    goals_conceded = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    # matches_home (OneToOneField <- TournamentMatch)
-    # matches_away (OneToOneField <- TournamentMatch)
-
-    # makes sure the host is always the first in the participants list
-    class Meta:
-        ordering = ["created_at"]
-
-    def __str__(self):
-        return f'{self.user_profile.user.username} in {self.tournament.name}'
-
-
-class TournamentMatch(models.Model):
-
-    tournament = models.ForeignKey(Tournament, related_name='matches', on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, unique=True)
-    is_finished = models.BooleanField(default=False)
-    player_home = models.OneToOneField(TournamentUser, related_name='matches_home', on_delete=models.CASCADE)
-    player_away = models.OneToOneField(TournamentUser, related_name='matches_away', on_delete=models.CASCADE)
-    goals_home = models.IntegerField(default=0)
-    goals_away = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f'{self.player_home.user_profile.user.username} versus {self.player_away.user_profile.user.username}'
