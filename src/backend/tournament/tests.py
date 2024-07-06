@@ -149,6 +149,7 @@ class TournamentModelTest(TestCase):
         self.assertFalse(self.tournament.are_participants_ready())
         self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
 
+        # TODO adjust this test to be scalable depending on MAX_PARTICIPANTS
         self.tournament.add_participant(self.user_profiles[1])
         self.tournament.add_participant(self.user_profiles[2])
         self.tournament.add_participant(self.user_profiles[3])

@@ -101,7 +101,7 @@ class Tournament(models.Model):
         if self.state != 'playing':
             raise ValidationError("Cannot create games in this phase")
         tournament_name = self.name
-        # TODO add an id
+        # TODO add game id
         player_home_name = player_home.user_profile.user.username
         player_away_name = player_away.user_profile.user.username
         match_name = f'{tournament_name}_{player_home_name}_{player_away_name}'
