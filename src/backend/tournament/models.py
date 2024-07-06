@@ -82,9 +82,14 @@ class Tournament(models.Model):
         return self.participants.count()
 
     def get_participants_names(self):
+        # Hint:
+        # If formatting of name would be changed, also change in consumer class (build_nickname())
         obj = []
         for participant in self.participants.all():
-            obj.append(f'{participant.user_profile.display_name}({participant.user_profile.user.username})')
+            if self.is_host(user_profile=participant.user_profile):
+                obj.append(f'👑 {participant.user_profile.display_name}({participant.user_profile.user.username})')
+            else:
+                obj.append(f'🐸 {participant.user_profile.display_name}({participant.user_profile.user.username})')
         return obj
 
     def get_participants_statuses(self):
@@ -95,6 +100,18 @@ class Tournament(models.Model):
         names = self.get_participants_names()
         participants_list = [{'name': name, 'status': status} for name, status in zip(names, statuses)]
         return participants_list
+
+    def get_participants_for_standings(self):
+        names = self.get_participants_names()
+        participants = self.get_participants()
+
+        for participant, name in zip(participants, names):
+            participant.name = name
+
+        # sort by amount of wins
+        participants = sorted(participants, key=lambda p: p.wins, reverse=True)
+
+        return participants
 
     def get_participants(self):
         return self.participants.all()

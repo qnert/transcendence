@@ -65,6 +65,7 @@ body {
             width: 75%;
             margin-top: 10px;
             border: none;
+            table-layout: fixed;
 
             th,
             td {

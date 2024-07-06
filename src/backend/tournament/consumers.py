@@ -23,6 +23,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
 
+        # Hint:
         # parse variables from frontend scope
         # add user to channel group
         # Setup necessary database variables
@@ -37,6 +38,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
 
+        # Hint:
         # Remove Participant from Lobby in DB
         # Notify Group about leaving and sending them new data to render
         # Clean Group, Tournament if necessary
@@ -47,6 +49,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
 
+        # Hint:
         # Handle Json messages sent from the Frontend to this socket
         text_data_json = json.loads(text_data)
 
@@ -72,10 +75,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 #   ==========================     UPDATE ROUTINES
 
-#   all notifications send to a socket will trigger these routines per socket
-#       - reinit db variables
-#       - send prerendered (SSR) dynamic content to Frontend
+# Hint:
+# all notifications send to a socket will trigger these routines per socket
+#  - reinit db variables
+#  - send prerendered (SSR) dynamic content to Frontend
 
+    # Hint:
+    # If naming formatting would be changed...
+    # also change in tournament model get_participants_names() method
     async def build_nickname(self):
         if self.is_host:
             return f'👑 {self.user_profile.display_name}({self.username})'
@@ -179,8 +186,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     # TODO implement
     # TODO an algorithm should figure out the room_name
     async def send_playing_content(self):
+
         match_html = await database_sync_to_async(render_to_string)('tournament_match_lobby.html')
+
         game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
+
+        standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
+        standings_html = await database_sync_to_async(render_to_string)('tournament_standings.html', {'standings': standings})
+
         await self.channel_layer.send(
             self.channel_name,
             {
@@ -190,6 +203,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     'username': self.username,
                     'room_name': self.lobby_name,
                     'match_html': match_html,
+                    'standings_html': standings_html,
                 }
             }
         )
@@ -212,6 +226,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.update_content()
         notification = event["notification"]
         disconnect = False
+        
+        # Hint:
+        # handle disconnect of someone during playing phase
         if MSG_LEAVE in notification and self.state == 'playing':
             disconnect = True
             print("Tournament should be cancelled!")

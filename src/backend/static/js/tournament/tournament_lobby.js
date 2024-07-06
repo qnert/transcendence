@@ -5,10 +5,11 @@ import { handleRouteToken } from '../basics.js'
 
 let tournamentLobbySocket;
 
+const msgRageQuit = "A motherfucking kiddo decided to rage quit, before the tournament ended";
+
 // =========================== MAIN EVENT LOOP ===============================
 
 export function tournamentLobbyInit(lobbyName, userName) {
-    // this code is not run in reattachEventListener, so protection shouldnt be needed
     const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
@@ -47,7 +48,7 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
 // =========================== HELPERS ===============================
 
-const socketMessageHandler = (event, tournamentLobbyChatLog) => {
+async function socketMessageHandler (event, tournamentLobbyChatLog) {
     const data = JSON.parse(event.data);
     let message = "";
 
@@ -69,11 +70,20 @@ const socketMessageHandler = (event, tournamentLobbyChatLog) => {
     } else if (data.playing_content) {
         renderPlayingContent(data.playing_content);
     }
+
+    // Hint:
+    // On MSG_LEAVE notification a data.disconnect is sent too,
+    // indicating wether the Tournament will be closed (only during 'playing' phase),
+    // in which case everyone has to leave/disconnect
     if (data.disconnect == true) {
-        alert("A motherfucker decided to leave the Tournament!");
+        // TODO handle differently?
+        alert(msgRageQuit);
         await handleRouteToken("/tournament/hub/");
+        // TODO return here right?
+        return;
     }
-    /* note: in case this socket has become the host, some eventListeners have to be reattached */
+    // Hint:
+    // In case the host has changed, eventListeners must be reattached
     attachdynamicEventListeners();
 };
 
@@ -155,12 +165,14 @@ function renderPlayingContent(playingContent) {
         const footerBox = document.getElementById("lobby-footer-box");
         footerBox.style.display = "flex";
     } else {
-        initTournamentMatch(playingContent);
+        initTournamentPlayingPhase(playingContent);
     }
 }
 
 // =========================== CLEAN UP ===============================
 
+// Hint:
+// used in handleURLChange() for global socket cleanup
 export function tournamentLobbyCloseSocket() {
     if (tournamentLobbySocket) {
         tournamentLobbySocket.close();
@@ -170,17 +182,25 @@ export function tournamentLobbyCloseSocket() {
 
 // =========================== GAME / MATCH  ===============================
 
+// Hint:
 // playingContent
 //      - username
 //      - room_name
 //      - game_settings
 //      - match_html
+//      - standings_html
+
+function initTournamentPlayingPhase(playingContent) {
+    const gameInfoBox = document.getElementById("lobby-game-info-box");
+    gameInfoBox.innerHTML = playingContent.standings_html;
+}
+
+// TODO implement correctly
 function initTournamentMatch(playingContent) {
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = playingContent.match_html;
     //gameInfoBox.insertAdjacentElement('afterend', playingContent.match_html);
     //gameInfoBox.insertAdjacentHTML('afterend', playingContent.match_html);
     //gameInfoBox.style.display = "none";
-
     create_tournament_match(playingContent);
 }
