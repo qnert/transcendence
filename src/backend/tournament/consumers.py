@@ -212,7 +212,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.update_content()
         notification = event["notification"]
         disconnect = False
-        if MSG_LEAVE in notification and self.state != 'setup':
+        if MSG_LEAVE in notification and self.state == 'playing':
             disconnect = True
             print("Tournament should be cancelled!")
 
