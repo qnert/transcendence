@@ -1,4 +1,5 @@
 import { create_tournament_match } from '../game/multiplayer.js'
+import { handleRouteToken } from '../basics.js'
 
 // =========================== GLOBAL ===============================
 
@@ -68,7 +69,10 @@ const socketMessageHandler = (event, tournamentLobbyChatLog) => {
     } else if (data.playing_content) {
         renderPlayingContent(data.playing_content);
     }
-
+    if (data.disconnect == true) {
+        alert("A motherfucker decided to leave the Tournament!");
+        await handleRouteToken("/tournament/hub/");
+    }
     /* note: in case this socket has become the host, some eventListeners have to be reattached */
     attachdynamicEventListeners();
 };

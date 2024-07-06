@@ -18,7 +18,7 @@ export function resetRemoteGameButton() {
         resetRemoteGameButton.onclick = () => reset();
     }
 }
-
+  let isTournamentMatch;
   let chatSocket;
   let context;
       //board vars
@@ -136,6 +136,7 @@ export function create_tournament_match(playingContent) {
         );
     }
 
+    isTournamentMatch = true;
     username = playingContent.username;
     const room_name = playingContent.room_name;
     // TODO put this directly below
@@ -193,7 +194,7 @@ export function create_tournament_match(playingContent) {
             }
         }
         else if (data.type === 'connect_error'){
-            alert("Room is full!");
+            console.log("Room is full!");
             chatSocket.close();
             return;
         }
@@ -292,17 +293,18 @@ export function create_tournament_match(playingContent) {
             }
 
           if (id !== 0){
+            // TODO how to handle this?
             if (username == connected_users[0])
-              alert(`${connected_users[1]} left the game!`);
+              console.log(`${connected_users[1]} left the game!`);
             else
-              alert(`${connected_users[0]} left the game!`);
-            reset();
+              console.log(`${connected_users[0]} left the game!`);
+            //reset();
           }
           else{
             if (username == connected_users[0])
-              alert(`${connected_users[1]} left the lobby!`);
+              console.log(`${connected_users[1]} left the lobby!`);
             else
-              alert(`${connected_users[0]} left the lobby!`);
+              console.log(`${connected_users[0]} left the lobby!`);
           }
           if (id != 0){
             cancelAnimationFrame(id);
@@ -320,7 +322,7 @@ export function create_tournament_match(playingContent) {
         document.getElementById("left_player").style.display = "none";
         document.getElementById("right_player").style.display = "none";
 
-        // TODO remove // filter in rest of code
+        // TODO removed in tournament
         //document.getElementById("myForm").style.display = "none";
         //document.getElementById("resetRemoteGameButton").style.display = "none";
     };
@@ -543,6 +545,9 @@ export function close_multi_on_change(){
   if (chatSocket){
     console.log("multiplayer socket closed");
     chatSocket.close();
+    if (isTournamentMatch){
+        isTournamentMatch = false;
+    }
   }
 }
 

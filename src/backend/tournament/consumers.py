@@ -211,8 +211,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.update_db_variables()
         await self.update_content()
         notification = event["notification"]
+        disconnect = False
+        if MSG_LEAVE in notification and self.state != 'setup':
+            disconnect = True
+            print("Tournament should be cancelled!")
+
         await self.send(text_data=json.dumps({
             'notification': notification,
+            'disconnect': disconnect,
         }))
 
     async def event_chat_message(self, event):
