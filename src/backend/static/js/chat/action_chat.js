@@ -94,14 +94,20 @@ export function selectFriend(friendId, friendName) {
   }
 
 function loadMessages(friendId) {
+    var messageDb;
     fetch(`/api/messages/${friendId}/`)
         .then((response) => response.json())
         .then((data) => {
             const messageList = document.getElementById("chat-text");
             messageList.innerHTML = "";
             data.messages.forEach((message) => {
-                messageList.value += `${message.sender}: ${message.content}\n`;
+              messageDb = `${message.sender}: ${message.content}`;
+                if (!messageList.value)
+                  messageList.value += messageDb;
+                else
+                  messageList.value += '\n' + messageDb;
             });
+            messageList.scrollTop = messageList.scrollHeight;
         })
         .catch((error) => console.error("Error loading messages:", error));
 }
@@ -139,7 +145,12 @@ function initializeWebSocket(friendId) {
     chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
         const chatText = document.getElementById("chat-text");
-        chatText.value += `${data.sender}: ${data.message}\n`;
+        const message = `${data.sender}: ${data.message}`;
+        if (!chatText.value)
+          chatText.value += message;
+        else
+          chatText.value += '\n' + message;
+        chatText.scrollTop = chatText.scrollHeight;
     };
 
     chatSocket.onclose = function (e) {
