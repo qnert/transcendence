@@ -1,0 +1,20 @@
+<table class="table" id="lobby-match-list-table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Match ID</th>
+            <th scope="col">Join Button</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for match_id in match_ids %}
+        <tr>
+            <td>
+                {{ match_id }}
+            </td>
+            <td>
+                placeholder: Join Button
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

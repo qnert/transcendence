@@ -100,7 +100,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 else:
                     await self.send_remove_advance_button()
         elif self.state == 'playing':
+            # TODO only execute once?
             await self.send_remove_setup_content()
+
             await self.send_playing_content()
 
     async def update_db_variables(self):
@@ -194,6 +196,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
         standings_html = await database_sync_to_async(render_to_string)('tournament_standings.html', {'standings': standings})
 
+        match_ids = [ 1, 2, 3]
+        match_list_html = await database_sync_to_async(render_to_string)('Tournament_match_list.html', {'match_ids': match_ids})
+
         await self.channel_layer.send(
             self.channel_name,
             {
@@ -204,6 +209,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     'room_name': self.lobby_name,
                     'match_html': match_html,
                     'standings_html': standings_html,
+                    'match_list_html': match_list_html,
                 }
             }
         )
