@@ -1,4 +1,4 @@
-import { checkAccessToken } from "../profile/profile";
+import { checkAccessToken } from "../profile/profile.js";
 
 function reset() {
     document.getElementById("myForm").style.display = "block";
