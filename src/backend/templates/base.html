@@ -145,6 +145,9 @@
 					handle401Error();
 					return;
 				}
+				if(response.status === 404)
+					checkAccessToken();
+					return;
 				if (response.status === 405) {
 					console.log("Method not allowed");
 					return;
@@ -193,7 +196,7 @@
         	});
 
         	if (!response.ok) {
-        	    if (response.status === 401) {
+        	    if (response.status === 401 || response.status === 405) {
         	        handle401Error();
         	        return;
         	    } else {
