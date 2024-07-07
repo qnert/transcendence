@@ -144,36 +144,37 @@ class TournamentModelTest(TestCase):
         self.tournament.add_participant(self.user_profiles[0])
         self.assertFalse(self.tournament.are_participants_ready())
 
-        # This test checks the where all particitpants are ready, but MAX_PARTICIPANTS has not been reached
+        # This test checks the where all participants are ready, but MAX_PARTICIPANTS has not been reached
         self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
         self.assertFalse(self.tournament.are_participants_ready())
         self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
+        self.tournament.remove_participant(self.user_profiles[0])
 
-        # TODO adjust this test to be scalable depending on MAX_PARTICIPANTS
-        self.tournament.add_participant(self.user_profiles[1])
-        self.tournament.add_participant(self.user_profiles[2])
-        self.tournament.add_participant(self.user_profiles[3])
-        self.assertFalse(self.tournament.are_participants_ready())
-
-        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
-        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[1])
-        self.assertFalse(self.tournament.are_participants_ready())
-
-        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[2])
-        self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[3])
+        for participant in self.user_profiles[:-1]:
+            self.tournament.add_participant(participant)
+            self.tournament.toggle_ready_state_by(user_profile=participant)
         self.assertTrue(self.tournament.are_participants_ready())
 
-    def test_tournament_get_matches_list(self):
+    def test_tournament_create_matches_list(self):
         """ Checks create match method """
+
+        # This test checks creating matches_list with too few participants
         self.tournament.add_participant(self.user_profiles[0])
-        self.tournament.add_participant(self.user_profiles[1])
+        with self.assertRaises(ValidationError):
+            self.tournament.create_matches_list()
+        self.tournament.remove_participant(self.user_profiles[0])
 
-        participants = self.tournament.get_participants()
-
+        # This test checks creating matches when not all participants are ready
+        for participant in self.user_profiles[:-1]:
+            self.tournament.add_participant(participant)
+        with self.assertRaises(ValidationError):
+            self.tournament.create_matches_list()
+        
+        # This test checks creating a tournament when all conditions are met
+        for participant in self.tournament.get_participants():
+            self.tournament.toggle_ready_state_by(user_profile=participant.user_profile)
         self.tournament.advance_state()
-
-        self.tournament.create_match(player_home=participants[0], player_away=participants[1])
-        print(self.tournament.get_matches_list())
+        self.tournament.create_matches_list()
 
 #class TournamentConsumerTest(TestCase):
 #

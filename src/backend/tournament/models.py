@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from datetime import date
 from api.models import UserProfile
 
-MAX_PARTICIPANTS = 2  # TODO change back after dev
+MAX_PARTICIPANTS = 4  # TODO change back after dev
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '8',
     "max_score": '8',
@@ -26,8 +26,8 @@ class TournamentUser(models.Model):
     goals_scored = models.IntegerField(default=0)
     goals_conceded = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
-    # matches_home (OneToOneField <- TournamentMatch)
-    # matches_away (OneToOneField <- TournamentMatch)
+    # matches_home (ForeignKey <- TournamentMatch)
+    # matches_away (ForeignKey <- TournamentMatch)
 
     # makes sure the host is always the first in the participants list
     class Meta:
@@ -42,8 +42,8 @@ class TournamentMatch(models.Model):
     tournament = models.ForeignKey('Tournament', related_name='matches', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, unique=True)
     is_finished = models.BooleanField(default=False)
-    player_home = models.OneToOneField(TournamentUser, related_name='matches_home', on_delete=models.CASCADE)
-    player_away = models.OneToOneField(TournamentUser, related_name='matches_away', on_delete=models.CASCADE)
+    player_home = models.ForeignKey(TournamentUser, related_name='matches_home', on_delete=models.CASCADE)
+    player_away = models.ForeignKey(TournamentUser, related_name='matches_away', on_delete=models.CASCADE)
     goals_home = models.IntegerField(default=0)
     goals_away = models.IntegerField(default=0)
 
@@ -90,28 +90,64 @@ class Tournament(models.Model):
         self.save(update_fields=['state'])
 
     def get_matches_list(self):
-        return self.matches.all()
+        obj = []
+        matches = self.matches.all()
+        for match in matches:
+            obj.append(f'{match}')
+        return obj
 
-    def create_match_list(self):
-        # TODO implement
-        # add algorithm that creates games depending on player count
-        pass
-
-    def create_match(self, player_home: TournamentUser, player_away: TournamentUser):
+    def create_matches_list(self):
+        # Hint:
+        # Tournament should use advance_state() method (all participants have to be ready)
+        # and create all matches so they can be displayed in Frontend after that
         if self.state != 'playing':
-            raise ValidationError("Cannot create games in this phase")
-        tournament_name = self.name
-        # TODO add game id
-        player_home_name = player_home.user_profile.user.username
-        player_away_name = player_away.user_profile.user.username
-        match_name = f'{tournament_name}_{player_home_name}_{player_away_name}'
-        TournamentMatch.objects.create(
-                tournament=self,
-                player_home=player_home,
-                player_away=player_away,
-                name=match_name
-        )
-        print(self.matches.all().first())
+            raise ValidationError("Matches can only be created during the setup phase.")
+
+        participants = list(self.participants.all())
+        num_participants = len(participants)
+
+        if num_participants < 2:
+            raise ValidationError("Not enough participants to create matches.")
+
+        # Hint:
+        # appends a Dummy (None) if the num_participants is not even
+        # Dummy has to be handled as an auto win (bye week)
+        if num_participants % 2 == 1:
+            participants.append(None)
+
+        # Hint:
+        # This algorithm creates matches based on the amount of participants
+        # there have to be (participants - 1) amount of rounds so everyone plays against everyonce exactly once
+        rounds = num_participants - 1
+        matches = []
+        for round_num in range(rounds):
+            for i in range(num_participants // 2):
+                # Hint:
+                # We only have to loop until the middle of the List, because at that point
+                # everyone has gotten a matchup. The algorithm moves simultaneously from
+                # start --> middle and middle <-- end
+                player1 = participants[i]
+                player2 = participants[num_participants - 1 - i]
+
+                if player1 is not None and player2 is not None:
+                    match_name = f'{self.name}_{player1.user_profile.user.username}_vs_{player2.user_profile.user.username}'
+                    match = TournamentMatch(
+                        tournament=self,
+                        player_home=player1,
+                        player_away=player2,
+                        name=match_name
+                    )
+                    matches.append(match)
+
+            # Hint:
+            # This will shift the participants to the end of the list
+            # the last one will get the second position in the list
+            # [ A - B - C - D ] --> [ A - D - B - C ]
+            participants = [participants[0]] + [participants[-1]] + participants[1:-1]
+
+        # Hint:
+        # bulk_create saves database operations, by creating all Matches at once
+        TournamentMatch.objects.bulk_create(matches)
 
     def delete_if_empty(self):
         if self.participants.count() == 0:
