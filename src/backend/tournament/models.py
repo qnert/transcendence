@@ -101,6 +101,8 @@ class Tournament(models.Model):
         return self.matches.all()
 
     def create_matches_list(self):
+        if self.matches.exists():
+            raise ValidationError("Matches have already been created")
         # Hint:
         # Tournament should use advance_state() method (all participants have to be ready)
         # and create all matches so they can be displayed in Frontend after that

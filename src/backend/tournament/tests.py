@@ -176,10 +176,6 @@ class TournamentModelTest(TestCase):
             self.tournament.toggle_ready_state_by(user_profile=participant.user_profile)
         self.tournament.advance_state()
         self.tournament.create_matches_list()
-        print( self.tournament.get_matches_list())
-        print( self.tournament.get_matches_list())
-        print( self.tournament.get_matches_list())
-        print( self.tournament.get_matches_list())
 
     def test_TournamentModel_has_matches_list(self):
         """ Checks has matches list method """
@@ -221,11 +217,9 @@ class TournamentModelTest(TestCase):
         first_participant = self.tournament.get_participants().first()
         for index, match in enumerate(matches):
             next_match = self.tournament.get_next_match(participant=first_participant)
-            if index == len(matches) - 1:
-                self.assertIsNone(next_match)
-            else:
-                self.assertIsNotNone(next_match)
+            self.assertIsNotNone(next_match)
             match.set_finished()
+        self.assertIsNone(self.tournament.get_next_match(participant=first_participant))
 
 #   ==========================     UTIL FUNCTIONS
 

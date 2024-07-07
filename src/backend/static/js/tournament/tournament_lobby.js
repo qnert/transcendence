@@ -198,6 +198,13 @@ function initTournamentPlayingPhase(playingContent) {
     gameInfoBox.insertAdjacentHTML('beforeend', playingContent.matches_list_html)
 
     // TODO add EventListener for create/join Tournament Match Button
+    const joinNextTournamentMatch = document.getElementById("lobby-join-match-button");
+    if (joinNextTournamentMatch) {
+        joinNextTournamentMatch.onclick = function (event) {
+            event.preventDefault;
+            console.log("Button pressed");
+        }
+    }
 }
 
 // TODO implement correctly
