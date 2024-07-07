@@ -279,6 +279,7 @@ export function create_tournament_match(playingContent) {
             items_pushed++;
           reset_game(data);
           rally = 0;
+          console.log("return triggered");
           return;
         }
         else if (data.type == 'disconnected'){
@@ -314,6 +315,7 @@ export function create_tournament_match(playingContent) {
             clearInterval(intervalID);
             intervalID = 0;
           }
+          console.log("return triggered");
           return;
         }
         document.getElementById("roomInfo").style.display = "block";
@@ -321,7 +323,7 @@ export function create_tournament_match(playingContent) {
         document.getElementById("board").style.display = "none";
         document.getElementById("left_player").style.display = "none";
         document.getElementById("right_player").style.display = "none";
-
+        console.log("reached end of BIG MOFUCKIN FUNCTION!");
         // TODO removed in tournament
         //document.getElementById("myForm").style.display = "none";
         //document.getElementById("resetRemoteGameButton").style.display = "none";
