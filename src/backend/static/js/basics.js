@@ -16,6 +16,7 @@ import { tournamentHubEventLoop} from "./tournament/tournament_hub.js";
 import { tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 import { twoFAStatus } from "./profile/2FA.js";
 import { jumpNextField } from "./profile/profile.js";
+import { getUsernameFromBackend } from "./chat/action_chat.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
@@ -155,6 +156,7 @@ export async function handleRouteToken(path) {
 
 export function reattachEventListeners() {
     bindProfileButton();
+    getUsernameFromBackend();
     bindSaveChangesButton();
     checkBox();
     checkLoginStatus();
