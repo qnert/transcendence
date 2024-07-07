@@ -196,6 +196,8 @@ function initTournamentPlayingPhase(playingContent) {
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = playingContent.standings_html;
     gameInfoBox.insertAdjacentHTML('beforeend', playingContent.matches_list_html)
+
+    // TODO add EventListener for create/join Tournament Match Button
 }
 
 // TODO implement correctly

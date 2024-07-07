@@ -50,6 +50,11 @@ class TournamentMatch(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    def is_match_participant(self, participant: TournamentUser):
+        if self.player_home == participant or self.player_away == participant:
+            return True
+        return False
+
 
 class Tournament(models.Model):
 

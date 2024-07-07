@@ -4,11 +4,12 @@ from api.models import User, UserProfile
 from tournament.models import Tournament, MAX_PARTICIPANTS, DEFAULT_GAME_SETTINGS
 from tournament.consumers import TournamentConsumer
 
+TEST_TOURNAMENT_NAME='test_tournament'
+
 # Hint:
 # variables that hold database instances wont know about changes
 # need to account for that when testing for changes
 
-TEST_TOURNAMENT_NAME='test_tournament'
 
 class TournamentModelTest(TestCase):
 
@@ -24,21 +25,21 @@ class TournamentModelTest(TestCase):
         cls.host_profile = cls.user_profiles[0]
         cls.tournament = Tournament.objects.create(name=TEST_TOURNAMENT_NAME, created_by=cls.host_profile)
 
-    def test_tournament_creation(self):
+    def test_TournamentModel_creation(self):
         """ checks for tournament creation and initial participants count """
         self.assertIsNotNone(self.tournament)
         self.assertTrue(Tournament.objects.filter(name=TEST_TOURNAMENT_NAME).exists())
         self.assertEqual(self.tournament.created_by, self.host_profile)
         self.assertEqual(self.tournament.participants.count(), 0)
 
-    def test_tournament_creation_default_values(self):
+    def test_TournamentModel_creation_default_values(self):
         """ checks if tournament creation results in correct default values """
         RANDOM_GAME_SETTINGS = {}
         tournament = Tournament.objects.create(name='default', state='playing', game_settings=RANDOM_GAME_SETTINGS)
         self.assertEqual(tournament.get_state(), 'setup')
         self.assertEqual(tournament.get_game_settings(), DEFAULT_GAME_SETTINGS)
 
-    def test_tournament_add_participant_limit(self):
+    def test_TournamentModel_add_participant_limit(self):
         """ checks add_participant method and max_player_limit """
         for i in range(MAX_PARTICIPANTS):
             self.tournament.add_participant(self.user_profiles[i])
@@ -46,13 +47,13 @@ class TournamentModelTest(TestCase):
             self.tournament.add_participant(self.user_profiles[MAX_PARTICIPANTS])
         self.assertEqual(self.tournament.participants.count(), MAX_PARTICIPANTS)
 
-    def test_tournament_add_same_user(self):
+    def test_TournamentModel_add_same_user(self):
         """ checks adding the same user twice to a tournament """
         self.tournament.add_participant(self.user_profiles[0])
         with self.assertRaises(ValidationError):
             self.tournament.add_participant(self.user_profiles[0])
 
-    def test_tournament_remove_player(self):
+    def test_TournamentModel_remove_player(self):
         """ checks remove_participant method """
         count_initial = self.tournament.get_participants_count()
         self.tournament.add_participant(self.user_profiles[0])
@@ -60,12 +61,12 @@ class TournamentModelTest(TestCase):
         self.tournament.remove_participant(self.user_profiles[0])
         self.assertEqual(self.tournament.get_participants_count(), count_initial)
 
-    def test_tournament_delete_if_empty(self):
+    def test_TournamentModel_delete_if_empty(self):
         """ checks delete if empty method """
         self.tournament.delete_if_empty()
         self.assertFalse(Tournament.objects.filter(name=TEST_TOURNAMENT_NAME).exists())
 
-    def test_tournament_advance_state(self):
+    def test_TournamentModel_advance_state(self):
         """ checks advanving tournament state """
         self.assertEqual(self.tournament.get_state(), 'setup')
         self.tournament.advance_state()
@@ -73,7 +74,7 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.assertEqual(self.tournament.get_state(), 'finished')
 
-    def test_tournament_get_host(self):
+    def test_TournamentModel_get_host(self):
         """ checks for correct get_host method """
         # calling it on empty particpants should raise ValidationError
         with self.assertRaises(ValidationError):
@@ -81,7 +82,7 @@ class TournamentModelTest(TestCase):
         self.tournament.add_participant(self.user_profiles[0])
         self.assertEqual(self.tournament.get_host(), self.tournament.participants.first())
 
-    def test_tournament_set_game_settings(self):
+    def test_TournamentModel_set_game_settings(self):
         """ checks set_game_settings method """
         with self.assertRaises(ValidationError):
             self.tournament.set_game_settings(None)
@@ -100,7 +101,7 @@ class TournamentModelTest(TestCase):
         self.tournament.set_game_settings(NEW_GAME_SETTINGS)
         self.assertEqual(self.tournament.get_game_settings(), NEW_GAME_SETTINGS)
 
-    def test_tournament_user_default_values(self):
+    def test_TournamentModel_user_default_values(self):
         """ checks for default values in a tournament user """
         self.tournament.add_participant(self.user_profiles[0])
         tournament_user = self.tournament.participants.first()
@@ -114,7 +115,7 @@ class TournamentModelTest(TestCase):
         for key, value in test_values.items():
             self.assertEqual(getattr(tournament_user, key), value)
 
-    def test_get_user_by_methods(self):
+    def test_TournamentModel_get_user_by_methods(self):
         """ Checks get_user_by (username or user_profile) method behaviour """
         self.tournament.add_participant(self.user_profiles[0])
         self.tournament.add_participant(self.user_profiles[1])
@@ -123,7 +124,7 @@ class TournamentModelTest(TestCase):
         tmp_2 = self.tournament.get_participant_by(username=username)
         self.assertEqual(tmp, tmp_2)
 
-    def test_is_host(self):
+    def test_TournamentModel_is_host(self):
         """ Checks is_host method behaviour """
         self.tournament.add_participant(self.user_profiles[0])
         self.tournament.add_participant(self.user_profiles[1])
@@ -132,14 +133,14 @@ class TournamentModelTest(TestCase):
         self.assertFalse(self.tournament.is_host(user_profile=self.user_profiles[1]))
         self.assertFalse(self.tournament.is_host(username=self.user_profiles[1].user.username))
 
-    def test_tournament_user_toggle_ready_state(self):
+    def test_TournamentModel_user_toggle_ready_state(self):
         """ Checks toggle_ready_state method behaviour """
         self.tournament.add_participant(self.user_profiles[0])
         self.assertFalse(self.tournament.participants.first().is_ready)
         self.tournament.toggle_ready_state_by(self.user_profiles[0])
         self.assertTrue(self.tournament.participants.first().is_ready)
 
-    def test_tournament_are_participants_ready(self):
+    def test_TournamentModel_are_participants_ready(self):
         """ Checks are_participants_ready method behaviour """
         self.tournament.add_participant(self.user_profiles[0])
         self.assertFalse(self.tournament.are_participants_ready())
@@ -155,9 +156,8 @@ class TournamentModelTest(TestCase):
             self.tournament.toggle_ready_state_by(user_profile=participant)
         self.assertTrue(self.tournament.are_participants_ready())
 
-    def test_tournament_create_matches_list(self):
+    def test_TournamentModel_create_matches_list(self):
         """ Checks create match method """
-
         # This test checks creating matches_list with too few participants
         self.tournament.add_participant(self.user_profiles[0])
         with self.assertRaises(ValidationError):
@@ -176,10 +176,9 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.tournament.create_matches_list()
 
-    def test_tournament_has_matches_list(self):
-
+    def test_TournamentModel_has_matches_list(self):
+        """ Checks has matches list method """
         self.assertFalse(self.tournament.has_matches_list())
-
         for participant in self.user_profiles[:-1]:
             self.tournament.add_participant(participant)
         for participant in self.tournament.get_participants():
@@ -187,6 +186,24 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.tournament.create_matches_list()
         self.assertTrue(self.tournament.has_matches_list())
+    
+    def test_TournamentMatchModel_is_match_participant(self):
+        """ Checks TournamentMatch is match participant method """
+        for participant in self.user_profiles[:-1]:
+            self.tournament.add_participant(participant)
+        participants = self.tournament.get_participants()
+        for participant in participants:
+            self.tournament.toggle_ready_state_by(user_profile=participant.user_profile)
+        self.tournament.advance_state()
+        self.tournament.create_matches_list()
+
+        matches = self.tournament.get_matches_list()
+        counter = 0
+        for match in matches:
+            if match.is_match_participant(participant=participants.first()):
+                counter += 1
+        # Each participant should have MAX_PARTICIPANTS - 1 amount of games
+        self.assertEqual(counter, MAX_PARTICIPANTS - 1)
 
 
 #class TournamentConsumerTest(TestCase):
