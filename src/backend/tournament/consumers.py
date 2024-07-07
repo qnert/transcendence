@@ -123,6 +123,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 #   ==========================     SEND FUNCTIONS
 
     async def send_chat_notification(self, notification):
+        # TODO add bool here for update yes/no?!
         await self.channel_layer.group_send(
             self.lobby_group_name,
             {
@@ -202,10 +203,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             return
         matches_list = await database_sync_to_async(self.tournament.get_matches_list)()
         next_match = await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user)
+        # TODO add some kind of notification
 
         matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': next_match})
 
-        # TODO needed here?
+        # TODO needed here? or should i separate that
         match_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_match_lobby.html')
 
         await self.channel_layer.send(
@@ -219,6 +221,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     'game_settings': game_settings,
                     'standings_html': standings_html,
                     'matches_list_html': matches_list_html,
+                    'match_html': match_html,
                 }
             }
         )
@@ -237,6 +240,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     # Hint:
     # this function triggers updating vars and rendering for all socket users
     async def event_chat_notification(self, event):
+        # TODO do i need some kind of flag, that doesnt repeat this unnecessary on every notification?
         await self.update_db_variables()
         await self.update_content()
 

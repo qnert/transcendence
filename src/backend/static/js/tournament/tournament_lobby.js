@@ -203,6 +203,8 @@ function initTournamentPlayingPhase(playingContent) {
         joinNextTournamentMatch.onclick = function (event) {
             event.preventDefault;
             console.log("Button pressed");
+            gameInfoBox.innerHTML = playingContent.match_html;
+            create_tournament_match(playingContent);
         }
     }
 }
