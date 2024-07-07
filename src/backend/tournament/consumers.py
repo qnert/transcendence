@@ -58,7 +58,16 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         
         elif "advanced_state" in text_data_json:
             await database_sync_to_async(self.tournament.advance_state)()
-            await self.send_chat_notification(MSG_START)
+            await self.update_db_variables()
+            # Hint:
+            # This is state 'playing'
+            if not await database_sync_to_async(self.tournament.has_matches_list)():
+                await database_sync_to_async(self.tournament.create_matches_list)()
+                await self.send_remove_setup_content()
+                await self.send_chat_notification(MSG_START)
+            # TODO handle 'finished'
+            # Hint:
+            # This is state 'finished'
         
         elif "status_change" in text_data_json:
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
@@ -75,10 +84,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 #   ==========================     UPDATE ROUTINES
 
-# Hint:
-# all notifications send to a socket will trigger these routines per socket
-#  - reinit db variables
-#  - send prerendered (SSR) dynamic content to Frontend
+    # Hint:
+    # all notifications send to a socket will trigger these routines per socket
+    #  - reinit db variables
+    #  - send prerendered (SSR) dynamic content to Frontend
 
     # Hint:
     # If naming formatting would be changed...
@@ -100,9 +109,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 else:
                     await self.send_remove_advance_button()
         elif self.state == 'playing':
-            # TODO only execute once?
-            await self.send_remove_setup_content()
-
             await self.send_playing_content()
 
     async def update_db_variables(self):
@@ -185,31 +191,30 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             }
         )
     
-    # TODO implement
-    # TODO an algorithm should figure out the room_name
     async def send_playing_content(self):
-
-        match_html = await database_sync_to_async(render_to_string)('tournament_match_lobby.html')
 
         game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
 
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
         standings_html = await database_sync_to_async(render_to_string)('tournament_standings.html', {'standings': standings})
 
-        match_ids = [ 1, 2, 3]
-        match_list_html = await database_sync_to_async(render_to_string)('Tournament_match_list.html', {'match_ids': match_ids})
+        matches_list = await database_sync_to_async(self.tournament.get_matches_list)()
+        matches_list_html = await database_sync_to_async(render_to_string)('Tournament_match_list.html', {'matches_list': matches_list})
+
+        # TODO needed here?
+        match_html = await database_sync_to_async(render_to_string)('tournament_match_lobby.html')
 
         await self.channel_layer.send(
             self.channel_name,
             {
                 'type': 'event_playing_content',
                 'playing_content': {
-                    'game_settings': game_settings,
                     'username': self.username,
                     'room_name': self.lobby_name,
                     'match_html': match_html,
+                    'game_settings': game_settings,
                     'standings_html': standings_html,
-                    'match_list_html': match_list_html,
+                    'matches_list_html': matches_list_html,
                 }
             }
         )
@@ -230,19 +235,19 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     async def event_chat_notification(self, event):
         await self.update_db_variables()
         await self.update_content()
+
         notification = event["notification"]
-        disconnect = False
-        
         # Hint:
         # handle disconnect of someone during playing phase
-        if MSG_LEAVE in notification and self.state == 'playing':
-            disconnect = True
-            print("Tournament should be cancelled!")
+        disconnect = False
+        if self.state == 'playing':
+            if MSG_LEAVE in notification:
+                disconnect = True
 
         await self.send(text_data=json.dumps({
             'notification': notification,
             'disconnect': disconnect,
-        }))
+            }))
 
     async def event_chat_message(self, event):
         message = event["message"]

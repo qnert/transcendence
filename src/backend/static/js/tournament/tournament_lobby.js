@@ -190,12 +190,12 @@ export function tournamentLobbyCloseSocket() {
 //      - game_settings
 //      - match_html
 //      - standings_html
-//      - match_list_html
+//      - matches_list_html
 
 function initTournamentPlayingPhase(playingContent) {
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = playingContent.standings_html;
-    gameInfoBox.insertAdjacentHTML('beforeend', playingContent.match_list_html)
+    gameInfoBox.insertAdjacentHTML('beforeend', playingContent.matches_list_html)
 }
 
 // TODO implement correctly

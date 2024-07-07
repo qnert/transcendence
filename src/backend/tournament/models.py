@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from datetime import date
 from api.models import UserProfile
 
-MAX_PARTICIPANTS = 4  # TODO change back after dev
+MAX_PARTICIPANTS = 2  # TODO change back after dev
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '8',
     "max_score": '8',
@@ -90,11 +90,7 @@ class Tournament(models.Model):
         self.save(update_fields=['state'])
 
     def get_matches_list(self):
-        obj = []
-        matches = self.matches.all()
-        for match in matches:
-            obj.append(f'{match}')
-        return obj
+        return self.matches.all()
 
     def create_matches_list(self):
         # Hint:
@@ -130,6 +126,7 @@ class Tournament(models.Model):
                 player2 = participants[num_participants - 1 - i]
 
                 if player1 is not None and player2 is not None:
+                    # TODO match_name just an ID? can display player names in Table
                     match_name = f'{self.name}_{player1.user_profile.user.username}_vs_{player2.user_profile.user.username}'
                     match = TournamentMatch(
                         tournament=self,
@@ -148,6 +145,9 @@ class Tournament(models.Model):
         # Hint:
         # bulk_create saves database operations, by creating all Matches at once
         TournamentMatch.objects.bulk_create(matches)
+
+    def has_matches_list(self):
+        return self.matches.exists()
 
     def delete_if_empty(self):
         if self.participants.count() == 0:

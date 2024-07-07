@@ -176,6 +176,19 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.tournament.create_matches_list()
 
+    def test_tournament_has_matches_list(self):
+
+        self.assertFalse(self.tournament.has_matches_list())
+
+        for participant in self.user_profiles[:-1]:
+            self.tournament.add_participant(participant)
+        for participant in self.tournament.get_participants():
+            self.tournament.toggle_ready_state_by(user_profile=participant.user_profile)
+        self.tournament.advance_state()
+        self.tournament.create_matches_list()
+        self.assertTrue(self.tournament.has_matches_list())
+
+
 #class TournamentConsumerTest(TestCase):
 #
 #    @classmethod
