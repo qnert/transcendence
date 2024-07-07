@@ -198,8 +198,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
         standings_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_standings.html', {'standings': standings})
 
+        # TODO crash happens here if some is disconnected
         matches_list = await database_sync_to_async(self.tournament.get_matches_list)()
-        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list})
+        next_match = await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user)
+
+        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': next_match})
 
         # TODO needed here?
         match_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_match_lobby.html')

@@ -13,7 +13,7 @@
         {% for match in matches_list %}
         <tr>
             <td>
-                {% comment %} TODO might use index starting at 0 instead? {% endcomment%}
+                {%comment%}TODO might use index starting at 0 instead?{%endcomment%}
                 {{ forloop.counter }}
             </td>
             <td>
@@ -29,10 +29,12 @@
                 {{ match.player_away }}
             </td>
             <td>
-                {% if match.is_finished %}
+                {% if match == next_match %}
+                <button class="btn btn-primary" id="lobby-join-match-button">Join Match</button>
+                {% elif match.is_finished %}
                 ✅
-                {% else %}
-                placeholder: Join Button
+                [% else %]
+                -
                 {% endif %}
             </td>
         </tr>

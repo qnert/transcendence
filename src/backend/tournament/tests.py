@@ -41,8 +41,8 @@ class TournamentModelTest(TestCase):
 
     def test_TournamentModel_add_participant_limit(self):
         """ checks add_participant method and max_player_limit """
-        for i in range(MAX_PARTICIPANTS):
-            self.tournament.add_participant(self.user_profiles[i])
+        for index in range(MAX_PARTICIPANTS):
+            self.tournament.add_participant(self.user_profiles[index])
         with self.assertRaises(ValidationError):
             self.tournament.add_participant(self.user_profiles[MAX_PARTICIPANTS])
         self.assertEqual(self.tournament.participants.count(), MAX_PARTICIPANTS)
@@ -145,7 +145,8 @@ class TournamentModelTest(TestCase):
         self.tournament.add_participant(self.user_profiles[0])
         self.assertFalse(self.tournament.are_participants_ready())
 
-        # This test checks the where all participants are ready, but MAX_PARTICIPANTS has not been reached
+        # This test checks the where all participants are ready,
+        # but MAX_PARTICIPANTS has not been reached
         self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
         self.assertFalse(self.tournament.are_participants_ready())
         self.tournament.toggle_ready_state_by(user_profile=self.user_profiles[0])
@@ -175,36 +176,67 @@ class TournamentModelTest(TestCase):
             self.tournament.toggle_ready_state_by(user_profile=participant.user_profile)
         self.tournament.advance_state()
         self.tournament.create_matches_list()
+        print( self.tournament.get_matches_list())
+        print( self.tournament.get_matches_list())
+        print( self.tournament.get_matches_list())
+        print( self.tournament.get_matches_list())
 
     def test_TournamentModel_has_matches_list(self):
         """ Checks has matches list method """
         self.assertFalse(self.tournament.has_matches_list())
+        self.create_playing_phase_lobby()
+        self.assertTrue(self.tournament.has_matches_list())
+    
+    def test_TournamentMatchModel_is_match_participant(self):
+        """ Checks TournamentMatch is match participant method """
+        self.create_playing_phase_lobby()
+        first_participant = self.tournament.get_participants().first()
+        matches = self.tournament.get_matches_list()
+        counter = 0
+        for match in matches:
+            if match.is_match_participant(participant=first_participant):
+                counter += 1
+        # Each participant should have MAX_PARTICIPANTS - 1 amount of games
+        self.assertEqual(counter, MAX_PARTICIPANTS - 1)
+
+    def test_TournamentMatchModel_set_finished(self):
+        """ Checks TournamentMatch set finished method """
+        self.create_playing_phase_lobby()
+        match = self.tournament.get_matches_list().first()
+        self.assertEqual(match.is_finished, False)
+        match.set_finished()
+        self.assertEqual(match.is_finished, True)
+
+    def test_TournamentModel_get_next_match(self):
+        """ Checks Tournament get next match method """
+        # checks case where there are no matches created
+        self.tournament.add_participant(self.user_profiles[0])
+        with self.assertRaises(ValidationError):
+            self.tournament.get_next_match(participant=self.tournament.get_participants().first())
+        self.tournament.remove_participant(self.user_profiles[0])
+
+        # this test checks if the get_next_match results in a None if all matches are finished
+        self.create_playing_phase_lobby()
+        matches = self.tournament.get_matches_list()
+        first_participant = self.tournament.get_participants().first()
+        for index, match in enumerate(matches):
+            next_match = self.tournament.get_next_match(participant=first_participant)
+            if index == len(matches) - 1:
+                self.assertIsNone(next_match)
+            else:
+                self.assertIsNotNone(next_match)
+            match.set_finished()
+
+#   ==========================     UTIL FUNCTIONS
+
+    def create_playing_phase_lobby(self):
+        """ helper to automate proceding to the playing phase """
         for participant in self.user_profiles[:-1]:
             self.tournament.add_participant(participant)
         for participant in self.tournament.get_participants():
             self.tournament.toggle_ready_state_by(user_profile=participant.user_profile)
         self.tournament.advance_state()
         self.tournament.create_matches_list()
-        self.assertTrue(self.tournament.has_matches_list())
-    
-    def test_TournamentMatchModel_is_match_participant(self):
-        """ Checks TournamentMatch is match participant method """
-        for participant in self.user_profiles[:-1]:
-            self.tournament.add_participant(participant)
-        participants = self.tournament.get_participants()
-        for participant in participants:
-            self.tournament.toggle_ready_state_by(user_profile=participant.user_profile)
-        self.tournament.advance_state()
-        self.tournament.create_matches_list()
-
-        matches = self.tournament.get_matches_list()
-        counter = 0
-        for match in matches:
-            if match.is_match_participant(participant=participants.first()):
-                counter += 1
-        # Each participant should have MAX_PARTICIPANTS - 1 amount of games
-        self.assertEqual(counter, MAX_PARTICIPANTS - 1)
-
 
 #class TournamentConsumerTest(TestCase):
 #

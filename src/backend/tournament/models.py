@@ -55,6 +55,9 @@ class TournamentMatch(models.Model):
             return True
         return False
 
+    def set_finished(self):
+        self.is_finished = True
+        self.save()
 
 class Tournament(models.Model):
 
@@ -162,6 +165,15 @@ class Tournament(models.Model):
         if self.participants.count() > 0:
             return self.participants.first()
         raise ValidationError("No Users yet!")
+    
+    def get_next_match(self, participant: TournamentUser):
+        matches = self.get_matches_list()
+        if matches.count() == 0:
+            raise ValidationError("No matches in tournament!")
+        for match in matches:
+            if not match.is_finished and match.is_match_participant(participant):
+                return match
+        return None
 
     def get_participant_by(self, user_profile=None, username=None):
         if isinstance(user_profile, UserProfile):
