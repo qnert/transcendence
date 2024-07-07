@@ -45,12 +45,17 @@ window.history.replaceState = function (state, title, url) {
 
 window.addEventListener("popstate", async function (event) {
     if (event.state && event.state.path) {
-        if (event.state.path === "/login/") {
-            if (await getLoginStatus()) {
+		if(!(await getLoginStatus())){
+			window.history.replaceState({ path: "/login/" }, "", "/login/");
+			await updateContent("/login/");
+		}
+        else if (event.state.path === "/login/") {
+			if (await getLoginStatus()) {
 				window.history.replaceState({ path: "/home/" }, "", "/home/");
                 await updateContentToken("/home/");
             } else {
                 await updateContent("/login/");
+				return;
             }
 		}else if(event.state.path === "/2FA/"){
 			if (await twoFAStatus()) {
@@ -63,6 +68,7 @@ window.addEventListener("popstate", async function (event) {
 			window.history.replaceState({ path: "/tournament/hub/" }, "", "/tournament/hub/");
 			await updateContentToken("/tournament/hub/");
 		}else {
+			// console.log(event.state.path)
 			await updateContent(event.state.path);
         }
     }
@@ -203,13 +209,16 @@ export async function getUsername() {
         });
 
         if (!response.ok) {
-            console.log("Failed to get username from backend");
-            return;
+			if (response.status === 401 || response.status === 405){
+				const errorData = await response.json
+				console.error(errorData.error)
+				handle401Error();
+				return;
+			}
         }
 
         const data = await response.json();
         const username = data.username;
-        console.log(username);
         return username;
     } catch (error) {
         console.error("Error fetching username:", error);
@@ -228,17 +237,19 @@ export async function handle401Error() {
 
 window.onload = async function () {
     let currentUrl = window.location.href;
-    if (currentUrl.includes("/profile/")) {
+    if (!currentUrl.includes("/login/")) {
+		checkAccessToken();
+		await loadFriends();
+		await updateFriendDropdown();
+    }
+	if (currentUrl.includes("/profile/")) {
         await fetchProfileData();
         await checkBox();
     } else if (currentUrl.includes("/friend/")) {
         let words = currentUrl.split("/");
         let display_name = words[4];
         await fetchFriendsData(display_name);
-    } else if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/") {
-        await loadFriends();
-		await updateFriendDropdown();
-    } else if (currentUrl.includes("game")) {
+    }  else if (currentUrl.includes("game")) {
         document.getElementById("background").value = "#ffffff"; // Default to white
         document.getElementById("borders").value = "#0000ff"; // Default to blue
         document.getElementById("ballColor").value = "#0000ff"; // Default to blue
@@ -261,7 +272,7 @@ export async function getLoginStatus() {
         });
         if (response.ok) {
             const data = await response.json();
-            return data.loginStatus;
+            return true;
         } else {
             if (response.status === 401) {
                 return false;
@@ -285,6 +296,7 @@ window.onload = async function () {
     if (currentUrl.includes("/profile/")) {
         await fetchProfileData();
         await checkBox();
+		return;
     } else if (currentUrl.includes("/2FA/")) {
         showLoggedOutState();
         return;
@@ -292,6 +304,7 @@ window.onload = async function () {
         let words = currentUrl.split("/");
         let display_name = words[4];
         await fetchFriendsData(display_name);
+		return;
     } else if (currentUrl.includes("game")) {
         document.getElementById("background").value = "#ffffff";
         document.getElementById("borders").value = "#0000ff";
@@ -302,10 +315,13 @@ window.onload = async function () {
         document.getElementById("ballColor").value = "#0000ff";
     } else if (currentUrl.includes("history")) {
         await getGameHistory();
+		return;
     }
-    if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/" || currentUrl.includes("/2FA/")) {
-        await loadFriends();
+    if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/" || !currentUrl.includes("/2FA/") || !currentUrl.includes("/set_passwd/")) {
+        checkAccessToken();
+		await loadFriends();
         await updateFriendDropdown();
+		return;
     }
     if (await getLoginStatus()) {
         const username = await getUsername();
@@ -314,3 +330,9 @@ window.onload = async function () {
         showLoggedOutState();
     }
 };
+
+setInterval(test, 10000);
+
+function test(){
+	checkAccessToken();
+}
