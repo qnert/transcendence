@@ -21,7 +21,7 @@ async function activatetwoFA() {
             body: JSON.stringify({ enable: true }),
         });
         if (!response.ok) {
-			if (response.status === 401){
+			if (response.status === 401 || response.status === 405 || response.status === 403){
 				handle401Error();
 				return;
 			}
@@ -50,7 +50,7 @@ async function deactivatetwoFA() {
             body: JSON.stringify({ enable: false }),
         });
         if (!response.ok) {
-			if (response.status === 401){
+			if (response.status === 401 || response.status === 405 || response.status === 403){
 				handle401Error();
 				return;
 			}
@@ -80,7 +80,7 @@ export async function checkBox() {
                 },
             });
 			if (!response.ok) {
-				if (response.status === 401){
+				if (response.status === 401 || response.status === 405 || response.status === 403){
 					handle401Error();
 					return;
 				}
@@ -105,16 +105,16 @@ export async function checkBox() {
 
 export async function twoFAStatus() {
         try {
-            const token = localStorage.getItem("access_token");
             const response = await fetch("/api/get_2fa_status/", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
                 },
             });
 			if (!response.ok) {
-				if (response.status === 401){
+				if (response.status === 401 || response.status === 405){
+					const errorData = await response.json
+					console.error(errorData.error)
 					handle401Error();
 					return;
 				}
@@ -185,9 +185,11 @@ async function validateOTP() {
             body: JSON.stringify({ otp: otp }),
         });
 
-        if (response.status === 401) {
-            handle401Error();
-            return;
+		if (response.status === 401 || response.status === 405 || response.status === 403){
+			const errorData = await response.json
+			console.error(errorData.error)
+			handle401Error();
+			return;
         }
 
         const data = await response.json();
@@ -210,31 +212,31 @@ async function validateOTP() {
 export function generateQRCode() {
     const qrcodeButton = document.getElementById("generateQRCode");
     if (qrcodeButton) {
-        qrcodeButton.onclick = function (event) {
+        qrcodeButton.onclick = async function (event) {
             event.preventDefault();
-            const token = localStorage.getItem("access_token");
-            fetch("/api/setup-2fa", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((response) => {
-                if (response.status === 401) {
-                    handle401Error();
-                    throw new Error("Unauthorized access, logging out.");
-                }
-                return response.text();
-            })
-            .then((responseText) => {
+            try {
+                const token = localStorage.getItem("access_token");
+                const response = await fetch("/api/setup_2fa", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+				if (response.status === 401 || response.status === 405){
+					const errorData = await response.json
+					console.error(errorData.error)
+					handle401Error();
+					return;
+				}
+                const responseText = await response.text();
                 const data = JSON.parse(responseText);
                 const qrCodeImg = document.getElementById("qrcode");
                 qrCodeImg.src = "data:image/png;base64," + data.qr_code;
-            })
-            .catch((error) => {
+            } catch (error) {
                 console.log("Error:", error);
-            });
+            }
         };
     }
 }

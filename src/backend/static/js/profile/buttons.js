@@ -24,7 +24,7 @@ export async function saveChanges() {
             body: JSON.stringify({ display_name: display_name, picture_url: picture_url }),
         });
         if (!response.ok) {
-			if(response.status === 401){
+			if (response.status === 401 || response.status === 405 || response.status === 403){
 				handle401Error();
 				return;
 			}
@@ -82,7 +82,9 @@ export async function getGameHistory(){
             },
         });
         if (!response.ok) {
-			if(response.status === 401){
+			if (response.status === 401 || response.status === 405){
+				const errorData = await response.json
+				console.error(errorData.error)
 				handle401Error();
 				return;
 			}
@@ -159,7 +161,9 @@ async function getChart(path){
             },
         });
         if (!response.ok) {
-			if(response.status === 401){
+			if (response.status === 401 || response.status === 405){
+				const errorData = await response.json
+				console.error(errorData.error)
 				handle401Error();
 				return;
 			}
