@@ -13,6 +13,9 @@ def tournament_hub(request):
         tournaments = list(Tournament.objects.all().values())
         return render(request, 'tournament_hub.html', {'tournaments': tournaments})
 
+# Hint:
+# Used after creating and joining
+# tournament_hub.js
 def tournament_lobby(request, lobby_name):
     if request.method == "GET":
         try:
@@ -35,39 +38,17 @@ def tournament_lobby(request, lobby_name):
             return JsonResponse({"error": e.message}, status=400)
         return render(request, "tournament_lobby.html", {"lobby": lobby})
 
-
-#   TODO deprecated?
+# Hint:
+# Used in Dropdown Menu
+# tournament_hub.js
 def tournament_api_get_list(request):
     if request.method == "GET":
         tournaments = list(Tournament.objects.all().values())
-        return render(request, 'tournament_list.html', {'tag': 'option', 'tournaments': tournaments})
+        return render(request, 'tournament_hub_list.html', {'tag': 'option', 'tournaments': tournaments})
 
-
-#   TODO deprecated?
-def tournament_api_get_participants(request, lobby_name):
-    if request.method == "GET":
-        try:
-            # user_profile = UserProfile.objects.get(user=request.user)
-            tournament = Tournament.objects.get(name=lobby_name)
-            participants = tournament.get_participants_names_and_statuses()
-        except UserProfile.DoesNotExist:
-            return JsonResponse({"error": "User profile not found!"}, status=401)
-        except Tournament.DoesNotExist:
-            return JsonResponse({"error": "Lobby not found!"}, status=404)
-        except ValidationError as e:
-            return JsonResponse({"error": e.message}, status=400)
-        return render(request, 'tournament_participants.html', {'participants': participants})
-
-
-#   TODO deprecated?
-def tournament_api_get_state(request):
-    if request.method == "GET":
-        tournament_name = request.GET.get("tournament_name")
-        tournament = Tournament.objects.get(name=tournament_name)
-        tournament_state = tournament.state
-        return JsonResponse({"state": tournament_state}, status=200)
-
-
+# Hint:
+# Used in on createButton click
+# tournament_hub.js
 @csrf_exempt
 def tournament_api_create(request):
     if request.method == "POST":

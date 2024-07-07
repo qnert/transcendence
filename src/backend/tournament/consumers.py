@@ -142,7 +142,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def send_participant_list(self):
         participants = await database_sync_to_async(self.tournament.get_participants_names_and_statuses)()
-        participants_html = await database_sync_to_async(render_to_string)('tournament_participants.html', {'participants': participants})
+        participants_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_participants.html', {'participants': participants})
         await self.channel_layer.send(
             self.channel_name,
             {
@@ -153,7 +153,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def send_game_settings_list(self):
         game_settings_list = await database_sync_to_async(self.tournament.get_game_settings)()
-        game_settings_list_html = await database_sync_to_async(render_to_string)('tournament_game_settings_list.html', {'game_settings': game_settings_list})
+        game_settings_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_game_settings_list.html', {'game_settings': game_settings_list})
         await self.channel_layer.send(
             self.channel_name,
             {
@@ -163,7 +163,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         )
 
     async def send_game_settings_editor(self):
-        game_settings_editor_html = await database_sync_to_async(render_to_string)('tournament_game_settings_editor.html')
+        game_settings_editor_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_game_settings_editor.html')
         await self.channel_layer.send(
             self.channel_name,
             {
@@ -173,7 +173,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         )
 
     async def send_advance_button(self):
-        advance_button_html = await database_sync_to_async(render_to_string)('tournament_advance_button.html')
+        advance_button_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_advance_button.html')
         await self.channel_layer.send(
             self.channel_name,
             {
@@ -196,13 +196,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
 
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
-        standings_html = await database_sync_to_async(render_to_string)('tournament_standings.html', {'standings': standings})
+        standings_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_standings.html', {'standings': standings})
 
         matches_list = await database_sync_to_async(self.tournament.get_matches_list)()
-        matches_list_html = await database_sync_to_async(render_to_string)('Tournament_match_list.html', {'matches_list': matches_list})
+        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list})
 
         # TODO needed here?
-        match_html = await database_sync_to_async(render_to_string)('tournament_match_lobby.html')
+        match_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_match_lobby.html')
 
         await self.channel_layer.send(
             self.channel_name,
@@ -220,13 +220,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         )
 
     async def send_remove_setup_content(self):
-        await self.channel_layer.send(
-            self.channel_name,
-            {
-                'type': 'event_playing_content',
-                'playing_content': "remove",
-            }
-        )
+        await self.channel_layer.group_send(
+                self.lobby_group_name,
+                {
+                    'type': 'event_playing_content',
+                    'playing_content': 'remove',
+                    }
+                )
 
 #   ==========================     EVENT LISTENERS
 
