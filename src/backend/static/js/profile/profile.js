@@ -117,6 +117,8 @@ async function getUsernameFromBackend() {
 }
 
 
+window.checkAccessToken = checkAccessToken;
+
 export async function checkAccessToken() {
     const token = localStorage.getItem("access_token");
     if (token) {
