@@ -9,7 +9,6 @@ import { updateFriendDropdown } from "../friends/action_friends.js";
 import { showLoggedInState } from "./navbar.js";
 import { handleUrlChange } from "../basics.js";
 
-
 export function setPasswd() {
     const passwd = document.getElementById("setPasswd");
     if (passwd) {
@@ -35,10 +34,14 @@ export function setPasswd() {
                         body: JSON.stringify({ password: confirmPassword }),
                     });
                     if (!response.ok) {
-                        if(response. status === 401){
+						if(response.status === 404){
+							alert("User does not exist");
+							handle401Error();
+						}
+                        else if(response. status === 401 || response.status === 405 || response.status === 403){
                           handle401Error();
+						  return;
                         }
-                        alert(response.error);
                     }
                     alert("Setting your passwd was successful!");
                     handleRoute("/login/");
@@ -64,6 +67,7 @@ export function oauth() {
                 .then((response) => {
                     if (!response.ok) {
                         return response.text().then((text) => {
+							handleRoute("/login/")
                             throw new Error(`Network response was not ok`);
                         });
                     }
@@ -96,6 +100,10 @@ export async function logoutButton() {
                     },
                 });
                 if (!response.ok){
+					if (response.status === 403){
+						handle401Error();
+						return
+					}
 					throw new Error("Logout fail");
 				}
                 if (friendSocket) {
@@ -131,6 +139,10 @@ export async function logout() {;
             },
         });
         if (!response.ok){
+			if(response.status === 403){
+				alert("CSRF Token not set");
+				return;
+			}
 			throw new Error("Logout fail");
 		}
         if (friendSocket) {
@@ -165,6 +177,10 @@ async function storeJWT() {
         });
 
         if (!response.ok) {
+			if(response.status === 403){
+				handle401Error();
+				return;
+			}
             throw new Error("Storing JWT failed");
         }
     } catch (error) {
@@ -190,8 +206,13 @@ export async function login() {
                     },
                     body: JSON.stringify({ username, password }),
                 });
-                if (!response.ok) throw new Error("Login failed");
-
+                if (!response.ok){
+					if(response.status === 403){
+						handle401Error();
+						return;
+					}
+					throw new Error("Login failed");
+				}
                 const twoFAResponse = await fetch("/api/get_2fa_status/", {
                     method: "GET",
                     headers: {
@@ -211,7 +232,7 @@ export async function login() {
 				else {
 					await getAccessToken(username, password, csrftoken);
 					await storeJWT();
-                    handleRoute("/home/");
+                    handleRouteToken("/home/");
 					showLoggedInState(username);
                     await loadFriends();
 					await updateFriendDropdown();
