@@ -49,6 +49,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from api.decorators import *
 import validators
 from django.contrib.auth import authenticate, update_session_auth_hash
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 # TODO make this dynamic if we deploy to server
 # possible solution inside a function:
@@ -63,6 +64,10 @@ SECRET = os.environ.get('SECRET_42')
 code = ''
 state = ''
 
+
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def get_friends_profile(request):
     if request.method == "GET":
         display_name = request.GET.get('display_name')
@@ -95,6 +100,9 @@ def login_status(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def activate_two_FA(request):
     if request.method == "POST":
         try:
@@ -111,6 +119,9 @@ def activate_two_FA(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def deactivate_two_FA(request):
     if request.method == "POST":
         try:
@@ -124,6 +135,7 @@ def deactivate_two_FA(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
+
 def check_login_status(request):
     if request.method == "GET":
         if isinstance(request.user, AnonymousUser):
@@ -135,6 +147,8 @@ def check_login_status(request):
             return JsonResponse({'error': login_status})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
 
 
 def friends_list(request):
@@ -211,31 +225,34 @@ def pending_friend_requests(request):
 
 
 def get_chat_messages(request, friend_id):
-    try:
-        current_user = request.user
-        friend = User.objects.get(id=friend_id)
+    if request.method == "GET":
+        try:
+            current_user = request.user
+            friend = User.objects.get(id=friend_id)
 
-        if BlockedUser.objects.filter(blocker=friend, blocked=current_user).exists():
-            return JsonResponse({'error': 'You are blocked by this user and cannot view messages.'}, status=403)
-        # Fetch messages between the current user and the specified friend
-        messages = Message.objects.filter(
-            (models.Q(sender=current_user) & models.Q(recipient=friend)) |
-            (models.Q(sender=friend) & models.Q(recipient=current_user))
-        ).order_by('timestamp')
-        # Prepare the data to be returned as JSON
-        messages_data = [
-            {
-                'sender': message.sender.username,
-                'content': message.content,
-                'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-            }
-            for message in messages
-        ]
-        return JsonResponse({'messages': messages_data}, status=200)
-    except User.DoesNotExist:
-        return JsonResponse({'error': 'Friend not found'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+            if BlockedUser.objects.filter(blocker=friend, blocked=current_user).exists():
+                return JsonResponse({'error': 'You are blocked by this user and cannot view messages.'}, status=403)
+            # Fetch messages between the current user and the specified friend
+            messages = Message.objects.filter(
+                (models.Q(sender=current_user) & models.Q(recipient=friend)) |
+                (models.Q(sender=friend) & models.Q(recipient=current_user))
+            ).order_by('timestamp')
+            # Prepare the data to be returned as JSON
+            messages_data = [
+                {
+                    'sender': message.sender.username,
+                    'content': message.content,
+                    'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                }
+                for message in messages
+            ]
+            return JsonResponse({'messages': messages_data}, status=200)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'Friend not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
 def block_user(request, user_id):
@@ -339,7 +356,10 @@ def is_valid_url(url):
     except requests.exceptions.RequestException:
         return False
 
+
 @own_jwt_required
+@twoFA_required
+@own_login_required
 def save_changes(request):
     if request.method == "POST":
         user = request.user
@@ -348,11 +368,11 @@ def save_changes(request):
         picture_url = data.get('picture_url')
         profile = user.profile
         if UserProfile.objects.exclude(user=user).filter(display_name=display_name).exists():
-            return JsonResponse({'error': 'Display name already in use'}, status=403)
+            return JsonResponse({'error': 'Display name already in use'}, status=400)
         if picture_url == "":
             profile.profile_picture_url = "https://media.istockphoto.com/id/1201041782/photo/alpaca.jpg?s=612x612&w=0&k=20&c=aHFfLZMuyEyyiJux4OghXfdcc40Oa6L7_cE0D7zvbtY="
         elif not is_valid_url(picture_url) :
-            return JsonResponse({'error': 'Invalid URL, choose a new one'}, status=403)
+            return JsonResponse({'error': 'Invalid URL, choose a new one'}, status=400)
         else:
             profile.profile_picture_url = picture_url
         profile.display_name = display_name
@@ -362,13 +382,16 @@ def save_changes(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def set_new_passwd(request):
     if request.method == "POST":
         user = request.user
         data = json.loads(request.body)
         old_passwd = data.get('old_passwd')
         if not user.check_password(old_passwd):
-            return JsonResponse({'error': 'Incorrect old Password'}, status=403)
+            return JsonResponse({'error': 'Incorrect old Password'}, status=400)
         new_passwd = data.get('password')
         user.set_password(new_passwd)
         user.save()
@@ -377,7 +400,10 @@ def set_new_passwd(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+
 @own_jwt_required
+@twoFA_required
+@own_login_required
 def get_profile(request):
     if request.method == "GET":
         user = request.user
@@ -394,13 +420,6 @@ def get_profile(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-def check_passwd(request):
-    if request.method == "GET":
-        username = request.session.get('username')
-        value = User.objects.filter(username=username, condition=True).exists()
-        return JsonResponse({'value': value})
-    else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
 def generate_random_string():
@@ -433,7 +452,7 @@ def auth_callback(request):
     return redirect('set_passwd')
 
 
-def SetPasswd(request):
+def set_passwd(request):
     # password security for example at least 8 characters long
     if request.method == "POST":
         username = request.session.get('username')
@@ -521,7 +540,10 @@ def get_user_data(access_token):
     return {}
 
 
-def Get_2FA_Status(request):
+
+
+@own_login_required
+def get_2fa_status(request):
     if request.method == "GET":
         user = request.user
         is_2fa_enabled = user.is_2fa_enabled
@@ -530,6 +552,9 @@ def Get_2FA_Status(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def Update_2FA_Status(request):
     if request.method == "POST":
         user = request.user
@@ -543,6 +568,8 @@ def Update_2FA_Status(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
+@own_jwt_required
+@own_login_required
 def validate_otp(request):
     if request.method == "POST":
         user = request.user
@@ -564,6 +591,7 @@ def validate_otp(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 @own_jwt_required
+@own_login_required
 def setup_2FA(request):
     if request.method == "GET":
         user = request.user
@@ -582,7 +610,7 @@ def setup_2FA(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
  
-
+@own_login_required
 def store_jwt(request):
     if request.method == "POST":
         body = json.loads(request.body)
@@ -595,8 +623,8 @@ def store_jwt(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-
-def LogoutView(request):
+@csrf_exempt
+def logout_view(request):
     if request.method == "POST":
         user = request.user
         refresh_token = user.refresh_token
@@ -614,7 +642,9 @@ def LogoutView(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-def LoginView(request):
+
+@csrf_protect
+def login_view(request):
     if request.method == "POST":
         data = json.loads(request.body)
         username = data.get('username')
@@ -631,21 +661,9 @@ def LoginView(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-class RegisterView(APIView):
-    def post(self, request):
-        email = request.data.get('email')
-        username = request.data.get('username')
-        password = request.data.get('password')
-
-        if User.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'User with this email already exists.'}, status=450)
-        if User.objects.filter(username=username).exists():
-            return JsonResponse({'error': 'User with this username already exists.'}, status=410)
-        user = User.objects.create_user(
-            username=username, email=email, password=password)
-        return JsonResponse({'success': 'User registered successfully'}, status=201)
-
-
+# @own_jwt_required
+# @twoFA_required
+# @own_login_required
 def get_user_id(request):
     if request.method == "GET":
         id = request.user.id
