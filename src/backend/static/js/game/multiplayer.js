@@ -1,3 +1,5 @@
+import { checkAccessToken } from "../profile/profile.js";
+
 export function createGameButton() {
     const createMultiplayer = document.getElementById("createMultiplayer");
     if (createMultiplayer) {
@@ -114,6 +116,7 @@ export function resetRemoteGameButton() {
   let connected_users;
 
   export function create_join_game(){
+	checkAccessToken();
     ballSpeed = document.getElementById("ballSpeed").value;
     ball.speedX = random * ballSpeed * Math.cos(ballAngle);
     ball.speedY = ballSpeed * Math.sin(ballAngle);

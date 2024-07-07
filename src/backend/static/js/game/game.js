@@ -1,3 +1,5 @@
+import { checkAccessToken } from "../profile/profile";
+
 function reset() {
     document.getElementById("myForm").style.display = "block";
     document.getElementById("board").style.display = "none";
@@ -42,6 +44,7 @@ export function close_solo_on_change(){
 
 export function start_game() {
      //board vars
+	checkAccessToken();
     let board;
     let context;
     let boardWidth = 900;
