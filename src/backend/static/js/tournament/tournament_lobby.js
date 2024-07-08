@@ -58,11 +58,11 @@ async function socketMessageHandler (event, tournamentLobbyChatLog) {
         message = data.notification;
     }
     if (message) {
-        updateChatLog(message, tournamentLobbyChatLog);
+        renderChatLog(message, tournamentLobbyChatLog);
     } else if (data.participants) {
-        updateParticipantsList(data.participants);
+        renderParticipantsList(data.participants);
     } else if (data.game_settings_list) {
-        updateGameSettingsList(data.game_settings_list);
+        renderGameSettingsList(data.game_settings_list);
     } else if (data.game_settings_editor) {
         renderGameSettingsEditor(data.game_settings_editor);
     } else if (data.advance_button) {
@@ -123,7 +123,7 @@ const attachdynamicEventListeners = function () {
 
 // =========================== Server Side Rendering ===============================
 
-function updateChatLog(message, tournamentLobbyChatLog) {
+function renderChatLog(message, tournamentLobbyChatLog) {
     // put no newline on first message
     if (!tournamentLobbyChatLog.value) {
         tournamentLobbyChatLog.value += message;
@@ -134,12 +134,12 @@ function updateChatLog(message, tournamentLobbyChatLog) {
     tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
 }
 
-function updateParticipantsList(participantsHTML) {
+function renderParticipantsList(participantsHTML) {
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName("tbody")[0];
     participantsList.innerHTML = participantsHTML;
 }
 
-function updateGameSettingsList(gameSettingsHTML) {
+function renderGameSettingsList(gameSettingsHTML) {
     const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName("tbody")[0];
     gameSettingsList.innerHTML = gameSettingsHTML;
 }
@@ -155,6 +155,7 @@ function renderAdvanceButton(advanceButtonHTML) {
 }
 
 function renderPlayingContent(playingContent) {
+    // TODO still needed ???
     if (playingContent == "remove") {
         const gameInfoBox = document.getElementById("lobby-game-info-box");
         gameInfoBox.innerHTML = "";
@@ -165,18 +166,7 @@ function renderPlayingContent(playingContent) {
         const footerBox = document.getElementById("lobby-footer-box");
         footerBox.style.display = "flex";
     } else {
-        initTournamentPlayingPhase(playingContent);
-    }
-}
-
-// =========================== CLEAN UP ===============================
-
-// Hint:
-// used in handleURLChange() for global socket cleanup
-export function tournamentLobbyCloseSocket() {
-    if (tournamentLobbySocket) {
-        tournamentLobbySocket.close();
-        tournamentLobbySocket = null;
+        renderTournamentLobbyPlayingPhase(playingContent);
     }
 }
 
@@ -192,13 +182,10 @@ export function tournamentLobbyCloseSocket() {
 //      - standings_html
 //      - matches_list_html
 
-function initTournamentPlayingPhase(playingContent) {
+function renderTournamentLobbyPlayingPhase(playingContent) {
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = playingContent.standings_html;
     gameInfoBox.insertAdjacentHTML('beforeend', playingContent.matches_list_html)
-
-    // TODO notify that someone is waiting
-    // TODO notify that games are joinable
     tournamentLobbySocket.send(
         JSON.stringify({
             updated_match_list: true,
@@ -220,7 +207,6 @@ function initTournamentPlayingPhase(playingContent) {
 }
 
 export function finishTournamentMatch() {
-    console.log("finishing Tournament Match");
     tournamentLobbySocket.send(
         JSON.stringify({
             finished_match: true,
@@ -228,12 +214,22 @@ export function finishTournamentMatch() {
     );
 }
 
-export function refreshTournamentLobby() {
-    console.log("entering back to Lobby");
+export function refreshTournamentPlayingLobby() {
     tournamentLobbySocket.send(
         JSON.stringify({
             back_to_lobby: true,
         })
     );
+}
+
+// =========================== CLEAN UP ===============================
+
+// Hint:
+// used in handleURLChange() for global socket cleanup
+export function tournamentLobbyCloseSocket() {
+    if (tournamentLobbySocket) {
+        tournamentLobbySocket.close();
+        tournamentLobbySocket = null;
+    }
 }
 

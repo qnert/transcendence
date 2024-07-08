@@ -57,6 +57,13 @@ class TournamentUser(models.Model):
                 self.losses += 1
         self.save()
 
+    def get_nickname(self):
+        if self.tournament.is_host(user_profile=self.user_profile):
+            member_status = '👑'
+        else:
+            member_status = '🐸'
+        return f'{member_status} {self.user_profile.display_name}({self.user_profile.user.username})'
+
 class TournamentMatch(models.Model):
 
     tournament = models.ForeignKey('Tournament', related_name='matches', on_delete=models.CASCADE)
@@ -67,13 +74,19 @@ class TournamentMatch(models.Model):
     goals_home = models.IntegerField(default=0)
     goals_away = models.IntegerField(default=0)
 
-    def __str__(self):
-        obj = {}
-        for field in self._meta.fields:
-            field_name = field.name
-            field_value = getattr(self, field_name)
-            obj[field_name] = field_value
-        return json.dumps(obj, default=str)
+    def get_results(self):
+        result = {}
+        if self.goals_home > self.goals_away:
+            result['winner'] = self.player_home.get_nickname()
+            result['winner_score'] = self.goals_home
+            result['loser'] = self.player_away.get_nickname()
+            result['loser_score'] = self.goals_away
+        else:
+            result['winner'] = self.player_away.get_nickname()
+            result['winner_score'] = self.goals_away
+            result['loser'] = self.player_home.get_nickname()
+            result['loser_score'] = self.goals_home
+        return result
 
     def is_match_participant(self, participant: TournamentUser):
         if self.player_home == participant or self.player_away == participant:
@@ -100,6 +113,14 @@ class TournamentMatch(models.Model):
             self.goals_home = game_result.opponent_score
             self.goals_away = game_result.user_score
         self.set_finished()
+
+    def __str__(self):
+        obj = {}
+        for field in self._meta.fields:
+            field_name = field.name
+            field_value = getattr(self, field_name)
+            obj[field_name] = field_value
+        return json.dumps(obj, default=str)
 
 class Tournament(models.Model):
 

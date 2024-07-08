@@ -15,7 +15,6 @@ MSG_IS_NOT_READY = "is not ready"
 MSG_SETTINGS_CHANGED = "has changed the match settings"
 MSG_START = "has started the tournament"
 MSG_MATCH_JOIN = "has joined his next game"
-MSG_MATCH_FINISHED = "[ A match just finished ]"
 MSG_NEXT_MATCH = "[ Your next match is ready! ]"
 MSG_BACK_IN_LOBBY = " has returned to the lobby"
 
@@ -69,8 +68,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             await self.update_db_variables()
             processed_match = await self.process_match()
             if processed_match:
-                await self.send_chat_notification(MSG_MATCH_FINISHED, should_update=False)
                 await self.update_db_variables()
+                match = await database_sync_to_async(self.tournament.get_last_match)(self.tournament_user)
+                results = await database_sync_to_async(match.get_results)()
+                await self.channel_layer.group_send(
+                    self.lobby_group_name,
+                    {
+                        "type": "event_chat_notification",
+                        "notification": f"{results['winner']} has won the match against {results['loser']} {results['winner_score']}:{results['loser_score']}",
+                        "should_update": False,
+                    }
+                )
             else:
                 self.next_match = await database_sync_to_async(self.tournament.get_last_match)(self.tournament_user)
             await database_sync_to_async(self.tournament_user.update_stats)(match=self.next_match)
@@ -245,7 +253,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             return
         matches_list = await database_sync_to_async(self.tournament.get_matches_list)()
         self.next_match = await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user)
-        # TODO add some kind of notification
+        match_name = None
+        if self.next_match:
+            match_name = self.next_match.name
 
         matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': self.next_match})
 
@@ -259,7 +269,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 'playing_content': {
                     'username': self.username,
                     'display_name': self.user_profile.display_name,
-                    'room_name': self.lobby_name,
+                    'room_name': match_name,
                     'match_html': match_html,
                     'game_settings': game_settings,
                     'standings_html': standings_html,

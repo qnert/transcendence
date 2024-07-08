@@ -1,4 +1,4 @@
-import { refreshTournamentLobby, finishTournamentMatch } from '../tournament/tournament_lobby.js'
+import { refreshTournamentPlayingLobby, finishTournamentMatch } from '../tournament/tournament_lobby.js'
 
 export function createGameButton() {
     const createMultiplayer = document.getElementById("createMultiplayer");
@@ -793,7 +793,7 @@ function start_game() {
                     event.preventDefault();
                       chatSocket.close();
                       chatSocket = null;
-                      refreshTournamentLobby();
+                      refreshTournamentPlayingLobby();
                   }
               }
               isTournamentMatchFinished = true;
