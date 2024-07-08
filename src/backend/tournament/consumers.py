@@ -5,13 +5,19 @@ from api.models import UserProfile
 from api.models import User
 from channels.db import database_sync_to_async
 from django.template.loader import render_to_string
+from django.db import transaction
+from asgiref.sync import sync_to_async
 
-MSG_JOIN = "has joined the lobby"
-MSG_LEAVE = "has left the lobby"
+MSG_JOIN_LOBBY = "has joined the lobby"
+MSG_LEAVE_LOBBY = "has left the lobby"
 MSG_IS_READY = "is ready"
 MSG_IS_NOT_READY = "is not ready"
 MSG_SETTINGS_CHANGED = "has changed the match settings"
 MSG_START = "has started the tournament"
+MSG_MATCH_JOIN = "has joined his next game"
+MSG_MATCH_FINISHED = "[ A match just finished ]"
+MSG_NEXT_MATCH = "[ Your next match is ready! ]"
+MSG_BACK_IN_LOBBY = " has returned to the lobby"
 
 # Hint:
 # Because of Python, everytime you change something in the DB, variables have to
@@ -34,7 +40,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
         await self.accept()
         await self.update_db_variables()
-        await self.send_chat_notification(MSG_JOIN)
+        await self.send_chat_notification(MSG_JOIN_LOBBY)
 
     async def disconnect(self, close_code):
 
@@ -43,7 +49,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         # Notify Group about leaving and sending them new data to render
         # Clean Group, Tournament if necessary
         await database_sync_to_async(self.tournament.remove_participant)(self.user_profile)
-        await self.send_chat_notification(MSG_LEAVE)
+        await self.send_chat_notification(MSG_LEAVE_LOBBY)
         await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
         await database_sync_to_async(self.tournament.delete_if_empty)()
 
@@ -56,6 +62,27 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         if "message" in text_data_json:
             await self.send_chat_message(text_data_json['message'])
         
+        elif "waiting_for_opponent" in text_data_json:
+            await self.send_chat_notification(MSG_MATCH_JOIN, should_update=False)
+
+        elif "finished_match" in text_data_json:
+            await self.update_db_variables()
+            processed_match = await self.process_match()
+            if processed_match:
+                await self.send_chat_notification(MSG_MATCH_FINISHED, should_update=False)
+                await self.update_db_variables()
+            else:
+                self.next_match = await database_sync_to_async(self.tournament.get_last_match)(self.tournament_user)
+            await database_sync_to_async(self.tournament_user.update_stats)(match=self.next_match)
+
+        elif "updated_match_list" in text_data_json:
+            await self.send(text_data=json.dumps({'notification': MSG_NEXT_MATCH,}))
+
+        elif "back_to_lobby" in text_data_json:
+            await self.send_chat_notification(MSG_BACK_IN_LOBBY, should_update=False)
+            await self.update_db_variables()
+            await self.update_content()
+
         elif "advanced_state" in text_data_json:
             await database_sync_to_async(self.tournament.advance_state)()
             await self.update_db_variables()
@@ -83,6 +110,20 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             await self.send_chat_notification(MSG_SETTINGS_CHANGED)
 
 #   ==========================     UPDATE ROUTINES
+
+
+    @sync_to_async
+    def process_match(self):
+        with transaction.atomic():
+            match_id = self.next_match.id
+            next_match = self.tournament.get_next_match(self.tournament_user)
+            if next_match is not None and next_match.id == match_id:
+                locked_match = self.next_match.__class__.objects.select_for_update().get(id=match_id)
+                if locked_match == next_match:
+                    game_result = self.user_profile.game_results.latest('date_played')
+                    self.next_match.set_results_and_finished(game_result=game_result)
+                    return True
+        return False
 
     # Hint:
     # all notifications send to a socket will trigger these routines per socket
@@ -122,13 +163,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 #   ==========================     SEND FUNCTIONS
 
-    async def send_chat_notification(self, notification):
-        # TODO add bool here for update yes/no?!
+    async def send_chat_notification(self, notification, should_update: bool = True):
         await self.channel_layer.group_send(
             self.lobby_group_name,
             {
                 "type": "event_chat_notification",
                 "notification": f"{self.nickname} {notification}",
+                "should_update": should_update,
             }
         )
 
@@ -203,10 +244,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         if not await database_sync_to_async(self.tournament.has_matches_list)():
             return
         matches_list = await database_sync_to_async(self.tournament.get_matches_list)()
-        next_match = await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user)
+        self.next_match = await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user)
         # TODO add some kind of notification
 
-        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': next_match})
+        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': self.next_match})
 
         # TODO needed here? or should i separate that
         match_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_match_lobby.html')
@@ -242,16 +283,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     # Hint:
     # this function triggers updating vars and rendering for all socket users
     async def event_chat_notification(self, event):
-        # TODO do i need some kind of flag, that doesnt repeat this unnecessary on every notification?
-        await self.update_db_variables()
-        await self.update_content()
+
+        if event["should_update"]:
+            await self.update_db_variables()
+            await self.update_content()
 
         notification = event["notification"]
         # Hint:
         # handle disconnect of someone during playing phase
         disconnect = False
         if self.state == 'playing':
-            if MSG_LEAVE in notification:
+            if MSG_LEAVE_LOBBY in notification:
                 disconnect = True
 
         await self.send(text_data=json.dumps({

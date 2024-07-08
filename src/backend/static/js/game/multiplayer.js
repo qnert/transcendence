@@ -148,6 +148,7 @@ export function create_tournament_match(playingContent) {
     }
 
     isTournamentMatch = true;
+    isTournamentMatchFinished = false;
     username = playingContent.display_name;
     const room_name = playingContent.room_name;
     // TODO put this directly below

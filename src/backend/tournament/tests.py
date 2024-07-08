@@ -312,6 +312,10 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.tournament.create_matches_list()
 
+
+# TODO get_last_match
+# TODO update_stats
+
 #class TournamentConsumerTest(TestCase):
 #
 #    @classmethod

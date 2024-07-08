@@ -95,7 +95,7 @@ const attachdynamicEventListeners = function () {
             event.preventDefault();
             tournamentLobbySocket.send(
                 JSON.stringify({
-                    advanced_state: "advance_state",
+                    advanced_state: true,
                 })
             );
         };
@@ -197,24 +197,43 @@ function initTournamentPlayingPhase(playingContent) {
     gameInfoBox.innerHTML = playingContent.standings_html;
     gameInfoBox.insertAdjacentHTML('beforeend', playingContent.matches_list_html)
 
-    // TODO notify that games are joinable
     // TODO notify that someone is waiting
+    // TODO notify that games are joinable
+    tournamentLobbySocket.send(
+        JSON.stringify({
+            updated_match_list: true,
+        })
+    );
     const joinNextTournamentMatch = document.getElementById("lobby-join-match-button");
     if (joinNextTournamentMatch) {
         joinNextTournamentMatch.onclick = function (event) {
             event.preventDefault;
             gameInfoBox.innerHTML = playingContent.match_html;
             create_tournament_match(playingContent);
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    waiting_for_opponent: true,
+                })
+            );
         }
     }
 }
 
 export function finishTournamentMatch() {
     console.log("finishing Tournament Match");
-    // TODO notify that a game has finished
-    // save GameResult as TournamentMatch
+    tournamentLobbySocket.send(
+        JSON.stringify({
+            finished_match: true,
+        })
+    );
 }
 
 export function refreshTournamentLobby() {
+    console.log("entering back to Lobby");
+    tournamentLobbySocket.send(
+        JSON.stringify({
+            back_to_lobby: true,
+        })
+    );
 }
 

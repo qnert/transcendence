@@ -38,6 +38,24 @@ class TournamentUser(models.Model):
     def __str__(self):
         return f'{self.user_profile.display_name}({self.user_profile.user.username})'
 
+    # Hint:
+    # match should be a Tournament Match!
+    def update_stats(self, match):
+        if self == match.player_home:
+            self.goals_scored += match.goals_home
+            self.goals_conceded += match.goals_away
+            if match.goals_home > match.goals_away:
+                self.wins += 1
+            else:
+                self.losses += 1
+        else:
+            self.goals_conceded += match.goals_home
+            self.goals_scored += match.goals_away
+            if match.goals_away > match.goals_home:
+                self.wins += 1
+            else:
+                self.losses += 1
+        self.save()
 
 class TournamentMatch(models.Model):
 
@@ -197,7 +215,18 @@ class Tournament(models.Model):
         if self.participants.count() > 0:
             return self.participants.first()
         raise ValidationError("No Users yet!")
-    
+
+    def get_last_match(self, participant: TournamentUser):
+        matches = self.get_matches_list()
+        if matches.count() == 0:
+            raise ValidationError("No matches in tournament!")
+        # reverse the list
+        matches_list = list(matches)[::-1]
+        for match in matches_list:
+            if match.is_finished and match.is_match_participant(participant):
+                return match
+        return None
+
     def get_next_match(self, participant: TournamentUser):
         matches = self.get_matches_list()
         if matches.count() == 0:

@@ -33,7 +33,7 @@
                 <button class="btn btn-primary" id="lobby-join-match-button">Join</button>
                 {% elif match.is_finished %}
                 ✅
-                [% else %]
+                {% else %}
                 -
                 {% endif %}
             </td>
