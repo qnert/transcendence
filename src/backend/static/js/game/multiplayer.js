@@ -123,6 +123,21 @@ export function resetRemoteGameButton() {
 // =========================   TOURNAMENT      =================================
 
 export function create_tournament_match(playingContent) {
+    isTournamentMatch = true;
+    isTournamentMatchFinished = false;
+    username = playingContent.display_name;
+    const room_name = playingContent.room_name;
+
+    ballSpeed = playingContent.game_settings.ball_speed;
+    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
+    ball.speedY = ballSpeed * Math.sin(ballAngle);
+    border_color = playingContent.game_settings.border_color;
+    ball_color = playingContent.game_settings.ball_color;
+    background_color = playingContent.game_settings.background_color;
+    maxScore = playingContent.game_settings.max_score;
+    advanced_mode = playingContent.game_settings.advanced_mode;
+    power_up_mode = playingContent.game_settings.power_ups;
+
     const startTournamentMatchButton = document.getElementById("startTournamentMatch");
     if (startTournamentMatchButton) 
         startTournamentMatchButton.onclick = function (event) {
@@ -142,32 +157,16 @@ export function create_tournament_match(playingContent) {
             })
         );
     }
+
     const backToTournamentLobbyButton = document.getElementById("backToTournamentLobby");
     if (backToTournamentLobbyButton){
         backToTournamentLobbyButton.style.display = "none";
     }
 
-    isTournamentMatch = true;
-    isTournamentMatchFinished = false;
-    username = playingContent.display_name;
-    const room_name = playingContent.room_name;
-    // TODO put this directly below
-    const game_settings = playingContent.game_settings;
-
-    // setup game_settings to local vars
-    ballSpeed = game_settings.ball_speed;
-    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
-    ball.speedY = ballSpeed * Math.sin(ballAngle);
-    border_color = game_settings.border_color;
-    ball_color = game_settings.ball_color;
-    background_color = game_settings.background_color;
-    maxScore = game_settings.max_score;
-    advanced_mode = game_settings.advanced_mode;
-    power_up_mode = game_settings.power_ups;
-
     if (!chatSocket){
         chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
     }
+
     chatSocket.onopen = function(e) {
         console.log("Websocket connection opened!");
     }
@@ -584,8 +583,6 @@ function reset() {
 		document.getElementById("left_player").style.display = "none";
 		document.getElementById("right_player").style.display = "none";
 		chatSocket.close();
-
-        // TODO check if exist add other button
         const myForm = document.getElementById("myForm");
         if (myForm) {
             myForm.style.visibility = "block";
@@ -670,12 +667,18 @@ function start_game() {
     context.fillRect(player2.x, player2.y, player2.width, player2.height);
 
     //key listener if key is pressed
+
+    // TODO if we want arrow keys to still be able to scroll window (accessibility mb)
+    // we should check if the #board is focused before doing anything
+    // preventDefault will block window scrolling, because thats annoying while playing
     window.addEventListener('keydown', (event) => {
       if (username == connected_users[0]){
         if (event.code == 'ArrowUp') {
           event.preventDefault();
           if (player1.y > 0){
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '1'}));
+              if (chatSocket) {
+                chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '1'}));
+              }
           }
           else{
             player1.movespeed = 0;
@@ -685,7 +688,9 @@ function start_game() {
         if (event.code == 'ArrowDown') {
           event.preventDefault();
           if (player1.y + player1.height < boardHeight){
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '1'}));
+              if (chatSocket) {
+                chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '1'}));
+              }
           }
           else{
             player1.movespeed = 0;
@@ -697,7 +702,9 @@ function start_game() {
         if (event.code == 'ArrowUp') {
           event.preventDefault();
           if (player2.y > 0){
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '2'}));
+              if (chatSocket) {
+                chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '2'}));
+              }
           }
           else{
             player2.movespeed = 0;
@@ -707,7 +714,9 @@ function start_game() {
         if (event.code == 'ArrowDown') {
             event.preventDefault();
           if (player2.y + player2.height < boardHeight){
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '2'}));
+              if (chatSocket) {
+                chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '2'}));
+              }
           }
           else{
             player2.movespeed = 0;
@@ -721,13 +730,17 @@ function start_game() {
     if (username == connected_users[0]){
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
         e.preventDefault();
-        chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '1'}));
+          if (chatSocket) {
+            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '1'}));
+          }
       }
     }
     else{
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
         e.preventDefault();
-        chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '2'}));
+          if (chatSocket) {
+            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '2'}));
+          }
       }
     }
     });
