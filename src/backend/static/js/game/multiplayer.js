@@ -115,6 +115,8 @@ export function resetRemoteGameButton() {
   let username;
   let connected_users;
 
+// =========================   TOURNAMENT      =================================
+
 export function create_tournament_match(playingContent) {
     const startTournamentMatchButton = document.getElementById("startTournamentMatch");
     if (startTournamentMatchButton) 

@@ -31,14 +31,21 @@ class TournamentUser(admin.ModelAdmin):
         return obj.user_profile.user.username
 
     def matches_home(self, obj):
-        if obj.matches_home:
-            return obj.matches_home.name
+        if obj.matches_home.count() > 0:
+            matches = obj.matches_home.all()
+            return [match.name for match in matches]
         return None
 
     def matches_away(self, obj):
-        if obj.matches_away:
-            return obj.matches_away.name
+        if obj.matches_away.count() > 0:
+            matches = obj.matches_away.all()
+            return [match.name for match in matches]
         return None
+
+@admin.register(TournamentMatch)
+class TournamentMatch(admin.ModelAdmin):
+
+    list_display = ('name', 'tournament', 'is_finished', 'player_home', 'player_away', 'goals_home', 'goals_away',)
 
 #'user_profile', 'is_ready', 'wins', 'losses', 'goals_scored', 'goals_conceded', 'created_at', 'matches_home', 'matches_away')
 
