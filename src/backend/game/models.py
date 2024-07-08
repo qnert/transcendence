@@ -14,3 +14,5 @@ class GameResult(models.Model):
   min_rally = models.IntegerField(null=True)
   average_rally = models.FloatField(null=True)
   date_played = models.DateTimeField(default=timezone.now)
+
+# TODO add boolean for tournament_match?

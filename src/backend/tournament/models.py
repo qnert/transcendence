@@ -2,8 +2,10 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from datetime import date
 from api.models import UserProfile
+from game.models import GameResult
+import json
 
-MAX_PARTICIPANTS = 2  # TODO change back after dev
+MAX_PARTICIPANTS = 4  # TODO change back after dev
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '8',
     "max_score": '8',
@@ -48,7 +50,12 @@ class TournamentMatch(models.Model):
     goals_away = models.IntegerField(default=0)
 
     def __str__(self):
-        return f'{self.name}'
+        obj = {}
+        for field in self._meta.fields:
+            field_name = field.name
+            field_value = getattr(self, field_name)
+            obj[field_name] = field_value
+        return json.dumps(obj, default=str)
 
     def is_match_participant(self, participant: TournamentUser):
         if self.player_home == participant or self.player_away == participant:
@@ -58,6 +65,23 @@ class TournamentMatch(models.Model):
     def set_finished(self):
         self.is_finished = True
         self.save()
+
+    def set_results_and_finished(self, game_result: GameResult):
+        if self.is_finished:
+            raise ValidationError("Game is already finished!")
+        if not self.tournament.has_participant(user_profile=game_result.user_profile) or not self.tournament.has_participant(user_profile=game_result.opponent_profile):
+            raise ValidationError("Users are not part of Tournament!")
+        if not self.player_home.user_profile == game_result.user_profile and not self.player_home.user_profile == game_result.opponent_profile:
+            raise ValidationError("Wrong Users in Game Result!")
+        if not self.player_away.user_profile == game_result.user_profile and not self.player_away.user_profile == game_result.opponent_profile:
+            raise ValidationError("Wrong Users in Game Result!")
+        if self.player_home.user_profile == game_result.user_profile:
+            self.goals_home = game_result.user_score
+            self.goals_away = game_result.opponent_score
+        else:
+            self.goals_home = game_result.opponent_score
+            self.goals_away = game_result.user_score
+        self.set_finished()
 
 class Tournament(models.Model):
 
@@ -159,6 +183,12 @@ class Tournament(models.Model):
     def has_matches_list(self):
         return self.matches.exists()
 
+    def has_participant(self, user_profile: UserProfile):
+        for participant in self.participants.all():
+            if participant.user_profile == user_profile:
+                return True
+        return False
+
     def delete_if_empty(self):
         if self.participants.count() == 0:
             self.delete()
@@ -220,7 +250,6 @@ class Tournament(models.Model):
 
         # sort by amount of wins
         participants = sorted(participants, key=lambda p: p.wins, reverse=True)
-
         return participants
 
     def get_participants(self):

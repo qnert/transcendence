@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from api.models import User, UserProfile
+from game.models import GameResult
 from tournament.models import Tournament, MAX_PARTICIPANTS, DEFAULT_GAME_SETTINGS
 from tournament.consumers import TournamentConsumer
 
@@ -177,6 +178,24 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.tournament.create_matches_list()
 
+    def test_TournamentModel_has_participant(self):
+        """ Checks tournament has_participant method """
+        self.assertFalse(self.tournament.has_participant(user_profile=self.user_profiles[0]))
+        self.assertFalse(self.tournament.has_participant(user_profile=self.user_profiles[1]))
+
+        self.tournament.add_participant(self.user_profiles[0])
+        self.tournament.add_participant(self.user_profiles[1])
+        self.assertTrue(self.tournament.has_participant(user_profile=self.user_profiles[0]))
+        self.assertTrue(self.tournament.has_participant(user_profile=self.user_profiles[1]))
+
+        self.tournament.remove_participant(self.user_profiles[0])
+        self.assertFalse(self.tournament.has_participant(user_profile=self.user_profiles[0]))
+        self.assertTrue(self.tournament.has_participant(user_profile=self.user_profiles[1]))
+
+        self.tournament.remove_participant(self.user_profiles[1])
+        self.assertFalse(self.tournament.has_participant(user_profile=self.user_profiles[0]))
+        self.assertFalse(self.tournament.has_participant(user_profile=self.user_profiles[1]))
+
     def test_TournamentModel_has_matches_list(self):
         """ Checks has matches list method """
         self.assertFalse(self.tournament.has_matches_list())
@@ -202,6 +221,59 @@ class TournamentModelTest(TestCase):
         self.assertEqual(match.is_finished, False)
         match.set_finished()
         self.assertEqual(match.is_finished, True)
+
+    def test_TournamentMatchModel_set_results_and_finished(self):
+        """ Checks TournamentMatch set results method """
+        non_tournament_user_game_result = GameResult.objects.create(
+                        user_profile = self.user_profiles[0],
+                        opponent_profile = self.user_profiles[-1],
+                        user_score = 8,
+                        opponent_score = 5,
+                        is_win = True,
+                    )
+        if MAX_PARTICIPANTS > 2:
+            wrong_user_game_result = GameResult.objects.create(
+                        user_profile = self.user_profiles[0],
+                        opponent_profile = self.user_profiles[2],
+                        user_score = 8,
+                        opponent_score = 5,
+                        is_win = True,
+                    )
+        correct_game_result = GameResult.objects.create(
+                    user_profile = self.user_profiles[0],
+                    opponent_profile = self.user_profiles[-2],
+                    user_score = 8,
+                    opponent_score = 5,
+                    is_win = True,
+                )
+        another_game_result = GameResult.objects.create(
+                    user_profile = self.user_profiles[0],
+                    opponent_profile = self.user_profiles[1],
+                    user_score = 8,
+                    opponent_score = 5,
+                    is_win = True,
+                )
+        self.create_playing_phase_lobby()
+        first_participant = self.tournament.get_participants().first()
+        match = self.tournament.get_next_match(participant=first_participant)
+
+        # Test with non Tournament user
+        with self.assertRaises(ValidationError):
+            match.set_results_and_finished(non_tournament_user_game_result)
+
+        # Test with wrong users
+        if MAX_PARTICIPANTS > 2:
+            with self.assertRaises(ValidationError):
+                match.set_results_and_finished(wrong_user_game_result)
+
+        # Test correct behaviour
+        match.set_results_and_finished(correct_game_result)
+        self.assertEqual(match.goals_home,8)
+        self.assertEqual(match.goals_away,5)
+
+        # Test if already finished
+        with self.assertRaises(ValidationError):
+            match.set_results_and_finished(another_game_result)
 
     def test_TournamentModel_get_next_match(self):
         """ Checks Tournament get next match method """
