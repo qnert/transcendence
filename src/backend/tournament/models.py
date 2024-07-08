@@ -5,10 +5,10 @@ from api.models import UserProfile
 from game.models import GameResult
 import json
 
-MAX_PARTICIPANTS = 2  # TODO change back after development
+MAX_PARTICIPANTS = 2  # TODO for testing purposes
 DEFAULT_GAME_SETTINGS = {
-    "ball_speed": '8',
-    "max_score": '8',
+    "ball_speed": '10',
+    "max_score": '1',
     "background_color": '#ffffff',
     "border_color": '#0000ff',
     "ball_color": '#0000ff',

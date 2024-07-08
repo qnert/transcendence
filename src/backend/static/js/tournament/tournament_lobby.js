@@ -197,24 +197,24 @@ function initTournamentPlayingPhase(playingContent) {
     gameInfoBox.innerHTML = playingContent.standings_html;
     gameInfoBox.insertAdjacentHTML('beforeend', playingContent.matches_list_html)
 
-    // TODO add EventListener for create/join Tournament Match Button
+    // TODO notify that games are joinable
+    // TODO notify that someone is waiting
     const joinNextTournamentMatch = document.getElementById("lobby-join-match-button");
     if (joinNextTournamentMatch) {
         joinNextTournamentMatch.onclick = function (event) {
             event.preventDefault;
-            console.log("Button pressed");
             gameInfoBox.innerHTML = playingContent.match_html;
             create_tournament_match(playingContent);
         }
     }
 }
 
-// TODO implement correctly
-function initTournamentMatch(playingContent) {
-    const gameInfoBox = document.getElementById("lobby-game-info-box");
-    gameInfoBox.innerHTML = playingContent.match_html;
-    //gameInfoBox.insertAdjacentElement('afterend', playingContent.match_html);
-    //gameInfoBox.insertAdjacentHTML('afterend', playingContent.match_html);
-    //gameInfoBox.style.display = "none";
-    create_tournament_match(playingContent);
+export function finishTournamentMatch() {
+    console.log("finishing Tournament Match");
+    // TODO notify that a game has finished
+    // save GameResult as TournamentMatch
 }
+
+export function refreshTournamentLobby() {
+}
+

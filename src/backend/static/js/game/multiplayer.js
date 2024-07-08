@@ -1,3 +1,5 @@
+import { refreshTournamentLobby, finishTournamentMatch } from '../tournament/tournament_lobby.js'
+
 export function createGameButton() {
     const createMultiplayer = document.getElementById("createMultiplayer");
     if (createMultiplayer) {
@@ -18,7 +20,10 @@ export function resetRemoteGameButton() {
         resetRemoteGameButton.onclick = () => reset();
     }
 }
-  let isTournamentMatch;
+
+  let isTournamentMatch = false;
+  let isTournamentMatchFinished = false;
+
   let chatSocket;
   let context;
       //board vars
@@ -137,6 +142,10 @@ export function create_tournament_match(playingContent) {
             })
         );
     }
+    const backToTournamentLobbyButton = document.getElementById("backToTournamentLobby");
+    if (backToTournamentLobbyButton){
+        backToTournamentLobbyButton.style.display = "none";
+    }
 
     isTournamentMatch = true;
     username = playingContent.display_name;
@@ -186,9 +195,7 @@ export function create_tournament_match(playingContent) {
                 if (startRemoteGame){
                     startRemoteGame.style.display = "block";
                 }
-                console.log("reached here!");
                 const startTournamentMatchButton = document.getElementById("startTournamentMatch");
-                console.log(startTournamentMatchButton);
                 if (startTournamentMatchButton) {
                     startTournamentMatchButton.style.display = "none";
                 }
@@ -280,9 +287,9 @@ export function create_tournament_match(playingContent) {
             items_pushed++;
           reset_game(data);
           rally = 0;
-          console.log("return triggered");
           return;
         }
+        // TODO go through this and see whats necessary
         else if (data.type == 'disconnected'){
             const startRemoteGame = document.getElementById("startRemoteGame");
             const startTournamentMatchButton = document.getElementById("startTournamentMatch");
@@ -293,12 +300,10 @@ export function create_tournament_match(playingContent) {
                 startTournamentMatchButton.style.display = "none";
             }
           if (id !== 0){
-            // TODO how to handle this?
             if (username == connected_users[0])
               console.log(`${connected_users[1]} left the game!`);
             else
               console.log(`${connected_users[0]} left the game!`);
-            //reset();
           }
           else{
             if (username == connected_users[0])
@@ -314,18 +319,15 @@ export function create_tournament_match(playingContent) {
             clearInterval(intervalID);
             intervalID = 0;
           }
-          console.log("return triggered");
           return;
         }
-        document.getElementById("roomInfo").style.display = "block";
-        document.getElementById("versusScreen").style.display = "block";
-        document.getElementById("board").style.display = "none";
-        document.getElementById("left_player").style.display = "none";
-        document.getElementById("right_player").style.display = "none";
-        console.log("reached end of BIG MOFUCKIN FUNCTION!");
-        // TODO removed in tournament
-        //document.getElementById("myForm").style.display = "none";
-        //document.getElementById("resetRemoteGameButton").style.display = "none";
+        if (!isTournamentMatchFinished) {
+            document.getElementById("roomInfo").style.display = "block";
+            document.getElementById("versusScreen").style.display = "block";
+            document.getElementById("board").style.display = "none";
+            document.getElementById("left_player").style.display = "none";
+            document.getElementById("right_player").style.display = "none";
+        }
     };
 }
 
@@ -632,10 +634,14 @@ function start_game() {
     document.getElementById("left_player").style.display = "block";
     document.getElementById("right_player").style.display = "block";
     //board vars
-    if (check_input_froms() == -1){
-      alert("The host entered wrong settings for the game!");
-      reset();
-      return ;
+
+    // TODO added for testing purposes
+    if (!isTournamentMatch){
+        if (check_input_froms() == -1){
+          alert("The host entered wrong settings for the game!");
+          reset();
+          return ;
+        }
     }
     player1.curr_speedY = playerSpeedY;
     player2.curr_speedY = playerSpeedY;
@@ -770,16 +776,29 @@ function start_game() {
     // check if player paddle is out of the frame otherwise change player paddle x and y
     check_and_change_dir_player();
 
-    if (check_and_change_score() == 1){
-      cancelAnimationFrame(id);
-
-    if (!isTournamentMatch){
-        const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
-        if(resetRemoteGameButton){
-            document.getElementById("resetRemoteGameButton").style.display = "block";
-        }
-    }
-    }
+      if (check_and_change_score() == 1){
+          cancelAnimationFrame(id);
+          if (!isTournamentMatch){
+              const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
+              if(resetRemoteGameButton){
+                  document.getElementById("resetRemoteGameButton").style.display = "block";
+              }
+          }
+          else {
+              const backToTournamentLobbyButton = document.getElementById("backToTournamentLobby");
+              if (backToTournamentLobbyButton){
+                  backToTournamentLobbyButton.style.display = "inline-block";
+                  backToTournamentLobbyButton.onclick = function (event) {
+                    event.preventDefault();
+                      chatSocket.close();
+                      chatSocket = null;
+                      refreshTournamentLobby();
+                  }
+              }
+              isTournamentMatchFinished = true;
+              finishTournamentMatch();
+          }
+      }
     context.font = "45px Verdana";
     context.fillText(score1, boardWidth/5, 45);
     context.fillText(score2, boardWidth/5 * 4, 45);

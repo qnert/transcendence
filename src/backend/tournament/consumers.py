@@ -194,6 +194,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     
     async def send_playing_content(self):
 
+        # TODO add boolean to update or not
         game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
 
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
