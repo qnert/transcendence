@@ -137,7 +137,7 @@ export function create_tournament_match(playingContent) {
     }
 
     isTournamentMatch = true;
-    username = playingContent.username;
+    username = playingContent.display_name;
     const room_name = playingContent.room_name;
     // TODO put this directly below
     const game_settings = playingContent.game_settings;
@@ -157,11 +157,9 @@ export function create_tournament_match(playingContent) {
     if (!chatSocket){
         chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
     }
-
     chatSocket.onopen = function(e) {
         console.log("Websocket connection opened!");
     }
-
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         if (data.type === 'connected_users') {
@@ -283,7 +281,6 @@ export function create_tournament_match(playingContent) {
           return;
         }
         else if (data.type == 'disconnected'){
-
             const startRemoteGame = document.getElementById("startRemoteGame");
             const startTournamentMatchButton = document.getElementById("startTournamentMatch");
             if (startRemoteGame){
@@ -292,7 +289,6 @@ export function create_tournament_match(playingContent) {
             else if (startTournamentMatchButton) {
                 startTournamentMatchButton.style.display = "none";
             }
-
           if (id !== 0){
             // TODO how to handle this?
             if (username == connected_users[0])
@@ -330,7 +326,11 @@ export function create_tournament_match(playingContent) {
     };
 }
 
-  export function create_join_game(){
+
+// =========================   MULTIPLAYER / SOLO GAME  =================================
+
+
+export function create_join_game(){
     ballSpeed = document.getElementById("ballSpeed").value;
     ball.speedX = random * ballSpeed * Math.cos(ballAngle);
     ball.speedY = ballSpeed * Math.sin(ballAngle);
@@ -527,7 +527,6 @@ export function create_tournament_match(playingContent) {
         if (myForm) {
             myForm.style.display = "none";
         }
-
     };
     })
     .catch(error => {
@@ -785,10 +784,12 @@ function start_game() {
       cancelAnimationFrame(id);
 
     // TODO check if exist add other button
-	  const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
-	  if(resetRemoteGameButton){
-		  document.getElementById("resetRemoteGameButton").style.display = "block";
-	  }
+    if (!isTournamentMatch){
+        const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
+        if(resetRemoteGameButton){
+            document.getElementById("resetRemoteGameButton").style.display = "block";
+        }
+    }
     }
     context.font = "45px Verdana";
     context.fillText(score1, boardWidth/5, 45);

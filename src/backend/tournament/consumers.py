@@ -216,6 +216,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 'type': 'event_playing_content',
                 'playing_content': {
                     'username': self.username,
+                    'display_name': self.user_profile.display_name,
                     'room_name': self.lobby_name,
                     'match_html': match_html,
                     'game_settings': game_settings,

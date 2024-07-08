@@ -5,7 +5,7 @@ from api.models import UserProfile
 from game.models import GameResult
 import json
 
-MAX_PARTICIPANTS = 4  # TODO change back after dev
+MAX_PARTICIPANTS = 2  # TODO change back after development
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '8',
     "max_score": '8',
