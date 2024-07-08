@@ -21,7 +21,6 @@ class TournamentAdmin(admin.ModelAdmin):
 
 @admin.register(TournamentUser)
 class TournamentUser(admin.ModelAdmin):
-
     list_display = ('username', 'display_name', 'tournament', 'is_ready', 'wins', 'losses', 'goals_scored', 'goals_conceded', 'created_at', 'matches_home', 'matches_away')
 
     def display_name(self, obj):
@@ -44,8 +43,5 @@ class TournamentUser(admin.ModelAdmin):
 
 @admin.register(TournamentMatch)
 class TournamentMatch(admin.ModelAdmin):
-
     list_display = ('name', 'tournament', 'is_finished', 'player_home', 'player_away', 'goals_home', 'goals_away',)
-
-#'user_profile', 'is_ready', 'wins', 'losses', 'goals_scored', 'goals_conceded', 'created_at', 'matches_home', 'matches_away')
 

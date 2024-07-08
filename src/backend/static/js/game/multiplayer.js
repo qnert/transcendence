@@ -155,7 +155,6 @@ export function create_tournament_match(playingContent) {
     advanced_mode = game_settings.advanced_mode;
     power_up_mode = game_settings.power_ups;
 
-    // TODO check why sockets get opened multiple times
     if (!chatSocket){
         chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
     }
@@ -184,12 +183,14 @@ export function create_tournament_match(playingContent) {
             }
             if (connected_users[0] == username){
                 const startRemoteGame = document.getElementById("startRemoteGame");
-                const startTournamentMatchButton = document.getElementById("startTournamentMatch");
                 if (startRemoteGame){
                     startRemoteGame.style.display = "block";
                 }
-                else if (startTournamentMatchButton) {
-                    startTournamentMatchButton.style.display = "block";
+                console.log("reached here!");
+                const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+                console.log(startTournamentMatchButton);
+                if (startTournamentMatchButton) {
+                    startTournamentMatchButton.style.display = "none";
                 }
             }
         }
@@ -368,17 +369,17 @@ export function create_join_game(){
         const data = JSON.parse(e.data);
         if (data.type === 'connected_users') {
             connected_users = JSON.parse(data.connected_users)[room_name];
-			const roomInfo =  document.getElementById('roomInfo');
-			if (roomInfo){
-				document.getElementById('roomInfo').textContent = `Welcome to Room ${data.room_name}!`;
-			}
-              if (connected_users.length == 2){
+            const roomInfo =  document.getElementById('roomInfo');
+            if (roomInfo){
+                document.getElementById('roomInfo').textContent = `Welcome to Room ${data.room_name}!`;
+            }
+            if (connected_users.length == 2){
                 let html_tag = document.getElementById("player1");
                 html_tag.textContent = connected_users[0];
                 let html_tag_2 = document.getElementById("player2");
                 html_tag_2.textContent = connected_users[1];
-              }
-              else if (connected_users.length == 1){
+            }
+            else if (connected_users.length == 1){
                 let html_tag = document.getElementById("player1");
                 html_tag.textContent = connected_users[0];
                 let html_tag_2 = document.getElementById("player2");
@@ -386,12 +387,8 @@ export function create_join_game(){
             }
             if (connected_users[0] == username){
                 const startRemoteGame = document.getElementById("startRemoteGame");
-                const startTournamentMatchButton = document.getElementById("startTournamentMatch");
                 if (startRemoteGame){
                     startRemoteGame.style.display = "block";
-                }
-                else if (startTournamentMatchButton) {
-                    startTournamentMatchButton.style.display = "block";
                 }
             }
         }
@@ -599,7 +596,6 @@ function reset() {
 }
 
 function start_game() {
-    // TODO check if exist add other button
     const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
     if (resetRemoteGameButton) {
         resetRemoteGameButton.style.display = "none";
@@ -644,7 +640,6 @@ function start_game() {
     player1.curr_speedY = playerSpeedY;
     player2.curr_speedY = playerSpeedY;
 
-    // TODO check if exist add other button
     if (myForm){
         myForm.style.display = "none";
     }
@@ -671,7 +666,6 @@ function start_game() {
     window.addEventListener('keydown', (event) => {
       if (username == connected_users[0]){
         if (event.code == 'ArrowUp') {
-          // TODO prevent default
           event.preventDefault();
           if (player1.y > 0){
             chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '1'}));
@@ -682,7 +676,6 @@ function start_game() {
           }
         }
         if (event.code == 'ArrowDown') {
-          // TODO prevent default
           event.preventDefault();
           if (player1.y + player1.height < boardHeight){
             chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '1'}));
@@ -695,8 +688,6 @@ function start_game() {
       }
       else{
         if (event.code == 'ArrowUp') {
-
-          // TODO prevent default
           event.preventDefault();
           if (player2.y > 0){
             chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '2'}));
@@ -707,7 +698,6 @@ function start_game() {
           }
         }
         if (event.code == 'ArrowDown') {
-          // TODO prevent default
             event.preventDefault();
           if (player2.y + player2.height < boardHeight){
             chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '2'}));
@@ -723,14 +713,12 @@ function start_game() {
     window.addEventListener('keyup', (e) => {
     if (username == connected_users[0]){
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
-        // TODO prevent default
         e.preventDefault();
         chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '1'}));
       }
     }
     else{
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
-        // TODO prevent default
         e.preventDefault();
         chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '2'}));
       }
@@ -785,7 +773,6 @@ function start_game() {
     if (check_and_change_score() == 1){
       cancelAnimationFrame(id);
 
-    // TODO check if exist add other button
     if (!isTournamentMatch){
         const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
         if(resetRemoteGameButton){
