@@ -796,8 +796,11 @@ function start_game() {
                       refreshTournamentPlayingLobby();
                   }
               }
-              isTournamentMatchFinished = true;
-              finishTournamentMatch();
+              if (isTournamentMatch){
+                  isTournamentMatchFinished = true;
+                  isTournamentMatch = false;
+                  finishTournamentMatch();
+              }
           }
       }
     context.font = "45px Verdana";
