@@ -287,11 +287,19 @@ class TournamentModelTest(TestCase):
         self.create_playing_phase_lobby()
         matches = self.tournament.get_matches_list()
         first_participant = self.tournament.get_participants().first()
-        for index, match in enumerate(matches):
+
+        # this test checks the main logic of how to use get_next_match
+        # match should be set to finished, and there should be a total of
+        # participants.count() - 1 matches
+        # the last get_next_match should return None, because no more games
+        # should be played
+        participants = list(self.tournament.participants.all())
+        for index, participant in enumerate(participants[:-1]):
             next_match = self.tournament.get_next_match(participant=first_participant)
             self.assertIsNotNone(next_match)
-            match.set_finished()
-        self.assertIsNone(self.tournament.get_next_match(participant=first_participant))
+            next_match.set_finished()
+        next_match = self.tournament.get_next_match(participant=first_participant)
+        self.assertIsNone(next_match)
 
 #   ==========================     UTIL FUNCTIONS
 
