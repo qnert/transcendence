@@ -5,6 +5,7 @@ import { handleRouteToken } from '../basics.js'
 
 let tournamentLobbySocket;
 
+// TODO change message?
 const msgRageQuit = "A motherfucking kiddo decided to rage quit, before the tournament ended";
 
 // =========================== MAIN EVENT LOOP ===============================
@@ -78,10 +79,8 @@ async function socketMessageHandler (event, tournamentLobbyChatLog) {
     // indicating wether the Tournament will be closed (only during 'playing' phase),
     // in which case everyone has to leave/disconnect
     if (data.disconnect == true) {
-        // TODO handle differently?
         alert(msgRageQuit);
         await handleRouteToken("/tournament/hub/");
-        // TODO return here right?
         return;
     }
     // Hint:
@@ -157,7 +156,6 @@ function renderAdvanceButton(advanceButtonHTML) {
 }
 
 function renderPlayingContent(playingContent) {
-    // TODO still needed ???
     if (playingContent == "remove") {
         const gameInfoBox = document.getElementById("lobby-game-info-box");
         gameInfoBox.innerHTML = "";
@@ -171,26 +169,6 @@ function renderPlayingContent(playingContent) {
         renderTournamentLobbyPlayingPhase(playingContent);
     }
 }
-
-function renderFinishedContent(finishedContent) {
-    const gameInfoBox = document.getElementById("lobby-game-info-box");
-    gameInfoBox.innerHTML = finishedContent.standings_html;
-    gameInfoBox.insertAdjacentHTML('beforeend', finishedContent.matches_list_html)
-    // TODO winner statement
-    // TODO press 'f' to pay respect button in chat
-}
-
-// =========================== GAME / MATCH  ===============================
-
-// Hint:
-// in tournament/consumers.py send_playing_content
-// playingContent
-//      - username
-//      - room_name
-//      - game_settings
-//      - match_html
-//      - standings_html
-//      - matches_list_html
 
 function renderTournamentLobbyPlayingPhase(playingContent) {
     const gameInfoBox = document.getElementById("lobby-game-info-box");
@@ -232,6 +210,14 @@ export function refreshTournamentPlayingLobby() {
             back_to_lobby: true,
         })
     );
+}
+
+function renderFinishedContent(finishedContent) {
+    const gameInfoBox = document.getElementById("lobby-game-info-box");
+    gameInfoBox.innerHTML = finishedContent.standings_html;
+    gameInfoBox.insertAdjacentHTML('beforeend', finishedContent.matches_list_html)
+    // TODO winner statement
+    // TODO press 'f' to pay respect button in chat
 }
 
 // =========================== CLEAN UP ===============================

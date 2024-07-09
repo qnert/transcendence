@@ -5,7 +5,7 @@ from api.models import UserProfile
 from game.models import GameResult
 import json
 
-MAX_PARTICIPANTS = 2  # TODO for testing purposes
+MAX_PARTICIPANTS = 6  # TODO for testing purposes
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '10',
     "max_score": '1',
@@ -65,6 +65,12 @@ class TournamentUser(models.Model):
         else:
             member_status = '🐸'
         return f'{member_status} {self.user_profile.display_name}({self.user_profile.user.username})'
+
+    def get_wins_and_goal_difference(self):
+        return {
+                'wins': self.wins,
+                'goal_difference': self.goals_scored - self.goals_conceded
+                }
 
 class TournamentMatch(models.Model):
 
@@ -321,6 +327,15 @@ class Tournament(models.Model):
 
     def get_state(self):
         return self.state
+
+    def get_winners(self):
+        if self.state != 'finished':
+            raise ValidationError("Tournament is not finished yet!")
+        participants = self.participants.all()
+        most_wins = max(participant.wins for participant in participants)
+        winners_by_wins = [participant for participant in participants if participant.wins == most_wins]
+        best_goal_difference = max(participant.get_wins_and_goal_difference()['goal_difference'] for participant in winners_by_wins)
+        return [participant for participant in winners_by_wins if participant.get_wins_and_goal_difference()['goal_difference'] == best_goal_difference]
 
     def is_host(self, user_profile=None, username=None):
         if isinstance(user_profile, UserProfile):

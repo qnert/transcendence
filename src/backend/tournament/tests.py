@@ -4,6 +4,7 @@ from api.models import User, UserProfile
 from game.models import GameResult
 from tournament.models import Tournament, MAX_PARTICIPANTS, DEFAULT_GAME_SETTINGS
 from tournament.consumers import TournamentConsumer
+import random
 
 TEST_TOURNAMENT_NAME='test_tournament'
 
@@ -352,6 +353,33 @@ class TournamentModelTest(TestCase):
         self.assertEqual(first_participant.losses, 0)
         self.assertEqual(first_participant.goals_scored, self.valid_game_result.user_score)
         self.assertEqual(first_participant.goals_conceded, self.valid_game_result.opponent_score)
+
+    def test_TournamentModel_get_winners(self):
+        self.create_playing_phase_lobby()
+        with self.assertRaises(ValidationError):
+            self.tournament.get_winners()
+
+        self.tournament.advance_state()
+
+        MAX_MATCHES = MAX_PARTICIPANTS - 1
+        wins_range = (0, MAX_MATCHES)
+        goals_scored_range = (0, int(DEFAULT_GAME_SETTINGS['max_score']))
+
+        for participant in self.tournament.participants.all():
+
+            participant.wins = random.randint(*wins_range)
+            losses_range = (0, MAX_MATCHES - participant.wins)
+            participant.losses = random.randint(*losses_range)
+
+            participant.goals_scored = random.randint(*goals_scored_range)
+
+            goals_conceded_range = (0, participant.goals_scored)
+            participant.goals_conceded = random.randint(*goals_conceded_range)
+            participant.save()
+
+        winners = self.tournament.get_winners()
+        self.assertGreater(len(winners), 0)
+        self.assertIsNotNone(winners)
 
 #   ==========================     UTIL FUNCTIONS
 
