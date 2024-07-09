@@ -50,7 +50,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await database_sync_to_async(self.tournament.remove_participant)(self.user_profile)
         await self.send_chat_notification(MSG_LEAVE_LOBBY)
         await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
-        await database_sync_to_async(self.tournament.delete_if_empty)()
+        await self.update_db_variables()
+        if not self.tournament.state is 'finished':
+            await database_sync_to_async(self.tournament.delete_if_empty)()
 
     async def receive(self, text_data):
 
@@ -66,6 +68,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         elif "finished_match" in text_data_json:
             await self.update_db_variables()
+            # TODO dont need this var i guess?
             processed_match = await self.process_match()
             if processed_match:
                 await self.update_db_variables()
@@ -82,6 +85,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             else:
                 self.next_match = await database_sync_to_async(self.tournament.get_last_match)(self.tournament_user)
             await database_sync_to_async(self.tournament_user.update_stats)(match=self.next_match)
+            if await database_sync_to_async(self.tournament.are_matches_finished)():
+                print("finish this shit please")
+            # TODO what if all matches are finished?
 
         elif "updated_match_list" in text_data_json:
             await self.send(text_data=json.dumps({'notification': MSG_NEXT_MATCH,}))
@@ -100,9 +106,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 await database_sync_to_async(self.tournament.create_matches_list)()
                 await self.send_remove_setup_content()
                 await self.send_chat_notification(MSG_START)
-            # TODO handle 'finished'
-            # Hint:
-            # This is state 'finished'
+            if self.tournament.state is 'finished':
+                # TODO notify about winner
+                await self.channel_layer.group_send(
+                    self.lobby_group_name,
+                    {
+                        "type": "event_chat_notification",
+                        "notification": f'[ All matches have been played. Tournament is finished ]',
+                        "should_update": False,
+                    }
+                )
+                await self.send_finished_content()
         
         elif "status_change" in text_data_json:
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)

@@ -48,13 +48,15 @@ class TournamentUser(models.Model):
                 self.wins += 1
             else:
                 self.losses += 1
-        else:
+        elif self == match.player_away:
             self.goals_conceded += match.goals_home
             self.goals_scored += match.goals_away
             if match.goals_away > match.goals_home:
                 self.wins += 1
             else:
                 self.losses += 1
+        else:
+            raise ValidationError("User is not part of the game!")
         self.save()
 
     def get_nickname(self):
