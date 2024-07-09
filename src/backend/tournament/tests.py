@@ -283,9 +283,8 @@ class TournamentModelTest(TestCase):
             self.tournament.get_next_match(participant=self.tournament.get_participants().first())
         self.tournament.remove_participant(self.user_profiles[0])
 
-        # this test checks if the get_next_match results in a None if all matches are finished
+        # this test checks if a None is returned if all matches are finished
         self.create_playing_phase_lobby()
-        matches = self.tournament.get_matches_list()
         first_participant = self.tournament.get_participants().first()
 
         # this test checks the main logic of how to use get_next_match
@@ -301,6 +300,29 @@ class TournamentModelTest(TestCase):
         next_match = self.tournament.get_next_match(participant=first_participant)
         self.assertIsNone(next_match)
 
+    def test_TournamentModel_get_last_match(self):
+        """ Checks Tournament get last match method """
+        # checks case where there are no matches created
+        self.tournament.add_participant(self.user_profiles[0])
+        with self.assertRaises(ValidationError):
+            self.tournament.get_last_match(participant=self.tournament.get_participants().first())
+        self.tournament.remove_participant(self.user_profiles[0])
+
+        # this test checks if a None is returned if no matches are finished
+        self.create_playing_phase_lobby()
+        first_participant = self.tournament.get_participants().first()
+        self.assertIsNone(self.tournament.get_last_match(participant=first_participant))
+
+        # Checks wether the get_last_match correclty gets the last played match
+        match = self.tournament.get_next_match(participant=first_participant)
+        match.set_finished()
+        next_match = self.tournament.get_next_match(participant=first_participant)
+        if next_match:
+            next_match.set_finished()
+            self.assertEqual(next_match, self.tournament.get_last_match(participant=first_participant))
+        else:
+            self.assertEqual(match, self.tournament.get_last_match(participant=first_participant))
+
 #   ==========================     UTIL FUNCTIONS
 
     def create_playing_phase_lobby(self):
@@ -312,7 +334,7 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.tournament.create_matches_list()
 
-# TODO get_last_match
+# TODO are_matches_finished
 # TODO update_stats
 # TODO get_nickname
 
