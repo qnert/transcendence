@@ -47,11 +47,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         # Remove Participant from Lobby in DB
         # Notify Group about leaving and sending them new data to render
         # Clean Group, Tournament if necessary
-        await database_sync_to_async(self.tournament.remove_participant)(self.user_profile)
+        await self.update_db_variables()
         await self.send_chat_notification(MSG_LEAVE_LOBBY)
         await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
-        await self.update_db_variables()
-        if not self.tournament.state is 'finished':
+        if self.tournament.state != 'finished':
+            await database_sync_to_async(self.tournament.remove_participant)(self.user_profile)
             await database_sync_to_async(self.tournament.delete_if_empty)()
 
     async def receive(self, text_data):
@@ -85,14 +85,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             else:
                 self.next_match = await database_sync_to_async(self.tournament.get_last_match)(self.tournament_user)
             await database_sync_to_async(self.tournament_user.update_stats)(match=self.next_match)
-            if await database_sync_to_async(self.tournament.are_matches_finished)():
-                print("finish this shit please")
-            # TODO what if all matches are finished?
+            if self.tournament.state != 'finished':
+                if await database_sync_to_async(self.tournament.are_matches_finished)():
+                    await database_sync_to_async(self.tournament.advance_state)()
 
         elif "updated_match_list" in text_data_json:
-            await self.send(text_data=json.dumps({'notification': MSG_NEXT_MATCH,}))
+            await self.update_db_variables()
+            if not await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user) is None:
+                await self.send(text_data=json.dumps({'notification': MSG_NEXT_MATCH,}))
 
         elif "back_to_lobby" in text_data_json:
+            # TODO notification really needed?
             await self.send_chat_notification(MSG_BACK_IN_LOBBY, should_update=False)
             await self.update_db_variables()
             await self.update_content()
@@ -106,7 +109,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 await database_sync_to_async(self.tournament.create_matches_list)()
                 await self.send_remove_setup_content()
                 await self.send_chat_notification(MSG_START)
-            if self.tournament.state is 'finished':
+            if self.tournament.state == 'finished':
                 # TODO notify about winner
                 await self.channel_layer.group_send(
                     self.lobby_group_name,
@@ -132,7 +135,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             await self.send_chat_notification(MSG_SETTINGS_CHANGED)
 
 #   ==========================     UPDATE ROUTINES
-
 
     @sync_to_async
     def process_match(self):
@@ -173,6 +175,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     await self.send_remove_advance_button()
         elif self.state == 'playing':
             await self.send_playing_content()
+        elif self.state == 'finished':
+            await self.send_finished_content()
 
     async def update_db_variables(self):
         self.tournament = await database_sync_to_async(Tournament.objects.get)(name=self.lobby_name)
@@ -288,10 +292,26 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     'game_settings': game_settings,
                     'standings_html': standings_html,
                     'matches_list_html': matches_list_html,
-                    'match_html': match_html,
                 }
             }
         )
+
+    async def send_finished_content(self):
+        self.next_match = await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user)
+        matches_list = await database_sync_to_async(self.tournament.get_matches_list)()
+        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': self.next_match})
+        standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
+        standings_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_standings.html', {'standings': standings})
+        await self.channel_layer.send(
+            self.channel_name,
+                {
+                    'type': 'event_finished_content',
+                    'finished_content': {
+                        'standings_html': standings_html,
+                        'matches_list_html': matches_list_html,
+                        }
+                    }
+                )
 
     async def send_remove_setup_content(self):
         await self.channel_layer.group_send(
@@ -359,4 +379,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         playing_content = event['playing_content']
         await self.send(text_data=json.dumps({
             'playing_content': playing_content,
+        }))
+
+    async def event_finished_content(self, event):
+        finished_content = event['finished_content']
+        await self.send(text_data=json.dumps({
+            'finished_content': finished_content,
         }))

@@ -69,6 +69,8 @@ async function socketMessageHandler (event, tournamentLobbyChatLog) {
         renderAdvanceButton(data.advance_button);
     } else if (data.playing_content) {
         renderPlayingContent(data.playing_content);
+    } else if (data.finished_content) {
+        renderFinishedContent(data.finished_content);
     }
 
     // Hint:
@@ -170,6 +172,14 @@ function renderPlayingContent(playingContent) {
     }
 }
 
+function renderFinishedContent(finishedContent) {
+    const gameInfoBox = document.getElementById("lobby-game-info-box");
+    gameInfoBox.innerHTML = finishedContent.standings_html;
+    gameInfoBox.insertAdjacentHTML('beforeend', finishedContent.matches_list_html)
+    // TODO winner statement
+    // TODO press 'f' to pay respect button in chat
+}
+
 // =========================== GAME / MATCH  ===============================
 
 // Hint:
@@ -207,11 +217,13 @@ function renderTournamentLobbyPlayingPhase(playingContent) {
 }
 
 export function finishTournamentMatch() {
-    tournamentLobbySocket.send(
-        JSON.stringify({
-            finished_match: true,
-        })
-    );
+    setTimeout(() => {
+        tournamentLobbySocket.send(
+            JSON.stringify({
+                finished_match: true,
+            })
+        );
+    }, 500);
 }
 
 export function refreshTournamentPlayingLobby() {

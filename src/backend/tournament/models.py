@@ -5,7 +5,7 @@ from api.models import UserProfile
 from game.models import GameResult
 import json
 
-MAX_PARTICIPANTS = 4  # TODO for testing purposes
+MAX_PARTICIPANTS = 2  # TODO for testing purposes
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '10',
     "max_score": '1',
@@ -166,6 +166,8 @@ class Tournament(models.Model):
             self.state = 'playing'
         elif self.state == 'playing':
             self.state = 'finished'
+        elif self.state == 'finished':
+            return
         else:
             raise ValidationError("Invalid state transition")
         self.save(update_fields=['state'])
@@ -308,8 +310,7 @@ class Tournament(models.Model):
         for participant, name in zip(participants, names):
             participant.name = name
 
-        # sort by amount of wins
-        participants = sorted(participants, key=lambda p: p.wins, reverse=True)
+        participants = sorted(participants, key=lambda p: (p.wins, p.goals_scored, -p.goals_conceded), reverse=True)
         return participants
 
     def get_participants(self):
