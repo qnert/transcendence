@@ -218,7 +218,7 @@ function renderFinishedContent(finishedContent) {
     gameInfoBox.innerHTML = finishedContent.standings_html;
     gameInfoBox.insertAdjacentHTML('beforeend', finishedContent.matches_list_html)
     const headerBox = document.getElementById("lobby-header-box");
-    headerBox.innerHTML('beforeend', finishedContent.winners_html);
+    headerBox.innerHTML(finishedContent.winners_html);
 
     // TODO press 'f' to pay respect button in chat
 }
