@@ -1,8 +1,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import Tournament
-from api.models import UserProfile
-from api.models import User
 from channels.db import database_sync_to_async
 from django.template.loader import render_to_string
 from django.db import transaction
@@ -62,7 +60,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         if "message" in text_data_json:
             await self.send_chat_message(text_data_json['message'])
-        
+
         elif "waiting_for_opponent" in text_data_json:
             await self.send_chat_notification(MSG_MATCH_JOIN, should_update=False)
 
@@ -92,7 +90,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         elif "updated_match_list" in text_data_json:
             await self.update_db_variables()
             if not await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user) is None:
-                await self.send(text_data=json.dumps({'notification': MSG_NEXT_MATCH,}))
+                await self.send(text_data=json.dumps({'notification': MSG_NEXT_MATCH, }))
 
         elif "back_to_lobby" in text_data_json:
             # TODO notification really needed?
@@ -115,12 +113,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     self.lobby_group_name,
                     {
                         "type": "event_chat_notification",
-                        "notification": f'[ All matches have been played. Tournament is finished ]',
+                        "notification": '[ All matches have been played. Tournament is finished ]',
                         "should_update": False,
                     }
                 )
                 await self.send_finished_content()
-        
+
         elif "status_change" in text_data_json:
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
             # because self.tournament_user doesnt reflect toggle change, the logic is the opposite
@@ -258,7 +256,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 'advance_button': " ",
             }
         )
-    
+
     async def send_playing_content(self):
 
         # TODO add boolean to update or not
@@ -302,13 +300,16 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': self.next_match})
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
         standings_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_standings.html', {'standings': standings})
+        winners = await database_sync_to_async(self.tournament.get_winners)()
+        winners_html = await database_sync_to_async(render_to_string)('tournament_lobby_finished_winners.html', {'winners': winners})
         await self.channel_layer.send(
-            self.channel_name,
+                self.channel_name,
                 {
                     'type': 'event_finished_content',
                     'finished_content': {
                         'standings_html': standings_html,
                         'matches_list_html': matches_list_html,
+                        'winners_html': winners_html,
                         }
                     }
                 )
@@ -374,7 +375,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'advance_button': advance_button_html,
         }))
-    
+
     async def event_playing_content(self, event):
         playing_content = event['playing_content']
         await self.send(text_data=json.dumps({
@@ -386,3 +387,4 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'finished_content': finished_content,
         }))
+

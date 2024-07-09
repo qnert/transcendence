@@ -151,6 +151,7 @@ function renderGameSettingsEditor(gameSettingsEditorHTML) {
 }
 
 function renderAdvanceButton(advanceButtonHTML) {
+    console.log("render triggered");
     const advanceButtonBox = document.getElementById("lobby-advance-button-box");
     advanceButtonBox.innerHTML = advanceButtonHTML;
 }
@@ -216,7 +217,9 @@ function renderFinishedContent(finishedContent) {
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = finishedContent.standings_html;
     gameInfoBox.insertAdjacentHTML('beforeend', finishedContent.matches_list_html)
-    // TODO winner statement
+    const headerBox = document.getElementById("lobby-header-box");
+    headerBox.innerHTML('beforeend', finishedContent.winners_html);
+
     // TODO press 'f' to pay respect button in chat
 }
 

@@ -5,7 +5,7 @@ from api.models import UserProfile
 from game.models import GameResult
 import json
 
-MAX_PARTICIPANTS = 6  # TODO for testing purposes
+MAX_PARTICIPANTS = 2  # TODO for testing purposes
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '10',
     "max_score": '1',
@@ -70,7 +70,7 @@ class TournamentUser(models.Model):
         return {
                 'wins': self.wins,
                 'goal_difference': self.goals_scored - self.goals_conceded
-                }
+               }
 
 class TournamentMatch(models.Model):
 
