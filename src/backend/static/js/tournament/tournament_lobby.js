@@ -5,8 +5,10 @@ import { handleRouteToken } from '../basics.js'
 
 let tournamentLobbySocket;
 
-// TODO change message?
+// TODO change messages?
 const msgRageQuit = "A motherfucking kiddo decided to rage quit, before the tournament ended";
+const msgTaunt = "You just got served...";
+const msgRespect = "f";
 
 // =========================== MAIN EVENT LOOP ===============================
 
@@ -214,13 +216,32 @@ export function refreshTournamentPlayingLobby() {
 }
 
 function renderFinishedContent(finishedContent) {
+    const headerBox = document.getElementById("lobby-header-box");
+    headerBox.innerHTML = finishedContent.winners_html;
+    headerBox.insertAdjacentHTML('beforeend', finishedContent.respect_button_html)
+
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = finishedContent.standings_html;
     gameInfoBox.insertAdjacentHTML('beforeend', finishedContent.matches_list_html)
-    const headerBox = document.getElementById("lobby-header-box");
-    headerBox.innerHTML(finishedContent.winners_html);
 
-    // TODO press 'f' to pay respect button in chat
+    const respectButton = document.getElementById("lobby-respect-button");
+    respectButton.onclick = function (event) {
+        event.preventDefault;
+        if (finishedContent.is_winner) {
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    message: msgTaunt,
+                })
+            );
+        }
+        else {
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    message: msgRespect,
+                })
+            );
+        }
+    }
 }
 
 // =========================== CLEAN UP ===============================

@@ -15,6 +15,7 @@ MSG_START = "has started the tournament"
 MSG_MATCH_JOIN = "has joined his next game"
 MSG_NEXT_MATCH = "[ Your next match is ready! ]"
 MSG_BACK_IN_LOBBY = " has returned to the lobby"
+MSG_ENDED = "[ The Tournament has finished, come back to the Lobby! ]"
 
 # Hint:
 # Because of Python, everytime you change something in the DB, variables have to
@@ -86,6 +87,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             if self.tournament.state != 'finished':
                 if await database_sync_to_async(self.tournament.are_matches_finished)():
                     await database_sync_to_async(self.tournament.advance_state)()
+                    await self.send(text_data=json.dumps({'notification': MSG_ENDED, }))
 
         elif "updated_match_list" in text_data_json:
             await self.update_db_variables()
@@ -107,17 +109,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 await database_sync_to_async(self.tournament.create_matches_list)()
                 await self.send_remove_setup_content()
                 await self.send_chat_notification(MSG_START)
-            if self.tournament.state == 'finished':
-                # TODO notify about winner
-                await self.channel_layer.group_send(
-                    self.lobby_group_name,
-                    {
-                        "type": "event_chat_notification",
-                        "notification": '[ All matches have been played. Tournament is finished ]',
-                        "should_update": False,
-                    }
-                )
-                await self.send_finished_content()
 
         elif "status_change" in text_data_json:
             await database_sync_to_async(self.tournament.toggle_ready_state_by)(self.user_profile)
@@ -301,7 +292,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
         standings_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_standings.html', {'standings': standings})
         winners = await database_sync_to_async(self.tournament.get_winners)()
+        is_winner = self.tournament_user in winners
         winners_html = await database_sync_to_async(render_to_string)('tournament_lobby_finished_winners.html', {'winners': winners})
+        respect_button_html = await database_sync_to_async(render_to_string)('tournament_lobby_finished_respect_button.html', {'is_winner': is_winner})
         await self.channel_layer.send(
                 self.channel_name,
                 {
@@ -310,6 +303,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                         'standings_html': standings_html,
                         'matches_list_html': matches_list_html,
                         'winners_html': winners_html,
+                        'respect_button_html': respect_button_html,
+                        'is_winner': is_winner,
                         }
                     }
                 )
