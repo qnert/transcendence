@@ -323,6 +323,16 @@ class TournamentModelTest(TestCase):
         else:
             self.assertEqual(match, self.tournament.get_last_match(participant=first_participant))
 
+    def test_TournamentModel_are_matches_finished(self):
+        """ Checks Tournament are matches finished method """
+        with self.assertRaises(ValidationError):
+            self.tournament.are_matches_finished()
+        self.create_playing_phase_lobby()
+        self.assertFalse(self.tournament.are_matches_finished())
+        for match in self.tournament.get_matches_list():
+            match.set_finished()
+        self.assertTrue(self.tournament.are_matches_finished())
+
 #   ==========================     UTIL FUNCTIONS
 
     def create_playing_phase_lobby(self):
@@ -334,7 +344,6 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.tournament.create_matches_list()
 
-# TODO are_matches_finished
 # TODO update_stats
 # TODO get_nickname
 

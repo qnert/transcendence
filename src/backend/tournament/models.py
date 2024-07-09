@@ -5,7 +5,7 @@ from api.models import UserProfile
 from game.models import GameResult
 import json
 
-MAX_PARTICIPANTS = 2  # TODO for testing purposes
+MAX_PARTICIPANTS = 4  # TODO for testing purposes
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '10',
     "max_score": '1',
@@ -135,6 +135,14 @@ class Tournament(models.Model):
 
     class Meta:
         ordering = ['created_at']
+
+    def are_matches_finished(self):
+        if not self.matches.exists():
+            raise ValidationError("No Matches to check finished status")
+        for match in self.matches.all():
+            if not match.is_finished:
+                return False
+        return True
 
     def are_participants_ready(self):
         if self.participants.count() < MAX_PARTICIPANTS:
