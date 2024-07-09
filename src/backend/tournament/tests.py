@@ -25,6 +25,13 @@ class TournamentModelTest(TestCase):
             cls.user_profiles.append(UserProfile.objects.create(user=cls.users[index]))
         cls.host_profile = cls.user_profiles[0]
         cls.tournament = Tournament.objects.create(name=TEST_TOURNAMENT_NAME, created_by=cls.host_profile)
+        cls.valid_game_result = GameResult.objects.create(
+                user_profile = cls.user_profiles[0],
+                opponent_profile = cls.user_profiles[-2],
+                user_score = 8,
+                opponent_score = 5,
+                is_win = True,
+                )
 
     def test_TournamentModel_creation(self):
         """ checks for tournament creation and initial participants count """
@@ -239,13 +246,6 @@ class TournamentModelTest(TestCase):
                         opponent_score = 5,
                         is_win = True,
                     )
-        correct_game_result = GameResult.objects.create(
-                    user_profile = self.user_profiles[0],
-                    opponent_profile = self.user_profiles[-2],
-                    user_score = 8,
-                    opponent_score = 5,
-                    is_win = True,
-                )
         another_game_result = GameResult.objects.create(
                     user_profile = self.user_profiles[0],
                     opponent_profile = self.user_profiles[1],
@@ -267,7 +267,7 @@ class TournamentModelTest(TestCase):
                 match.set_results_and_finished(wrong_user_game_result)
 
         # Test correct behaviour
-        match.set_results_and_finished(correct_game_result)
+        match.set_results_and_finished(self.valid_game_result)
         self.assertEqual(match.goals_home,8)
         self.assertEqual(match.goals_away,5)
 
@@ -333,6 +333,26 @@ class TournamentModelTest(TestCase):
             match.set_finished()
         self.assertTrue(self.tournament.are_matches_finished())
 
+    def test_TournamentMatchModel_update_stats(self):
+        """ Checks TournamentMatch update stats method """
+        self.create_playing_phase_lobby()
+        matches = self.tournament.get_matches_list()
+        first_participant = self.tournament.get_participants().first()
+        next_match = self.tournament.get_next_match(participant=first_participant)
+        next_match.set_results_and_finished(self.valid_game_result)
+
+        self.assertEqual(first_participant.wins, 0)
+        self.assertEqual(first_participant.losses, 0)
+        self.assertEqual(first_participant.goals_scored, 0)
+        self.assertEqual(first_participant.goals_conceded, 0)
+
+        first_participant.update_stats(match=next_match)
+
+        self.assertEqual(first_participant.wins, 1)
+        self.assertEqual(first_participant.losses, 0)
+        self.assertEqual(first_participant.goals_scored, self.valid_game_result.user_score)
+        self.assertEqual(first_participant.goals_conceded, self.valid_game_result.opponent_score)
+
 #   ==========================     UTIL FUNCTIONS
 
     def create_playing_phase_lobby(self):
@@ -344,21 +364,3 @@ class TournamentModelTest(TestCase):
         self.tournament.advance_state()
         self.tournament.create_matches_list()
 
-# TODO update_stats
-# TODO get_nickname
-
-#class TournamentConsumerTest(TestCase):
-#
-#    @classmethod
-#    def setUpTestData(cls):
-#        cls.users = []
-#        cls.user_profiles = []
-#        for index in range(MAX_PARTICIPANTS + 1):
-#            cls.users.append(User.objects.create_user(
-#                username=f'testuser{index}', password='1234', email=f'testuser{index}@some_domain.com'))
-#            cls.user_profiles.append(UserProfile.objects.create(user=cls.users[index]))
-#        cls.host_profile = cls.user_profiles[0]
-#        cls.tournament = Tournament.objects.create(name=TEST_TOURNAMENT_NAME, created_by=cls.host_profile)
-#
-#    def test_first(self):
-#        self.assertEqual(True, True)
