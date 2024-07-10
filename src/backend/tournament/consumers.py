@@ -15,7 +15,7 @@ MSG_START = "has started the tournament"
 MSG_MATCH_JOIN = "has joined his next game"
 MSG_NEXT_MATCH = "[ Your next match is ready! ]"
 MSG_BACK_IN_LOBBY = " has returned to the lobby"
-MSG_ENDED = "[ The Tournament has finished, come back to the Lobby! ]"
+MSG_ENDED = "[ The Tournament is finished! ]"
 
 # Hint:
 # Because of Python, everytime you change something in the DB, variables have to
@@ -82,7 +82,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 )
                 if await database_sync_to_async(self.tournament.are_matches_finished)():
                     await database_sync_to_async(self.tournament.advance_state)()
-                    await self.send_chat_notification(MSG_ENDED)
+                    await self.channel_layer.group_send(
+                        self.lobby_group_name,
+                        {
+                            "type": "event_chat_notification",
+                            "notification": MSG_ENDED,
+                            "should_update": True,
+                        }
+                    )
             else:
                 self.next_match = await database_sync_to_async(self.tournament.get_last_match)(self.tournament_user)
             await database_sync_to_async(self.tournament_user.update_stats)(match=self.next_match)
@@ -136,11 +143,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         return False
 
     # Hint:
-    # all notifications send to a socket will trigger these routines per socket
-    #  - reinit db variables
-    #  - send prerendered (SSR) dynamic content to Frontend
-
-    # Hint:
     # If naming formatting would be changed...
     # also change in tournament model get_participants_names() method
     async def build_nickname(self):
@@ -149,16 +151,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         return f'🐸 {self.user_profile.display_name}({self.username})'
 
     async def update_content(self):
-        # TODO might be abstracted away and send in one packet / object
         if self.state == 'setup':
-            await self.send_participant_list()
-            await self.send_game_settings_list()
-            if self.is_host:
-                await self.send_game_settings_editor()
-                if self.are_participants_ready:
-                    await self.send_advance_button()
-                else:
-                    await self.send_remove_advance_button()
+            await self.send_setup_content()
         elif self.state == 'playing':
             await self.send_playing_content()
         elif self.state == 'finished':
@@ -173,7 +167,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         self.are_participants_ready = await database_sync_to_async(self.tournament.are_participants_ready)()
         self.state = await database_sync_to_async(self.tournament.get_state)()
 
-#   ==========================     SEND FUNCTIONS
+#   ==========================     SEND FUNCTIONS AND EVENT HANDLERS
+
+#   --------------  NOTIFICATIONS ---------------------
 
     async def send_chat_notification(self, notification, should_update: bool = True):
         await self.channel_layer.group_send(
@@ -185,6 +181,30 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             }
         )
 
+    # Hint:
+    # this function triggers updating vars and rendering for all socket users
+    async def event_chat_notification(self, event):
+
+        if event["should_update"]:
+            await self.update_db_variables()
+            await self.update_content()
+
+        notification = event["notification"]
+        # Hint:
+        # handle disconnect of someone during playing phase
+        disconnect = False
+        if self.state == 'playing':
+            if MSG_LEAVE_LOBBY in notification:
+                disconnect = True
+
+        await self.send(text_data=json.dumps({
+            'notification': notification,
+            'disconnect': disconnect,
+            }))
+
+
+#   --------------  CHAT MESSAGE ---------------------
+
     async def send_chat_message(self, message):
         await self.channel_layer.group_send(
             self.lobby_group_name,
@@ -194,56 +214,60 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             }
         )
 
-    async def send_participant_list(self):
+    async def event_chat_message(self, event):
+        message = event["message"]
+        await self.send(text_data=json.dumps({
+            'message': message,
+        }))
+
+#   --------------  SETUP PHASE ROUTINE ---------------------
+
+    async def send_setup_content(self):
+
         participants = await database_sync_to_async(self.tournament.get_participants_names_and_statuses)()
         participants_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_participants.html', {'participants': participants})
-        await self.channel_layer.send(
-            self.channel_name,
-            {
-                'type': 'event_participants',
-                'participants': participants_html,
-            }
-        )
 
-    async def send_game_settings_list(self):
         game_settings_list = await database_sync_to_async(self.tournament.get_game_settings)()
-        game_settings_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_game_settings_list.html', {'game_settings': game_settings_list})
+        game_settings_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_game_settings_list.html', {'game_settings_list': game_settings_list})
+
+        game_settings_editor_html = False
+        advance_button_html = False
+        if self.is_host:
+            game_settings_editor_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_game_settings_editor.html')
+            if self.are_participants_ready:
+                advance_button_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_advance_button.html')
+
         await self.channel_layer.send(
             self.channel_name,
             {
-                'type': 'event_game_settings_list',
-                'game_settings_list': game_settings_list_html,
+                'type': 'event_setup_content',
+                'setup_content': {
+                    'participants_html': participants_html,
+                    'game_settings_list_html': game_settings_list_html,
+                    'game_settings_editor_html': game_settings_editor_html,
+                    'advance_button_html': advance_button_html,
+                }
             }
         )
 
-    async def send_game_settings_editor(self):
-        game_settings_editor_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_game_settings_editor.html')
-        await self.channel_layer.send(
-            self.channel_name,
-            {
-                'type': 'event_game_settings_editor',
-                'game_settings_editor': game_settings_editor_html,
-            }
-        )
+    # Hint:
+    # This triggers removing unused setup content when state is switched to playing phase
+    async def send_remove_setup_content(self):
+        await self.channel_layer.group_send(
+                self.lobby_group_name,
+                {
+                    'type': 'event_playing_content',
+                    'playing_content': 'remove',
+                    }
+                )
 
-    async def send_advance_button(self):
-        advance_button_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_advance_button.html')
-        await self.channel_layer.send(
-            self.channel_name,
-            {
-                'type': 'event_advance_button',
-                'advance_button': advance_button_html,
-            }
-        )
+    async def event_setup_content(self, event):
+        setup_content = event['setup_content']
+        await self.send(text_data=json.dumps({
+            'setup_content': setup_content,
+        }))
 
-    async def send_remove_advance_button(self):
-        await self.channel_layer.send(
-            self.channel_name,
-            {
-                'type': 'event_advance_button',
-                'advance_button': " ",
-            }
-        )
+#   --------------  PLAYING PHASE ROUTINE ---------------------
 
     async def send_playing_content(self):
         game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
@@ -278,6 +302,14 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             }
         )
 
+    async def event_playing_content(self, event):
+        playing_content = event['playing_content']
+        await self.send(text_data=json.dumps({
+            'playing_content': playing_content,
+        }))
+
+#   --------------  FINISHED PHASE ROUTINE ---------------------
+
     async def send_finished_content(self):
         self.next_match = await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user)
         matches_list = await database_sync_to_async(self.tournament.get_matches_list)()
@@ -305,77 +337,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
-    async def send_remove_setup_content(self):
-        await self.channel_layer.group_send(
-                self.lobby_group_name,
-                {
-                    'type': 'event_playing_content',
-                    'playing_content': 'remove',
-                    }
-                )
-
-#   ==========================     EVENT LISTENERS
-
-    # Hint:
-    # this function triggers updating vars and rendering for all socket users
-    async def event_chat_notification(self, event):
-
-        if event["should_update"]:
-            await self.update_db_variables()
-            await self.update_content()
-
-        notification = event["notification"]
-        # Hint:
-        # handle disconnect of someone during playing phase
-        disconnect = False
-        if self.state == 'playing':
-            if MSG_LEAVE_LOBBY in notification:
-                disconnect = True
-
-        await self.send(text_data=json.dumps({
-            'notification': notification,
-            'disconnect': disconnect,
-            }))
-
-    async def event_chat_message(self, event):
-        message = event["message"]
-        await self.send(text_data=json.dumps({
-            'message': message,
-        }))
-
-    async def event_participants(self, event):
-        participants_html = event['participants']
-        await self.send(text_data=json.dumps({
-            'participants': participants_html,
-        }))
-
-    async def event_game_settings_list(self, event):
-        game_settings_list_html = event['game_settings_list']
-        await self.send(text_data=json.dumps({
-            'game_settings_list': game_settings_list_html,
-        }))
-
-    async def event_game_settings_editor(self, event):
-        game_settings_editor_html = event['game_settings_editor']
-        await self.send(text_data=json.dumps({
-            'game_settings_editor': game_settings_editor_html,
-        }))
-
-    async def event_advance_button(self, event):
-        advance_button_html = event['advance_button']
-        await self.send(text_data=json.dumps({
-            'advance_button': advance_button_html,
-        }))
-
-    async def event_playing_content(self, event):
-        playing_content = event['playing_content']
-        await self.send(text_data=json.dumps({
-            'playing_content': playing_content,
-        }))
-
     async def event_finished_content(self, event):
         finished_content = event['finished_content']
         await self.send(text_data=json.dumps({
             'finished_content': finished_content,
         }))
-

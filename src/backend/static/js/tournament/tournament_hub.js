@@ -66,9 +66,10 @@ async function joinTournament() {
 async function enterTournamentLobby(tournamentName) {
     const pathToLobby = "/tournament/lobby/" + tournamentName + "/";
     const userName = getUserNameFromDOM();
-    // TODO need to handle 400 status
-    await updateContentToken(pathToLobby);
-    tournamentLobbyInit(tournamentName, userName);
+    const response = await updateContentToken(pathToLobby);
+    if (response) {
+        tournamentLobbyInit(tournamentName, userName);
+    }
 }
 
 // =========================== API REQUESTS ===============================

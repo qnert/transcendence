@@ -9,8 +9,41 @@ const msgRageQuit = "A kiddo decided to rage quit, the tournament has to end";
 const msgTaunt = "You just got served...";
 const msgRespect = "f";
 
-// =========================== MAIN EVENT LOOP ===============================
+// =========================== EXPORTS ===============================
 
+// Hint:
+// used in multiplayer.js
+export function finishTournamentMatch() {
+    setTimeout(() => {
+        tournamentLobbySocket.send(
+            JSON.stringify({
+                finished_match: true,
+            })
+        );
+    }, 500);
+}
+
+// Hint:
+// used in multiplayer.js
+export function refreshTournamentPlayingLobby() {
+    tournamentLobbySocket.send(
+        JSON.stringify({
+            back_to_lobby: true,
+        })
+    );
+}
+
+// Hint:
+// used in handleURLChange() for global socket cleanup
+export function tournamentLobbyCloseSocket() {
+    if (tournamentLobbySocket) {
+        tournamentLobbySocket.close();
+        tournamentLobbySocket = null;
+    }
+}
+
+// Hint:
+// used in tournament_hub.js
 export function tournamentLobbyInit(lobbyName, userName) {
     const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
@@ -52,23 +85,20 @@ export function tournamentLobbyInit(lobbyName, userName) {
 
 async function socketMessageHandler (event, tournamentLobbyChatLog) {
     const data = JSON.parse(event.data);
-    let message = "";
 
+    // Hint:
+    // messages and notifications are handled differently in backend
+    let message = "";
     if (data.message) {
         message = data.message;
     } else if (data.notification) {
         message = data.notification;
     }
+
     if (message) {
         renderChatLog(message, tournamentLobbyChatLog);
-    } else if (data.participants) {
-        renderParticipantsList(data.participants);
-    } else if (data.game_settings_list) {
-        renderGameSettingsList(data.game_settings_list);
-    } else if (data.game_settings_editor) {
-        renderGameSettingsEditor(data.game_settings_editor);
-    } else if (data.advance_button) {
-        renderAdvanceButton(data.advance_button);
+    } else if (data.setup_content) {
+        renderSetupContent(data.setup_content);
     } else if (data.playing_content) {
         renderPlayingContent(data.playing_content);
     } else if (data.finished_content) {
@@ -126,35 +156,37 @@ const attachdynamicEventListeners = function () {
 // =========================== Server Side Rendering ===============================
 
 function renderChatLog(message, tournamentLobbyChatLog) {
-    // put no newline on first message
+    // Hint:
+    // All messages receive a newline in front,
+    // which makes handling auto scrolling to the bottom on new message easier
     if (!tournamentLobbyChatLog.value) {
         tournamentLobbyChatLog.value += message;
     } else {
         tournamentLobbyChatLog.value += "\n" + message;
     }
-    // scroll so new messages can be seen
     tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
 }
 
-function renderParticipantsList(participantsHTML) {
+function renderSetupContent(setupContent) {
+    // Hint:
+    // This should be rendered everytime
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName("tbody")[0];
-    participantsList.innerHTML = participantsHTML;
-}
-
-function renderGameSettingsList(gameSettingsHTML) {
+    participantsList.innerHTML = setupContent.participants_html;
     const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName("tbody")[0];
-    gameSettingsList.innerHTML = gameSettingsHTML;
-}
+    gameSettingsList.innerHTML = setupContent.game_settings_list_html;
 
-function renderGameSettingsEditor(gameSettingsEditorHTML) {
-    const gameInfoBox = document.getElementById("lobby-game-settings-editor-box");
-    gameInfoBox.innerHTML = gameSettingsEditorHTML;
-}
-
-function renderAdvanceButton(advanceButtonHTML) {
-    console.log("render triggered");
-    const advanceButtonBox = document.getElementById("lobby-advance-button-box");
-    advanceButtonBox.innerHTML = advanceButtonHTML;
+    // Hint:
+    // Only render if current user is also host
+    if (setupContent.game_settings_editor_html) {
+        const gameInfoBox = document.getElementById("lobby-game-settings-editor-box");
+        gameInfoBox.innerHTML = setupContent.game_settings_editor_html;
+        // Hint:
+        // Only render if all participants are ready and current user is host
+        if (setupContent.advance_button_html) {
+            const advanceButtonBox = document.getElementById("lobby-advance-button-box");
+            advanceButtonBox.innerHTML = setupContent.advance_button_html;
+        }
+    }
 }
 
 function renderPlayingContent(playingContent) {
@@ -196,24 +228,6 @@ function renderTournamentLobbyPlayingPhase(playingContent) {
     }
 }
 
-export function finishTournamentMatch() {
-    setTimeout(() => {
-        tournamentLobbySocket.send(
-            JSON.stringify({
-                finished_match: true,
-            })
-        );
-    }, 500);
-}
-
-export function refreshTournamentPlayingLobby() {
-    tournamentLobbySocket.send(
-        JSON.stringify({
-            back_to_lobby: true,
-        })
-    );
-}
-
 function renderFinishedContent(finishedContent) {
     const headerBox = document.getElementById("lobby-header-box");
     headerBox.innerHTML = finishedContent.winners_html;
@@ -226,31 +240,14 @@ function renderFinishedContent(finishedContent) {
     const respectButton = document.getElementById("lobby-respect-button");
     respectButton.onclick = function (event) {
         event.preventDefault;
+        let msgToSend = msgRespect;
         if (finishedContent.is_winner) {
-            tournamentLobbySocket.send(
-                JSON.stringify({
-                    message: msgTaunt,
-                })
-            );
+            msgToSend = msgTaunt;
         }
-        else {
-            tournamentLobbySocket.send(
-                JSON.stringify({
-                    message: msgRespect,
-                })
-            );
-        }
+        tournamentLobbySocket.send(
+            JSON.stringify({
+                message: msgToSend,
+            })
+        );
     }
 }
-
-// =========================== CLEAN UP ===============================
-
-// Hint:
-// used in handleURLChange() for global socket cleanup
-export function tournamentLobbyCloseSocket() {
-    if (tournamentLobbySocket) {
-        tournamentLobbySocket.close();
-        tournamentLobbySocket = null;
-    }
-}
-

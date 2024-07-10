@@ -85,7 +85,12 @@ export async function updateContentToken(path) {
         if (!response.ok) {
             if (response.status === 401) {
                 handle401Error();
-                return;
+                return false;
+            }
+            else if (response.status === 400) {
+                const errorCode = await response.json();
+                alert(errorCode.error);
+                return false;
             }
             else {
                 throw new Error("Unexpected Error");
@@ -93,7 +98,7 @@ export async function updateContentToken(path) {
         }
 
         const html = await response.text();
-        if (!html) return;
+        if (!html) return true;
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
@@ -106,6 +111,7 @@ export async function updateContentToken(path) {
         console.error("Error fetching content:", error);
         handleRouteToken("/home/");
     }
+    return true;
 }
 
 function updateContent(path) {

@@ -5,7 +5,7 @@ from api.models import UserProfile
 from game.models import GameResult
 import json
 
-MAX_PARTICIPANTS = 4  # TODO for testing purposes
+MAX_PARTICIPANTS = 1
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '10',
     "max_score": '1',
@@ -179,7 +179,7 @@ class Tournament(models.Model):
         self.save(update_fields=['state'])
 
     def get_matches_list(self):
-        return self.matches.all()
+        return self.matches.all().order_by('name')
 
     def create_matches_list(self):
         if self.matches.exists():
@@ -207,6 +207,7 @@ class Tournament(models.Model):
         # there have to be (participants - 1) amount of rounds so everyone plays against everyonce exactly once
         rounds = num_participants - 1
         matches = []
+        match_id = 1
         for round_num in range(rounds):
             for i in range(num_participants // 2):
                 # Hint:
@@ -217,8 +218,8 @@ class Tournament(models.Model):
                 player2 = participants[num_participants - 1 - i]
 
                 if player1 is not None and player2 is not None:
-                    # TODO match_name just an ID? can display player names in Table
-                    match_name = f'{self.name}_{player1.user_profile.user.username}_vs_{player2.user_profile.user.username}'
+                    match_id += 1
+                    match_name = f'{self.name}_{match_id}'
                     match = TournamentMatch(
                         tournament=self,
                         player_home=player1,
