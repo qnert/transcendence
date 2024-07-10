@@ -5,7 +5,7 @@ from api.models import UserProfile
 from game.models import GameResult
 import json
 
-MAX_PARTICIPANTS = 1
+MAX_PARTICIPANTS = 4
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '10',
     "max_score": '1',
@@ -218,8 +218,8 @@ class Tournament(models.Model):
                 player2 = participants[num_participants - 1 - i]
 
                 if player1 is not None and player2 is not None:
-                    match_id += 1
                     match_name = f'{self.name}_{match_id}'
+                    match_id += 1
                     match = TournamentMatch(
                         tournament=self,
                         player_home=player1,

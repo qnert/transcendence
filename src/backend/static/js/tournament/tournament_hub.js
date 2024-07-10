@@ -74,6 +74,7 @@ async function enterTournamentLobby(tournamentName) {
 
 // =========================== API REQUESTS ===============================
 
+// TODO add security
 async function postTournament(tournamentName) {
     const response = await fetch("/tournament/api/create/", {
         method: "POST",
@@ -88,11 +89,11 @@ async function postTournament(tournamentName) {
     }
 }
 
+// TODO add security
 async function getTournamentList(tournamentDropDown) {
     const tournamentList = await fetch("/tournament/api/get_list/", {
         method: "GET",
     });
-    // TODO error handling?
     const html = await tournamentList.text();
     tournamentDropDown.innerHTML = html;
 }
