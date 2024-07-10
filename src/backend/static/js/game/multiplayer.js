@@ -125,6 +125,11 @@ export function resetRemoteGameButton() {
 export function create_tournament_match(playingContent) {
     isTournamentMatch = true;
     isTournamentMatchFinished = false;
+    if (chatSocket) {
+        console.log("chatSocket closed before tournament match!");
+        chatSocket.close();
+        chatSocket = null;
+    }
     username = playingContent.display_name;
     const room_name = playingContent.room_name;
 

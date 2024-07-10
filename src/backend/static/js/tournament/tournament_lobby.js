@@ -111,7 +111,7 @@ async function socketMessageHandler (event, tournamentLobbyChatLog) {
     // in which case everyone has to leave/disconnect
     if (data.disconnect == true) {
         alert(msgRageQuit);
-        await handleRouteToken("/tournament/hub/");
+        await handleRouteToken("/tournament/");
         return;
     }
     // Hint:
