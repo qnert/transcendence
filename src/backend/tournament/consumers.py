@@ -33,8 +33,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         # Setup necessary database variables
         # Notify Group about joining and which will trigger rendering on all sockets
         self.lobby_name = self.scope["url_route"]["kwargs"]["lobby_name"]
-        self.lobby_group_name = f"chat_{self.lobby_name}"
+        self.lobby_group_name = f"lobby_{self.lobby_name}"
         self.username = self.scope["url_route"]["kwargs"]["username"]
+
         await self.channel_layer.group_add(self.lobby_group_name, self.channel_name)
         await self.accept()
         await self.update_db_variables()
@@ -81,13 +82,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                         "should_update": False,
                     }
                 )
+                if await database_sync_to_async(self.tournament.are_matches_finished)():
+                    await database_sync_to_async(self.tournament.advance_state)()
+                    await self.send_chat_notification(MSG_ENDED)
             else:
                 self.next_match = await database_sync_to_async(self.tournament.get_last_match)(self.tournament_user)
             await database_sync_to_async(self.tournament_user.update_stats)(match=self.next_match)
-            if self.tournament.state != 'finished':
-                if await database_sync_to_async(self.tournament.are_matches_finished)():
-                    await database_sync_to_async(self.tournament.advance_state)()
-                    await self.send(text_data=json.dumps({'notification': MSG_ENDED, }))
 
         elif "updated_match_list" in text_data_json:
             await self.update_db_variables()
@@ -292,8 +292,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
         standings_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_standings.html', {'standings': standings})
         winners = await database_sync_to_async(self.tournament.get_winners)()
+        is_single_winner = True
+        if len(winners) > 1:
+            is_single_winner = False
         is_winner = self.tournament_user in winners
-        winners_html = await database_sync_to_async(render_to_string)('tournament_lobby_finished_winners.html', {'winners': winners})
+        winners_html = await database_sync_to_async(render_to_string)('tournament_lobby_finished_winners.html', {'winners': winners, 'is_single_winner': is_single_winner})
         respect_button_html = await database_sync_to_async(render_to_string)('tournament_lobby_finished_respect_button.html', {'is_winner': is_winner})
         await self.channel_layer.send(
                 self.channel_name,

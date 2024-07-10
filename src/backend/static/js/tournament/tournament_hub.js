@@ -1,4 +1,4 @@
-import { handleRouteToken } from "../basics.js";
+import { updateContentToken, handleRouteToken } from "../basics.js";
 import { tournamentLobbyInit } from "./tournament_lobby.js";
 
 // =========================== GLOBAL ===============================
@@ -64,10 +64,10 @@ async function joinTournament() {
 }
 
 async function enterTournamentLobby(tournamentName) {
-    // TODO check if tournament exists
     const pathToLobby = "/tournament/lobby/" + tournamentName + "/";
     const userName = getUserNameFromDOM();
-    await handleRouteToken(pathToLobby);
+    // TODO need to handle 400 status
+    await updateContentToken(pathToLobby);
     tournamentLobbyInit(tournamentName, userName);
 }
 

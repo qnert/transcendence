@@ -86,7 +86,8 @@ export async function updateContentToken(path) {
             if (response.status === 401) {
                 handle401Error();
                 return;
-            } else {
+            }
+            else {
                 throw new Error("Unexpected Error");
             }
         }
@@ -102,7 +103,7 @@ export async function updateContentToken(path) {
         oldContent.appendChild(newContent);
         reattachEventListeners();
     } catch (error) {
-        //console.error("Error fetching content:", error);
+        console.error("Error fetching content:", error);
         handleRouteToken("/home/");
     }
 }
