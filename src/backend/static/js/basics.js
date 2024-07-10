@@ -298,15 +298,14 @@ window.onload = async function () {
         await getGameHistory();
     }
     if (!currentUrl.includes("login") && currentUrl !== "http://0.0.0.0:8000/" && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
-        checkAccessToken();
+		const username = await getUsername();
+        showLoggedInState(username);
+		checkAccessToken();
 		await loadFriends();
         await updateFriendDropdown();
 		return;
     }
-    if (await getLoginStatus() === true) {
-        const username = await getUsername();
-        showLoggedInState(username);
-    } else {
+	else {
         showLoggedOutState();
     }
 };
