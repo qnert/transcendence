@@ -91,7 +91,7 @@ async function getTournamentList(tournamentDropDown) {
     const tournamentList = await fetch("/tournament/api/get_list/", {
         method: "GET",
     });
-    // TODO error handling or no?
+    // TODO error handling?
     const html = await tournamentList.text();
     tournamentDropDown.innerHTML = html;
 }

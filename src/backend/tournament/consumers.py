@@ -68,9 +68,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         elif "finished_match" in text_data_json:
             await self.update_db_variables()
-            # TODO dont need this var i guess?
-            processed_match = await self.process_match()
-            if processed_match:
+            if await self.process_match():
                 await self.update_db_variables()
                 match = await database_sync_to_async(self.tournament.get_last_match)(self.tournament_user)
                 results = await database_sync_to_async(match.get_results)()
@@ -95,7 +93,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 await self.send(text_data=json.dumps({'notification': MSG_NEXT_MATCH, }))
 
         elif "back_to_lobby" in text_data_json:
-            # TODO notification really needed?
             await self.send_chat_notification(MSG_BACK_IN_LOBBY, should_update=False)
             await self.update_db_variables()
             await self.update_content()
@@ -249,8 +246,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         )
 
     async def send_playing_content(self):
-
-        # TODO add boolean to update or not
         game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
 
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
@@ -263,10 +258,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         match_name = None
         if self.next_match:
             match_name = self.next_match.name
-
         matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': self.next_match})
 
-        # TODO needed here? or should i separate that
         match_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_match_lobby.html')
 
         await self.channel_layer.send(

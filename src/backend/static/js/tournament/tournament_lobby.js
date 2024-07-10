@@ -5,8 +5,7 @@ import { handleRouteToken } from '../basics.js'
 
 let tournamentLobbySocket;
 
-// TODO change messages?
-const msgRageQuit = "A motherfucking kiddo decided to rage quit, before the tournament ended";
+const msgRageQuit = "A kiddo decided to rage quit, the tournament has to end";
 const msgTaunt = "You just got served...";
 const msgRespect = "f";
 
