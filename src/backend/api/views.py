@@ -50,6 +50,7 @@ from api.decorators import *
 import validators
 from django.contrib.auth import authenticate, update_session_auth_hash
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from game.models import GameResult
 
 # TODO make this dynamic if we deploy to server
 # possible solution inside a function:
@@ -76,7 +77,6 @@ def get_friends_profile(request):
         except UserProfile.DoesNotExist:
             return JsonResponse({'error': 'User does not exist'}, status=404)
         profile_picture = user_profile.profile_picture_url
-
         profile_data = {
             'username': user_profile.user.username,
             'email': user_profile.user.email,
@@ -84,7 +84,22 @@ def get_friends_profile(request):
             'picture_url': user_profile.profile_picture_url,
             'display_name': user_profile.display_name
         }
-        return JsonResponse(profile_data)
+	
+        game_results = GameResult.objects.filter(user_profile=user_profile)
+        if game_results is None:
+            return JsonResponse({'error': 'There is no Game History'}, status=400)
+        game_data = [
+            {
+                'user_profile': result.user_profile.display_name,
+                'opponent_profile': result.opponent_profile.display_name,
+                'user_score': result.user_score,
+                'opponent_score': result.opponent_score,
+                'is_win': result.is_win,
+                'date_played': result.date_played.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            for result in game_results
+        ]
+        return JsonResponse({'profile_data': profile_data, 'game_data': game_data})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
@@ -93,7 +108,7 @@ def get_friends_profile(request):
 def login_status(request):
     if request.method == "GET":
         if isinstance(request.user, AnonymousUser):
-            return JsonResponse ({'error': 'User not logged in'})
+            return JsonResponse ({'error': 'User not logged in'}, status=401)
         loginStatus = request.user.is_logged_in
         return JsonResponse({'loginStatus': loginStatus}, status=200)
     else:
@@ -651,6 +666,8 @@ def login_view(request):
         password = data.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            if user.refresh_token is not None:
+                return JsonResponse({'error': 'User already logged in'}, status=400)
             login(request, user)
             user.is_logged_in = True
             user.save()

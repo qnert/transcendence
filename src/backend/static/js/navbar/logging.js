@@ -1,6 +1,6 @@
 import { checkAccessToken } from "../profile/profile.js";
 import { getAccessToken } from "../security/jwt.js";
-import { getUsername, handle401Error, handleRoute, handleRouteToken } from "../basics.js";
+import { getLoginStatus, getUsername, handle401Error, handleRoute, handleRouteToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
 import { friendSocket } from "../friends/action_friends.js";
@@ -100,7 +100,7 @@ export async function logoutButton() {
                     },
                 });
                 if (!response.ok){
-					if (response.status === 403){
+					if (response.status === 401){
 						handle401Error();
 						return
 					}
@@ -117,7 +117,6 @@ export async function logoutButton() {
 				}
                 handleRoute("/login/");
 				showLoggedOutState();
-                checkAccessToken();
 				handleUrlChange();
             } catch (error) {
                 console.log("Error in logout", error);
@@ -207,11 +206,15 @@ export async function login() {
                     body: JSON.stringify({ username, password }),
                 });
                 if (!response.ok){
-					if(response.status === 403){
+					if(response.status === 401){
+						alert("invalid credentials")
 						handle401Error();
-						return;
 					}
-					throw new Error("Login failed");
+					else if(response.status === 400){
+						alert("User already logged in");
+						// handle401Error();
+					}
+					return;
 				}
                 const twoFAResponse = await fetch("/api/get_2fa_status/", {
                     method: "GET",

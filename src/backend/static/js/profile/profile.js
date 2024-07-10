@@ -18,7 +18,6 @@ export async function jumpNextField() {
 			if (nextInput) {
 				nextInput.focus();
 				if(oldInput === passwdInput){
-					console.log("test")
 					setNewPasswd();
 				}
 			}

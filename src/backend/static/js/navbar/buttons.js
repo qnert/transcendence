@@ -21,10 +21,10 @@ export function multiplayerGame() {
     }
 }
 
-export function loginButton() {
+export async function loginButton() {
     const loginButton = document.getElementById("login");
     if (loginButton) {
-        loginButton.onclick = function (event) {
+        loginButton.onclick = async function (event) {
             event.preventDefault();
 			handleRoute("/login/");
         };

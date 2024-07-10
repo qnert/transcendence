@@ -1,4 +1,3 @@
-import { checkAccessToken } from "../profile/profile.js";
 import { getUsername, handle401Error, handleRouteToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";

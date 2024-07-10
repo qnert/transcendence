@@ -67,6 +67,14 @@ window.addEventListener("popstate", async function (event) {
 		}else if(event.state.path.includes("tournament/lobby")){
 			window.history.replaceState({ path: "/tournament/hub/" }, "", "/tournament/hub/");
 			await updateContentToken("/tournament/hub/");
+		} else if(event.state.path.includes("/friend/")){
+			let currentUrl = window.location.href;
+			let words = currentUrl.split("/");
+			let display_name = words[4];
+			await handleRouteToken(`/friend/${encodeURIComponent(display_name)}/`) //TODO does not load!!!
+			console.log("HERE")
+			await loadContentFriend(display_name);
+
 		}else {
 			// console.log(event.state.path)
 			await updateContent(event.state.path);
@@ -152,6 +160,8 @@ export async function handleRoute(path) {
     }
 }
 
+window.handleRouteToken = handleRouteToken;
+
 export async function handleRouteToken(path) {
     if (window.location.pathname !== path) {
         window.history.pushState({ path: path }, "", path);
@@ -163,7 +173,7 @@ export function reattachEventListeners() {
     bindProfileButton();
     bindSaveChangesButton();
     checkBox();
-    checkLoginStatus();
+    // checkLoginStatus();
     createGameButton();
     defaultButton();
     generateQRCode();
@@ -227,40 +237,13 @@ export async function getUsername() {
 }
 
 export async function handle401Error() {
-    if (getLoginStatus()) {
+    if (await getLoginStatus() === true) {
         await logout();
     }
     handleRoute("/login/");
     showLoggedOutState();
 	handleUrlChange();
 }
-
-window.onload = async function () {
-    let currentUrl = window.location.href;
-    if (!currentUrl.includes("/login/")) {
-		checkAccessToken();
-		await loadFriends();
-		await updateFriendDropdown();
-    }
-	if (currentUrl.includes("/profile/")) {
-        await fetchProfileData();
-        await checkBox();
-    } else if (currentUrl.includes("/friend/")) {
-        let words = currentUrl.split("/");
-        let display_name = words[4];
-        await fetchFriendsData(display_name);
-    }  else if (currentUrl.includes("game")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
-    } else if (currentUrl.includes("multiplayer")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
-    } else if (currentUrl.includes("history")) {
-        getGameHistory();
-    }
-};
 
 export async function getLoginStatus() {
     try {
@@ -296,15 +279,13 @@ window.onload = async function () {
     if (currentUrl.includes("/profile/")) {
         await fetchProfileData();
         await checkBox();
-		return;
     } else if (currentUrl.includes("/2FA/")) {
         showLoggedOutState();
         return;
     } else if (currentUrl.includes("/friend/")) {
         let words = currentUrl.split("/");
         let display_name = words[4];
-        await fetchFriendsData(display_name);
-		return;
+        await loadContentFriend(display_name);
     } else if (currentUrl.includes("game")) {
         document.getElementById("background").value = "#ffffff";
         document.getElementById("borders").value = "#0000ff";
@@ -315,24 +296,17 @@ window.onload = async function () {
         document.getElementById("ballColor").value = "#0000ff";
     } else if (currentUrl.includes("history")) {
         await getGameHistory();
-		return;
     }
-    if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/" || !currentUrl.includes("/2FA/") || !currentUrl.includes("/set_passwd/")) {
+    if (!currentUrl.includes("login") && currentUrl !== "http://0.0.0.0:8000/" && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
         checkAccessToken();
 		await loadFriends();
         await updateFriendDropdown();
 		return;
     }
-    if (await getLoginStatus()) {
+    if (await getLoginStatus() === true) {
         const username = await getUsername();
         showLoggedInState(username);
     } else {
         showLoggedOutState();
     }
 };
-
-setInterval(test, 10000);
-
-function test(){
-	checkAccessToken();
-}

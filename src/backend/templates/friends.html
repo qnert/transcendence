@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load static %}
 
 {% block content %}
 
@@ -29,7 +28,27 @@
 			</div>
 		</div>
 
-	</br>
-        </div>
+		<div class="container" id="matchHistory" alt="Match History of the User">
+			<h1>Game History</h1>
+			<div class="History">
+				<table>
+					<thead scope="col">
+						<tr>
+							<th>User</th>
+							<th>Opponent</th>
+							<th>Your Score</th>
+							<th>Opponent's Score</th>
+							<th>Win/Loss</th>
+							<th>Date Played</th>
+						</tr>
+					</thead>
+					<tbody id="historyMatch">
+					</tbody>
+				</table>
+			</div>
+		</div>
 </div>
+
+
+
 {% endblock content %}
