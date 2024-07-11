@@ -1,5 +1,6 @@
 import { create_tournament_match, close_multi_on_change } from '../game/multiplayer.js'
-import { handleRouteToken } from '../basics.js'
+import { updateContentToken, handleRouteToken } from '../basics.js'
+import { tournamentHubEventLoop } from './tournament_hub.js'
 
 // =========================== GLOBAL ===============================
 
@@ -45,6 +46,16 @@ export function tournamentLobbyCloseSocket() {
 // Hint:
 // used in tournament_hub.js
 export function tournamentLobbyInit(lobbyName, userName) {
+    const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
+    tournamentLobbyLeaveButton.onclick = async function (event) {
+        event.preventDefault();
+        tournamentLobbyCloseSocket();
+        setTimeout( async function() {
+            await updateContentToken("/tournament/hub");
+        }, 400);
+        tournamentHubEventLoop();
+    }
+
     const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");

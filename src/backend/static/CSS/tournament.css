@@ -8,6 +8,11 @@
 
     /* =====================  HEADER BOX  ===================== */
 
+    #lobby-header-box {
+        .button {
+            margin: 0;
+        }
+    }
     /* =====================  Game / INFO BOX  ===================== */
 
     #lobby-game-info-box {
