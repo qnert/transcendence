@@ -1,0 +1,42 @@
+<table class="table" id="lobby-match-list-table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Match ID</th>
+            <th scope="col">Player Home</th>
+            <th scope="col">Goals Home</th>
+            <th scope="col">Goals Away</th>
+            <th scope="col">Player Away</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for match in matches_list %}
+        <tr>
+            <td>
+                {{ match.name }}
+            </td>
+            <td>
+                {{ match.player_home }}
+            </td>
+            <td>
+                {{ match.goals_home }}
+            </td>
+            <td>
+                {{ match.goals_away }}
+            </td>
+            <td>
+                {{ match.player_away }}
+            </td>
+            <td>
+                {% if match == next_match %}
+                <button class="btn btn-primary" id="lobby-join-match-button">Join</button>
+                {% elif match.is_finished %}
+                ✅
+                {% else %}
+                -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,10 @@
+{% if is_single_winner %}
+<h1>Congratulations to the winner:</h1>
+{% else %}
+<h1>Congratulations to the winners:</h1>
+{% endif %}
+{% for winner in winners %}
+<h2>
+    {{ winner.get_nickname }}
+</h2>
+{% endfor %}

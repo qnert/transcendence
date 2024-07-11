@@ -2,11 +2,13 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from datetime import date
 from api.models import UserProfile
+from game.models import GameResult
+import json
 
 MAX_PARTICIPANTS = 4
 DEFAULT_GAME_SETTINGS = {
-    "ball_speed": '8',
-    "max_score": '8',
+    "ball_speed": '10',
+    "max_score": '1',
     "background_color": '#ffffff',
     "border_color": '#0000ff',
     "ball_color": '#0000ff',
@@ -14,6 +16,119 @@ DEFAULT_GAME_SETTINGS = {
     "power_ups": False
 }
 
+
+class TournamentUser(models.Model):
+
+    tournament = models.ForeignKey('Tournament', related_name='participants', on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(UserProfile, related_name='tournament_members',
+                                     on_delete=models.CASCADE, null=True)
+    is_ready = models.BooleanField(default=False)
+    wins = models.IntegerField(default=0)
+    losses = models.IntegerField(default=0)
+    goals_scored = models.IntegerField(default=0)
+    goals_conceded = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    # matches_home (ForeignKey <- TournamentMatch)
+    # matches_away (ForeignKey <- TournamentMatch)
+
+    # makes sure the host is always the first in the participants list
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f'{self.user_profile.display_name}({self.user_profile.user.username})'
+
+    # Hint:
+    # match should be a Tournament Match!
+    def update_stats(self, match):
+        if self == match.player_home:
+            self.goals_scored += match.goals_home
+            self.goals_conceded += match.goals_away
+            if match.goals_home > match.goals_away:
+                self.wins += 1
+            else:
+                self.losses += 1
+        elif self == match.player_away:
+            self.goals_conceded += match.goals_home
+            self.goals_scored += match.goals_away
+            if match.goals_away > match.goals_home:
+                self.wins += 1
+            else:
+                self.losses += 1
+        else:
+            raise ValidationError("User is not part of the game!")
+        self.save()
+
+    def get_nickname(self):
+        if self.tournament.is_host(user_profile=self.user_profile):
+            member_status = '👑'
+        else:
+            member_status = '🐸'
+        return f'{member_status} {self.user_profile.display_name}({self.user_profile.user.username})'
+
+    def get_wins_and_goal_difference(self):
+        return {
+                'wins': self.wins,
+                'goal_difference': self.goals_scored - self.goals_conceded
+               }
+
+class TournamentMatch(models.Model):
+
+    tournament = models.ForeignKey('Tournament', related_name='matches', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, unique=True)
+    is_finished = models.BooleanField(default=False)
+    player_home = models.ForeignKey(TournamentUser, related_name='matches_home', on_delete=models.CASCADE)
+    player_away = models.ForeignKey(TournamentUser, related_name='matches_away', on_delete=models.CASCADE)
+    goals_home = models.IntegerField(default=0)
+    goals_away = models.IntegerField(default=0)
+
+    def get_results(self):
+        result = {}
+        if self.goals_home > self.goals_away:
+            result['winner'] = self.player_home.get_nickname()
+            result['winner_score'] = self.goals_home
+            result['loser'] = self.player_away.get_nickname()
+            result['loser_score'] = self.goals_away
+        else:
+            result['winner'] = self.player_away.get_nickname()
+            result['winner_score'] = self.goals_away
+            result['loser'] = self.player_home.get_nickname()
+            result['loser_score'] = self.goals_home
+        return result
+
+    def is_match_participant(self, participant: TournamentUser):
+        if self.player_home == participant or self.player_away == participant:
+            return True
+        return False
+
+    def set_finished(self):
+        self.is_finished = True
+        self.save()
+
+    def set_results_and_finished(self, game_result: GameResult):
+        if self.is_finished:
+            raise ValidationError("Game is already finished!")
+        if not self.tournament.has_participant(user_profile=game_result.user_profile) or not self.tournament.has_participant(user_profile=game_result.opponent_profile):
+            raise ValidationError("Users are not part of Tournament!")
+        if not self.player_home.user_profile == game_result.user_profile and not self.player_home.user_profile == game_result.opponent_profile:
+            raise ValidationError("Wrong Users in Game Result!")
+        if not self.player_away.user_profile == game_result.user_profile and not self.player_away.user_profile == game_result.opponent_profile:
+            raise ValidationError("Wrong Users in Game Result!")
+        if self.player_home.user_profile == game_result.user_profile:
+            self.goals_home = game_result.user_score
+            self.goals_away = game_result.opponent_score
+        else:
+            self.goals_home = game_result.opponent_score
+            self.goals_away = game_result.user_score
+        self.set_finished()
+
+    def __str__(self):
+        obj = {}
+        for field in self._meta.fields:
+            field_name = field.name
+            field_value = getattr(self, field_name)
+            obj[field_name] = field_value
+        return json.dumps(obj, default=str)
 
 class Tournament(models.Model):
 
@@ -24,10 +139,18 @@ class Tournament(models.Model):
                                    null=True, on_delete=models.CASCADE)
     game_settings = models.JSONField(default=dict)
     # participants (Foreign Key <- TournamentUser)
-    # matches (Foreign Key <- TournamentUser)
+    # matches (Foreign Key <- TournamentMatch)
 
     class Meta:
         ordering = ['created_at']
+
+    def are_matches_finished(self):
+        if not self.matches.exists():
+            raise ValidationError("No Matches to check finished status")
+        for match in self.matches.all():
+            if not match.is_finished:
+                return False
+        return True
 
     def are_participants_ready(self):
         if self.participants.count() < MAX_PARTICIPANTS:
@@ -49,14 +172,80 @@ class Tournament(models.Model):
             self.state = 'playing'
         elif self.state == 'playing':
             self.state = 'finished'
+        elif self.state == 'finished':
+            return
         else:
             raise ValidationError("Invalid state transition")
         self.save(update_fields=['state'])
 
-    def create_game(self):
-        # TODO implement
+    def get_matches_list(self):
+        return self.matches.all().order_by('name')
+
+    def create_matches_list(self):
+        if self.matches.exists():
+            raise ValidationError("Matches have already been created")
+        # Hint:
+        # Tournament should use advance_state() method (all participants have to be ready)
+        # and create all matches so they can be displayed in Frontend after that
         if self.state != 'playing':
-            raise ValidationError("Cannot create games in this phase")
+            raise ValidationError("Matches can only be created during the setup phase.")
+
+        participants = list(self.participants.all())
+        num_participants = len(participants)
+
+        if num_participants < 2:
+            raise ValidationError("Not enough participants to create matches.")
+
+        # Hint:
+        # appends a Dummy (None) if the num_participants is not even
+        # Dummy has to be handled as an auto win (bye week)
+        if num_participants % 2 == 1:
+            participants.append(None)
+
+        # Hint:
+        # This algorithm creates matches based on the amount of participants
+        # there have to be (participants - 1) amount of rounds so everyone plays against everyonce exactly once
+        rounds = num_participants - 1
+        matches = []
+        match_id = 1
+        for round_num in range(rounds):
+            for i in range(num_participants // 2):
+                # Hint:
+                # We only have to loop until the middle of the List, because at that point
+                # everyone has gotten a matchup. The algorithm moves simultaneously from
+                # start --> middle and middle <-- end
+                player1 = participants[i]
+                player2 = participants[num_participants - 1 - i]
+
+                if player1 is not None and player2 is not None:
+                    match_name = f'{self.name}_{match_id}'
+                    match_id += 1
+                    match = TournamentMatch(
+                        tournament=self,
+                        player_home=player1,
+                        player_away=player2,
+                        name=match_name
+                    )
+                    matches.append(match)
+
+            # Hint:
+            # This will shift the participants to the end of the list
+            # the last one will get the second position in the list
+            # [ A - B - C - D ] --> [ A - D - B - C ]
+            participants = [participants[0]] + [participants[-1]] + participants[1:-1]
+
+        # Hint:
+        # bulk_create saves database operations, by creating all Matches at once
+        TournamentMatch.objects.bulk_create(matches)
+
+    def has_matches_list(self):
+        return self.matches.exists()
+
+    def has_participant(self, user_profile: UserProfile):
+        for participant in self.participants.all():
+            if participant.user_profile == user_profile:
+                return True
+        return False
 
     def delete_if_empty(self):
         if self.participants.count() == 0:
@@ -66,6 +255,26 @@ class Tournament(models.Model):
         if self.participants.count() > 0:
             return self.participants.first()
         raise ValidationError("No Users yet!")
+
+    def get_last_match(self, participant: TournamentUser):
+        matches = self.get_matches_list()
+        if matches.count() == 0:
+            raise ValidationError("No matches in tournament!")
+        # reverse the list
+        matches_list = list(matches)[::-1]
+        for match in matches_list:
+            if match.is_finished and match.is_match_participant(participant):
+                return match
+        return None
+
+    def get_next_match(self, participant: TournamentUser):
+        matches = self.get_matches_list()
+        if matches.count() == 0:
+            raise ValidationError("No matches in tournament!")
+        for match in matches:
+            if not match.is_finished and match.is_match_participant(participant):
+                return match
+        return None
 
     def get_participant_by(self, user_profile=None, username=None):
         if isinstance(user_profile, UserProfile):
@@ -82,9 +291,14 @@ class Tournament(models.Model):
         return self.participants.count()
 
     def get_participants_names(self):
+        # Hint:
+        # If formatting of name would be changed, also change in consumer class (build_nickname())
         obj = []
         for participant in self.participants.all():
-            obj.append(f'{participant.user_profile.display_name}({participant.user_profile.user.username})')
+            if self.is_host(user_profile=participant.user_profile):
+                obj.append(f'👑 {participant.user_profile.display_name}({participant.user_profile.user.username})')
+            else:
+                obj.append(f'🐸 {participant.user_profile.display_name}({participant.user_profile.user.username})')
         return obj
 
     def get_participants_statuses(self):
@@ -96,6 +310,16 @@ class Tournament(models.Model):
         participants_list = [{'name': name, 'status': status} for name, status in zip(names, statuses)]
         return participants_list
 
+    def get_participants_for_standings(self):
+        names = self.get_participants_names()
+        participants = self.get_participants()
+
+        for participant, name in zip(participants, names):
+            participant.name = name
+
+        participants = sorted(participants, key=lambda p: (p.wins, p.goals_scored, -p.goals_conceded), reverse=True)
+        return participants
+
     def get_participants(self):
         return self.participants.all()
 
@@ -104,6 +328,15 @@ class Tournament(models.Model):
 
     def get_state(self):
         return self.state
+
+    def get_winners(self):
+        if self.state != 'finished':
+            raise ValidationError("Tournament is not finished yet!")
+        participants = self.participants.all()
+        most_wins = max(participant.wins for participant in participants)
+        winners_by_wins = [participant for participant in participants if participant.wins == most_wins]
+        best_goal_difference = max(participant.get_wins_and_goal_difference()['goal_difference'] for participant in winners_by_wins)
+        return [participant for participant in winners_by_wins if participant.get_wins_and_goal_difference()['goal_difference'] == best_goal_difference]
 
     def is_host(self, user_profile=None, username=None):
         if isinstance(user_profile, UserProfile):
@@ -146,39 +379,3 @@ class Tournament(models.Model):
             raise ValidationError("Toggling state of a user that is not a participant!")
         tournament_user.is_ready = not tournament_user.is_ready
         tournament_user.save()
-
-
-class TournamentUser(models.Model):
-
-    tournament = models.ForeignKey(Tournament, related_name='participants', on_delete=models.CASCADE)
-    user_profile = models.ForeignKey(UserProfile, related_name='tournament_members',
-                                     on_delete=models.CASCADE, null=True)
-    is_ready = models.BooleanField(default=False)
-    wins = models.IntegerField(default=0)
-    losses = models.IntegerField(default=0)
-    goals_scored = models.IntegerField(default=0)
-    goals_conceded = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    # matches_home (OneToOneField <- TournamentMatch)
-    # matches_away (OneToOneField <- TournamentMatch)
-
-    # makes sure the host is always the first in the participants list
-    class Meta:
-        ordering = ["created_at"]
-
-    def __str__(self):
-        return f'{self.user_profile.user.username} in {self.tournament.name}'
-
-
-class TournamentMatch(models.Model):
-
-    tournament = models.ForeignKey(Tournament, related_name='matches', on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, unique=True)
-    is_finished = models.BooleanField(default=False)
-    player_home = models.OneToOneField(TournamentUser, related_name='matches_home', on_delete=models.CASCADE)
-    player_away = models.OneToOneField(TournamentUser, related_name='matches_away', on_delete=models.CASCADE)
-    goals_home = models.IntegerField(default=0)
-    goals_away = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f'{self.player_home.user_profile.user.username} versus {self.player_away.user_profile.user.username}'

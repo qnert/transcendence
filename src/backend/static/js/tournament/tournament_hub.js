@@ -1,4 +1,4 @@
-import { handleRouteToken } from "../basics.js";
+import { updateContentToken, handleRouteToken } from "../basics.js";
 import { tournamentLobbyInit } from "./tournament_lobby.js";
 
 // =========================== GLOBAL ===============================
@@ -64,15 +64,17 @@ async function joinTournament() {
 }
 
 async function enterTournamentLobby(tournamentName) {
-    // TODO check if tournament exists
     const pathToLobby = "/tournament/lobby/" + tournamentName + "/";
     const userName = getUserNameFromDOM();
-    await handleRouteToken(pathToLobby);
-    tournamentLobbyInit(tournamentName, userName);
+    const response = await updateContentToken(pathToLobby);
+    if (response) {
+        tournamentLobbyInit(tournamentName, userName);
+    }
 }
 
 // =========================== API REQUESTS ===============================
 
+// TODO add security
 async function postTournament(tournamentName) {
     const response = await fetch("/tournament/api/create/", {
         method: "POST",
@@ -87,11 +89,11 @@ async function postTournament(tournamentName) {
     }
 }
 
+// TODO add security
 async function getTournamentList(tournamentDropDown) {
     const tournamentList = await fetch("/tournament/api/get_list/", {
         method: "GET",
     });
-    // TODO error handling or no?
     const html = await tournamentList.text();
     tournamentDropDown.innerHTML = html;
 }

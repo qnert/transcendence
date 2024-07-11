@@ -85,14 +85,20 @@ export async function updateContentToken(path) {
         if (!response.ok) {
             if (response.status === 401) {
                 handle401Error();
-                return;
-            } else {
+                return false;
+            }
+            else if (response.status === 400) {
+                const errorCode = await response.json();
+                alert(errorCode.error);
+                return false;
+            }
+            else {
                 throw new Error("Unexpected Error");
             }
         }
 
         const html = await response.text();
-        if (!html) return;
+        if (!html) return true;
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
@@ -102,9 +108,10 @@ export async function updateContentToken(path) {
         oldContent.appendChild(newContent);
         reattachEventListeners();
     } catch (error) {
-        //console.error("Error fetching content:", error);
+        console.error("Error fetching content:", error);
         handleRouteToken("/home/");
     }
+    return true;
 }
 
 function updateContent(path) {
@@ -229,6 +236,7 @@ export async function handle401Error() {
 }
 
 window.onload = async function () {
+    handleUrlChange();
     let currentUrl = window.location.href;
     if (currentUrl.includes("/profile/")) {
         await fetchProfileData();

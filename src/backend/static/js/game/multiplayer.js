@@ -1,3 +1,5 @@
+import { refreshTournamentPlayingLobby, finishTournamentMatch } from '../tournament/tournament_lobby.js'
+
 export function createGameButton() {
     const createMultiplayer = document.getElementById("createMultiplayer");
     if (createMultiplayer) {
@@ -19,12 +21,17 @@ export function resetRemoteGameButton() {
     }
 }
 
+  let isTournamentMatch = false;
+  let isTournamentMatchFinished = false;
+
   let chatSocket;
   let context;
       //board vars
   let board;
-  let boardWidth = 900;
-  let boardHeight = 500;
+// 900
+  let boardWidth = 700;
+// 500
+  let boardHeight = 450;
 
   // player vars
   let playerWidth = 10;
@@ -113,7 +120,228 @@ export function resetRemoteGameButton() {
   let username;
   let connected_users;
 
-  export function create_join_game(){
+// =========================   TOURNAMENT      =================================
+
+export function create_tournament_match(playingContent) {
+    isTournamentMatch = true;
+    isTournamentMatchFinished = false;
+    if (chatSocket) {
+        chatSocket.close();
+        chatSocket = null;
+    }
+    username = playingContent.display_name;
+    const room_name = playingContent.room_name;
+
+    ballSpeed = playingContent.game_settings.ball_speed;
+    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
+    ball.speedY = ballSpeed * Math.sin(ballAngle);
+    border_color = playingContent.game_settings.border_color;
+    ball_color = playingContent.game_settings.ball_color;
+    background_color = playingContent.game_settings.background_color;
+    maxScore = playingContent.game_settings.max_score;
+    advanced_mode = playingContent.game_settings.advanced_mode;
+    power_up_mode = playingContent.game_settings.power_ups;
+
+    const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+    if (startTournamentMatchButton) 
+        startTournamentMatchButton.onclick = function (event) {
+        event.preventDefault();
+        chatSocket.send(
+            JSON.stringify({
+                type: "start_game",
+                ball_speed_x: ball.speedX,
+                ball_speed_y: ball.speedY,
+                backgroundColor: background_color,
+                borderColor: border_color,
+                ballColor: ball_color,
+                ballSpeed: ballSpeed,
+                maxScore: maxScore,
+                advancedMode: advanced_mode,
+                powerUps: power_up_mode,
+            })
+        );
+    }
+
+    const backToTournamentLobbyButton = document.getElementById("backToTournamentLobby");
+    if (backToTournamentLobbyButton){
+        backToTournamentLobbyButton.style.display = "none";
+    }
+
+    if (!chatSocket){
+        chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
+    }
+
+    chatSocket.onopen = function(e) {
+        //console.log("Websocket connection opened!");
+    }
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.type === 'connected_users') {
+            connected_users = JSON.parse(data.connected_users)[room_name];
+			const roomInfo =  document.getElementById('roomInfo');
+			if (roomInfo){
+				document.getElementById('roomInfo').textContent = `Welcome to Room ${data.room_name}!`;
+			}
+              if (connected_users.length == 2){
+                let html_tag = document.getElementById("player1");
+                html_tag.textContent = connected_users[0];
+                let html_tag_2 = document.getElementById("player2");
+                html_tag_2.textContent = connected_users[1];
+              }
+              else if (connected_users.length == 1){
+                let html_tag = document.getElementById("player1");
+                html_tag.textContent = connected_users[0];
+                let html_tag_2 = document.getElementById("player2");
+                html_tag_2.textContent = "waiting...";
+            }
+            if (connected_users[0] == username){
+                const startRemoteGame = document.getElementById("startRemoteGame");
+                if (startRemoteGame){
+                    startRemoteGame.style.display = "block";
+                }
+                const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+                if (startTournamentMatchButton) {
+                    startTournamentMatchButton.style.display = "none";
+                }
+            }
+        }
+        else if (data.type === 'connect_error'){
+            //console.log("Room is full!");
+            chatSocket.close();
+            return;
+        }
+        else if (data.type === 'start_game'){
+          speed_power_up_used = false;
+          size_power_up_used = false;
+          player1.curr_speedY = playerSpeedY;
+          player2.curr_speedY = playerSpeedY;
+          player1.height = playerHeight;
+          player2.height = playerHeight;
+          player1.y = boardHeight / 2 - playerHeight/2;
+          player2.y = boardHeight / 2 - playerHeight/2;
+          ball.x = boardWidth/2;
+          ball.y = boardHeight/2;
+          size_x = boardWidth/2;
+          size_y = boardHeight/4;
+          speed_x = boardWidth/2;
+          speed_y = boardHeight/4 * 3;
+          ball.speedX = data.ball_speed_x;
+          ball.speedY = data.ball_speed_y;
+          background_color = data.backgroundColor;
+          border_color = data.borderColor;
+          ball_color = data.ballColor;
+          maxScore = data.maxScore;
+          ballSpeed = data.ballSpeed;
+          init_ballSpeed = data.ballSpeed;
+          advanced_mode = data.advancedMode;
+          power_up_mode = data.powerUps;
+          countdown = 6;
+          score1 = 0;
+          score2 = 0;
+          start_game();
+          return;
+        }
+        else if (data.type === 'game_action'){
+          if (data.action == 'move_up'){
+            if (data.player == '1')
+              player1.movespeed = -(player1.curr_speedY);
+            else if (data.player == '2')
+              player2.movespeed = -(player2.curr_speedY);
+          }
+          else if (data.action == 'move_down'){
+            if (data.player == '1')
+              player1.movespeed = player1.curr_speedY;
+            else if (data.player == '2')
+              player2.movespeed = player2.curr_speedY;
+          }
+          else if (data.action == 'stop'){
+            if (data.player == '1')
+              player1.movespeed = 0;
+            else if (data.player == '2')
+              player2.movespeed = 0;
+          }
+          else if (data.action == 'power_up_used_speed'){
+            if (data.player == '1')
+              player1.curr_speedY = playerSpeed_power;
+            else if (data.player == '2')
+              player2.curr_speedY = playerSpeed_power;
+            speed_power_up_used = true;
+          }
+          else if (data.action == 'power_up_used_size'){
+            if (data.player == '1')
+              player1.height = playerHeight_power;
+            else if (data.player == '2')
+              player2.height = playerHeight_power;
+            size_power_up_used = true;
+          }
+          return;
+        }
+        else if (data.type == 'ball_move'){
+            ball.speedX = data.ball_speed_x;
+            ball.speedY = data.ball_speed_y;
+            rally++;
+            return;
+        }
+        else if (data.type == 'reset_game'){
+          if (items_pushed % 2 == 0){
+            rallies.push(rally/2);
+            items_pushed++;
+          }
+          else
+            items_pushed++;
+          reset_game(data);
+          rally = 0;
+          return;
+        }
+        // TODO go through this and see whats necessary
+        else if (data.type == 'disconnected'){
+            const startRemoteGame = document.getElementById("startRemoteGame");
+            const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+            if (startRemoteGame){
+                startRemoteGame.style.display = "none";
+            }
+            else if (startTournamentMatchButton) {
+                startTournamentMatchButton.style.display = "none";
+            }
+          if (id !== 0){
+            if (username == connected_users[0])
+              //console.log(`${connected_users[1]} left the game!`);
+            else
+              //console.log(`${connected_users[0]} left the game!`);
+          }
+          else{
+            if (username == connected_users[0])
+              //console.log(`${connected_users[1]} left the lobby!`);
+            else
+              //console.log(`${connected_users[0]} left the lobby!`);
+          }
+          if (id != 0){
+            cancelAnimationFrame(id);
+            id = 0;
+          }
+          if (intervalID != 0){
+            clearInterval(intervalID);
+            intervalID = 0;
+          }
+          return;
+        }
+        if (!isTournamentMatchFinished) {
+            document.getElementById("roomInfo").style.display = "block";
+            document.getElementById("versusScreen").style.display = "block";
+            document.getElementById("board").style.display = "none";
+            document.getElementById("left_player").style.display = "none";
+            document.getElementById("right_player").style.display = "none";
+        }
+    };
+}
+
+
+// =========================   MULTIPLAYER / SOLO GAME  =================================
+
+
+export function create_join_game(){
+    isTournamentMatch = false;
+    isTournamentMatchFinished = false;
     ballSpeed = document.getElementById("ballSpeed").value;
     ball.speedX = random * ballSpeed * Math.cos(ballAngle);
     ball.speedY = ballSpeed * Math.sin(ballAngle);
@@ -143,30 +371,34 @@ export function resetRemoteGameButton() {
       username = data.username;
       chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
       chatSocket.onopen = function(e) {
-      console.log("Websocket connection opened!");
+      //console.log("Websocket connection opened!");
     }
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         if (data.type === 'connected_users') {
             connected_users = JSON.parse(data.connected_users)[room_name];
-			const roomInfo =  document.getElementById('roomInfo');
-			if (roomInfo){
-				document.getElementById('roomInfo').textContent = `Welcome to Room ${data.room_name}!`;
-			}
-              if (connected_users.length == 2){
+            const roomInfo =  document.getElementById('roomInfo');
+            if (roomInfo){
+                document.getElementById('roomInfo').textContent = `Welcome to Room ${data.room_name}!`;
+            }
+            if (connected_users.length == 2){
                 let html_tag = document.getElementById("player1");
                 html_tag.textContent = connected_users[0];
                 let html_tag_2 = document.getElementById("player2");
                 html_tag_2.textContent = connected_users[1];
-              }
-              else if (connected_users.length == 1){
+            }
+            else if (connected_users.length == 1){
                 let html_tag = document.getElementById("player1");
                 html_tag.textContent = connected_users[0];
                 let html_tag_2 = document.getElementById("player2");
                 html_tag_2.textContent = "waiting...";
             }
-            if (connected_users[0] == username)
-              document.getElementById("startRemoteGame").style.display = "block";
+            if (connected_users[0] == username){
+                const startRemoteGame = document.getElementById("startRemoteGame");
+                if (startRemoteGame){
+                    startRemoteGame.style.display = "block";
+                }
+            }
         }
         else if (data.type === 'connect_error'){
             alert("Room is full!");
@@ -257,10 +489,14 @@ export function resetRemoteGameButton() {
           return;
         }
         else if (data.type == 'disconnected'){
-			const startRemoteGame = document.getElementById("startRemoteGame");
-			if(startRemoteGame){
-				document.getElementById("startRemoteGame").style.display = "none";
-			}
+            const startRemoteGame = document.getElementById("startRemoteGame");
+            const startTournamentMatchButton = document.getElementById("startTournamentMatch");
+            if (startRemoteGame){
+                startRemoteGame.style.display = "none";
+            }
+            else if (startTournamentMatchButton) {
+                startTournamentMatchButton.style.display = "none";
+            }
           if (id !== 0){
             if (username == connected_users[0])
               alert(`${connected_users[1]} left the game!`);
@@ -286,11 +522,18 @@ export function resetRemoteGameButton() {
         }
         document.getElementById("roomInfo").style.display = "block";
         document.getElementById("versusScreen").style.display = "block";
-        document.getElementById("myForm").style.display = "none";
         document.getElementById("board").style.display = "none";
         document.getElementById("left_player").style.display = "none";
         document.getElementById("right_player").style.display = "none";
-        document.getElementById("resetRemoteGameButton").style.display = "none";
+        
+        const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
+        if (resetRemoteGameButton) {
+            resetRemoteGameButton.style.display = "none";
+        }
+        const myForm =  document.getElementById("myForm");
+        if (myForm) {
+            myForm.style.display = "none";
+        }
     };
     })
     .catch(error => {
@@ -307,8 +550,13 @@ export function close_multi_on_change(){
     clearInterval(intervalID);
     intervalID = 0;
   }
-  if (chatSocket)
+  if (chatSocket){
+    //console.log("multiplayer socket closed");
     chatSocket.close();
+    if (isTournamentMatch){
+        isTournamentMatch = false;
+    }
+  }
 }
 
 function remote_start() {
@@ -337,24 +585,48 @@ function reset() {
 	if (roomInfo){
 		document.getElementById("roomInfo").style.display = "none";
 		document.getElementById("versusScreen").style.display = "none";
-		document.getElementById("myForm").style.visibility = "block";
-		document.getElementById("myForm").style.display = "block";
 		document.getElementById("board").style.display = "none";
-		document.getElementById("resetRemoteGameButton").style.display = "none";
 		document.getElementById("left_player").style.display = "none";
 		document.getElementById("right_player").style.display = "none";
 		chatSocket.close();
+        const myForm = document.getElementById("myForm");
+        if (myForm) {
+            myForm.style.visibility = "block";
+            myForm.style.display = "block";
+        }
+        const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
+        if (resetRemoteGameButton) {
+            resetRemoteGameButton.style.display = "none";
+        }
 	}
 }
 
-
-
 function start_game() {
-  document.getElementById("myForm").style.display = "none";
+    const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
+    if (resetRemoteGameButton) {
+        resetRemoteGameButton.style.display = "none";
+    }
+
+    const myForm = document.getElementById("myForm");
+    if (myForm) {
+        myForm.style.display = "none";
+    }
+
     document.getElementById("roomInfo").style.display = "none";
     document.getElementById("versusScreen").style.display = "none";
     document.getElementById("gameContainer").style.display = "block";
     document.getElementById("board").style.display = "block";
+
+    // TODO focus here
+    board = document.getElementById("board");
+    board.style.display = "block";
+    board.focus();
+
+    const gameInfoBox = document.getElementById("gameInfoBox");
+    if (gameInfoBox){
+        gameInfoBox.scrollIntoView({inline: "center", behavior: "instant", block: "start" });
+    }
+
     if (username == connected_users[0]){
       document.getElementById("left_player").innerText = username;
       document.getElementById("right_player").innerText = connected_users[1];
@@ -365,17 +637,24 @@ function start_game() {
     }
     document.getElementById("left_player").style.display = "block";
     document.getElementById("right_player").style.display = "block";
-    document.getElementById("resetRemoteGameButton").style.display = "none";
     //board vars
-    if (check_input_froms() == -1){
-      alert("The host entered wrong settings for the game!");
-      reset();
-      return ;
+
+    // TODO added for testing purposes
+    if (!isTournamentMatch){
+        if (check_input_froms() == -1){
+          alert("The host entered wrong settings for the game!");
+          reset();
+          return ;
+        }
     }
     player1.curr_speedY = playerSpeedY;
     player2.curr_speedY = playerSpeedY;
-    document.getElementById("myForm").style.display = "none";
-    board = document.getElementById("board");
+
+    if (myForm){
+        myForm.style.display = "none";
+    }
+
+    //board = document.getElementById("board");
     board.height = boardHeight;
     board.width = boardWidth;
     context = board.getContext("2d");
@@ -394,11 +673,18 @@ function start_game() {
     context.fillRect(player2.x, player2.y, player2.width, player2.height);
 
     //key listener if key is pressed
+
+    // TODO if we want arrow keys to still be able to scroll window (accessibility mb)
+    // we should check if the #board is focused before doing anything
+    // preventDefault will block window scrolling, because thats annoying while playing
     window.addEventListener('keydown', (event) => {
       if (username == connected_users[0]){
         if (event.code == 'ArrowUp') {
+          event.preventDefault();
           if (player1.y > 0){
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '1'}));
+              if (chatSocket) {
+                chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '1'}));
+              }
           }
           else{
             player1.movespeed = 0;
@@ -406,8 +692,11 @@ function start_game() {
           }
         }
         if (event.code == 'ArrowDown') {
+          event.preventDefault();
           if (player1.y + player1.height < boardHeight){
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '1'}));
+              if (chatSocket) {
+                chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '1'}));
+              }
           }
           else{
             player1.movespeed = 0;
@@ -417,8 +706,11 @@ function start_game() {
       }
       else{
         if (event.code == 'ArrowUp') {
+          event.preventDefault();
           if (player2.y > 0){
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '2'}));
+              if (chatSocket) {
+                chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '2'}));
+              }
           }
           else{
             player2.movespeed = 0;
@@ -426,8 +718,11 @@ function start_game() {
           }
         }
         if (event.code == 'ArrowDown') {
+            event.preventDefault();
           if (player2.y + player2.height < boardHeight){
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '2'}));
+              if (chatSocket) {
+                chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '2'}));
+              }
           }
           else{
             player2.movespeed = 0;
@@ -440,12 +735,18 @@ function start_game() {
     window.addEventListener('keyup', (e) => {
     if (username == connected_users[0]){
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
-        chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '1'}));
+        e.preventDefault();
+          if (chatSocket) {
+            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '1'}));
+          }
       }
     }
     else{
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
-        chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '2'}));
+        e.preventDefault();
+          if (chatSocket) {
+            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '2'}));
+          }
       }
     }
     });
@@ -457,7 +758,7 @@ function start_game() {
     countdown--;
     context.clearRect(0, 0, board.width, board.height);
     context.font = "45px Verdana";
-    context.fillStyle = document.getElementById("ballColor").value;
+    context.fillStyle = ball_color;
     context.textAlign = "center";
     context.fillText(`Game starts in ${countdown}`, board.width / 2, board.height / 2);
     if (countdown <= 0){
@@ -495,13 +796,32 @@ function start_game() {
     // check if player paddle is out of the frame otherwise change player paddle x and y
     check_and_change_dir_player();
 
-    if (check_and_change_score() == 1){
-      cancelAnimationFrame(id);
-	  const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
-	  if(resetRemoteGameButton){
-		  document.getElementById("resetRemoteGameButton").style.display = "block";
-	  }
-    }
+      if (check_and_change_score() == 1){
+          cancelAnimationFrame(id);
+          if (!isTournamentMatch){
+              const resetRemoteGameButton = document.getElementById("resetRemoteGameButton")
+              if(resetRemoteGameButton){
+                  document.getElementById("resetRemoteGameButton").style.display = "block";
+              }
+          }
+          else {
+              const backToTournamentLobbyButton = document.getElementById("backToTournamentLobby");
+              if (backToTournamentLobbyButton){
+                  backToTournamentLobbyButton.style.display = "inline-block";
+                  backToTournamentLobbyButton.onclick = function (event) {
+                    event.preventDefault();
+                    chatSocket.close();
+                    chatSocket = null;
+                    refreshTournamentPlayingLobby();
+                  }
+              }
+              if (isTournamentMatch){
+                  isTournamentMatchFinished = true;
+                  isTournamentMatch = false;
+                  finishTournamentMatch();
+              }
+          }
+      }
     context.font = "45px Verdana";
     context.fillText(score1, boardWidth/5, 45);
     context.fillText(score2, boardWidth/5 * 4, 45);
@@ -767,7 +1087,7 @@ function start_game() {
       let minRally = Math.min(...rallies);
       let average = 0;
       for (let i = 0; i < rallies.length; i++){
-        console.log(i);
+        //console.log(i);
         average += rallies[i];
       }
       average = (average / rallies.length).toFixed(2);
@@ -802,18 +1122,18 @@ function start_game() {
 
   function check_input_froms() {
       if (maxScore === "" || ballSpeed === ""){
-        console.log("empty value");
+        //console.log("empty value");
         return -1;
       }
       else{
         maxScore = parseInt(maxScore);
         if (maxScore > 12 || maxScore <= 3){
-          console.log("maxscore: ", maxScore);
+          //console.log("maxscore: ", maxScore);
           return -1;
         }
         ballSpeed = parseInt(ballSpeed);
         if (ballSpeed > 20 || ballSpeed <= 3){
-          console.log("ballSpeed: ", ballSpeed);
+          //console.log("ballSpeed: ", ballSpeed);
           return -1;
         }
         playerSpeedY = Math.floor(ballSpeed/1.5);
