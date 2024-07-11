@@ -172,7 +172,7 @@ export function create_tournament_match(playingContent) {
     }
 
     chatSocket.onopen = function(e) {
-        //console.log("Websocket connection opened!");
+        console.log("Websocket connection opened!");
     }
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
@@ -206,7 +206,7 @@ export function create_tournament_match(playingContent) {
             }
         }
         else if (data.type === 'connect_error'){
-            //console.log("Room is full!");
+            console.log("Room is full!");
             chatSocket.close();
             return;
         }
@@ -305,15 +305,15 @@ export function create_tournament_match(playingContent) {
             }
           if (id !== 0){
             if (username == connected_users[0])
-              //console.log(`${connected_users[1]} left the game!`);
+              console.log(`${connected_users[1]} left the game!`);
             else
-              //console.log(`${connected_users[0]} left the game!`);
+              console.log(`${connected_users[0]} left the game!`);
           }
           else{
             if (username == connected_users[0])
-              //console.log(`${connected_users[1]} left the lobby!`);
+              console.log(`${connected_users[1]} left the lobby!`);
             else
-              //console.log(`${connected_users[0]} left the lobby!`);
+              console.log(`${connected_users[0]} left the lobby!`);
           }
           if (id != 0){
             cancelAnimationFrame(id);
@@ -371,7 +371,7 @@ export function create_join_game(){
       username = data.username;
       chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
       chatSocket.onopen = function(e) {
-      //console.log("Websocket connection opened!");
+      console.log("Websocket connection opened!");
     }
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
@@ -551,7 +551,7 @@ export function close_multi_on_change(){
     intervalID = 0;
   }
   if (chatSocket){
-    //console.log("multiplayer socket closed");
+    console.log("multiplayer socket closed");
     chatSocket.close();
     if (isTournamentMatch){
         isTournamentMatch = false;
@@ -1087,7 +1087,7 @@ function start_game() {
       let minRally = Math.min(...rallies);
       let average = 0;
       for (let i = 0; i < rallies.length; i++){
-        //console.log(i);
+        console.log(i);
         average += rallies[i];
       }
       average = (average / rallies.length).toFixed(2);
@@ -1122,18 +1122,18 @@ function start_game() {
 
   function check_input_froms() {
       if (maxScore === "" || ballSpeed === ""){
-        //console.log("empty value");
+        console.log("empty value");
         return -1;
       }
       else{
         maxScore = parseInt(maxScore);
         if (maxScore > 12 || maxScore <= 3){
-          //console.log("maxscore: ", maxScore);
+          console.log("maxscore: ", maxScore);
           return -1;
         }
         ballSpeed = parseInt(ballSpeed);
         if (ballSpeed > 20 || ballSpeed <= 3){
-          //console.log("ballSpeed: ", ballSpeed);
+          console.log("ballSpeed: ", ballSpeed);
           return -1;
         }
         playerSpeedY = Math.floor(ballSpeed/1.5);
