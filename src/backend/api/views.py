@@ -59,7 +59,7 @@ from game.models import GameResult
 #     redirect_uri = f"{scheme}://{host}/oauth/callback/"
 
 
-REDIRECT_URI = "http://0.0.0.0:8000/callback/"
+REDIRECT_URI = os.environ.get('REDIRECT_URI')
 UID = os.environ.get('UID_42')
 SECRET = os.environ.get('SECRET_42')
 code = ''
