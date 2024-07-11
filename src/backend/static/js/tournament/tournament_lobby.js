@@ -1,4 +1,4 @@
-import { create_tournament_match } from '../game/multiplayer.js'
+import { create_tournament_match, close_multi_on_change } from '../game/multiplayer.js'
 import { handleRouteToken } from '../basics.js'
 
 // =========================== GLOBAL ===============================
@@ -103,6 +103,8 @@ async function socketMessageHandler (event, tournamentLobbyChatLog) {
         renderPlayingContent(data.playing_content);
     } else if (data.finished_content) {
         renderFinishedContent(data.finished_content);
+    } else if (data.end_screen) {
+        close_multi_on_change();
     }
 
     // Hint:

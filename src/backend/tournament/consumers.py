@@ -185,11 +185,16 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     # this function triggers updating vars and rendering for all socket users
     async def event_chat_notification(self, event):
 
+        notification = event["notification"]
+        if MSG_ENDED in notification:
+            await self.send(text_data=json.dumps({
+                'end_screen': True,
+                }))
+
         if event["should_update"]:
             await self.update_db_variables()
             await self.update_content()
 
-        notification = event["notification"]
         # Hint:
         # handle disconnect of someone during playing phase
         disconnect = False
