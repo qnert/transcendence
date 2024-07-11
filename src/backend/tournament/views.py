@@ -2,16 +2,20 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt  # TODO remove
 from django.core.exceptions import ValidationError
-from tournament.models import Tournament
+from tournament.models import Tournament, MAX_PARTICIPANTS
 from api.models import UserProfile
 import json
-
 
 # TODO protect incorrect method?
 def tournament_hub(request):
     if request.method == "GET":
-        tournaments = list(Tournament.objects.all().values())
-        return render(request, 'tournament_hub.html', {'tournaments': tournaments})
+        state_order = {
+                'setup': 1,
+                'playing': 2,
+                'finished': 3
+                }
+        tournaments = sorted(Tournament.objects.all(), key=lambda t: state_order.get(t.get_state(), 99))
+        return render(request, 'tournament_hub.html', {'tournaments': tournaments, 'max_participants': MAX_PARTICIPANTS})
 
 # Hint:
 # Used after creating and joining
@@ -33,7 +37,7 @@ def tournament_lobby(request, lobby_name):
         except UserProfile.DoesNotExist:
             return JsonResponse({"error": "User profile not found!"}, status=401)
         except Tournament.DoesNotExist:
-            return JsonResponse({"error": "Lobby not found!"}, status=404)
+            return JsonResponse({"error": "Lobby not found!"}, status=400)
         except ValidationError as e:
             return JsonResponse({"error": e.message}, status=400)
         return render(request, "tournament_lobby.html", {"lobby": lobby})
@@ -43,8 +47,13 @@ def tournament_lobby(request, lobby_name):
 # tournament_hub.js
 def tournament_api_get_list(request):
     if request.method == "GET":
-        tournaments = list(Tournament.objects.all().values())
-        return render(request, 'tournament_hub_list.html', {'tag': 'option', 'tournaments': tournaments})
+        state_order = {
+                'setup': 1,
+                'playing': 2,
+                'finished': 3
+                }
+        tournaments = sorted(Tournament.objects.all(), key=lambda t: state_order.get(t.get_state(), 99))
+        return render(request, 'tournament_hub_list.html', {'tournaments': tournaments, 'max_participants': MAX_PARTICIPANTS})
 
 # Hint:
 # Used in on createButton click
