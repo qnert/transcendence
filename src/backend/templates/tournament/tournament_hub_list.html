@@ -1,6 +1,12 @@
+{% if not tournaments %}
+<tr>
+    <td colspan="6">No Tournaments yet!</td>
+</tr>
+{% else %}
+{% endif %}
 {% for tournament in tournaments %}
 {% if tournament.get_state == "setup" and tournament.get_participants.count < max_participants %}
-<tr class="table-success">
+<tr class="table-warning">
 {% else %}
 <tr>
 {% endif %}

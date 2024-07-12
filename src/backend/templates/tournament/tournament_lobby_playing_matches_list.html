@@ -1,5 +1,5 @@
 <table class="table" id="lobby-match-list-table">
-    <thead class="thead-dark">
+    <thead>
         <tr>
             <th scope="col">Match ID</th>
             <th scope="col">Player Home</th>
@@ -11,7 +11,19 @@
     </thead>
     <tbody>
         {% for match in matches_list %}
-        <tr>
+        {% if match == next_match %}
+        <tr class="table-warning">
+        {% elif match.is_finished%}
+            {% if match.player_home == tournament_user or match.player_away == tournament_user %}
+                {% if match.get_winner == tournament_user %}
+                <tr class="table-success">
+                {% else %}
+                <tr class="table-danger">
+                {% endif %}
+            {% endif %}
+        {% else %}
+        <tr> 
+        {% endif %}
             <td>
                 {{ match.name }}
             </td>
@@ -29,11 +41,11 @@
             </td>
             <td>
                 {% if match == next_match %}
-                <button class="btn btn-primary" id="lobby-join-match-button">Join</button>
+                <button class="btn btn-success" id="lobby-join-match-button">Join</button>
                 {% elif match.is_finished %}
                 ✅
                 {% else %}
-                -
+                tba
                 {% endif %}
             </td>
         </tr>

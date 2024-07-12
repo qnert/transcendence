@@ -106,7 +106,15 @@ class TournamentMatch(models.Model):
             result['loser_score'] = self.goals_home
         return result
 
-    def is_match_participant(self, participant: TournamentUser):
+    def get_winner(self):
+        if self.is_finished:
+            if self.goals_home > self.goals_away:
+                return self.player_home
+            else:
+                return self.player_away
+        return None
+
+    def is_match_participant(self, participant):
         if self.player_home == participant or self.player_away == participant:
             return True
         return False

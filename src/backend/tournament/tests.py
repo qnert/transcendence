@@ -354,6 +354,14 @@ class TournamentModelTest(TestCase):
         self.assertEqual(first_participant.goals_scored, self.valid_game_result.user_score)
         self.assertEqual(first_participant.goals_conceded, self.valid_game_result.opponent_score)
 
+    def test_TournamentMatchModel_get_winner(self):
+        self.create_playing_phase_lobby()
+        matches = self.tournament.get_matches_list()
+        first_participant = self.tournament.get_participants().first()
+        next_match = self.tournament.get_next_match(participant=first_participant)
+        next_match.set_results_and_finished(self.valid_game_result)
+        self.assertEqual(first_participant, next_match.get_winner())
+
     def test_TournamentModel_get_winners(self):
         self.create_playing_phase_lobby()
         with self.assertRaises(ValidationError):

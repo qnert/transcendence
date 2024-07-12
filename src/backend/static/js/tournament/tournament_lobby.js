@@ -46,13 +46,14 @@ export function tournamentLobbyCloseSocket() {
 // Hint:
 // used in tournament_hub.js
 export function tournamentLobbyInit(lobbyName, userName) {
+
     const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
     tournamentLobbyLeaveButton.onclick = async function (event) {
         event.preventDefault();
         tournamentLobbyCloseSocket();
         setTimeout( async function() {
             await updateContentToken("/tournament/hub");
-        }, 400);
+        }, 300);
         tournamentHubEventLoop();
     }
 
@@ -242,7 +243,7 @@ function renderTournamentLobbyPlayingPhase(playingContent) {
 function renderFinishedContent(finishedContent) {
     const headerBox = document.getElementById("lobby-header-box");
     headerBox.innerHTML = finishedContent.winners_html;
-    headerBox.insertAdjacentHTML('beforeend', finishedContent.respect_button_html)
+    headerBox.insertAdjacentHTML('beforeend', finishedContent.finished_buttons_html)
 
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = finishedContent.standings_html;
@@ -261,4 +262,15 @@ function renderFinishedContent(finishedContent) {
             })
         );
     }
+
+    const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
+    tournamentLobbyLeaveButton.onclick = async function (event) {
+        event.preventDefault();
+        tournamentLobbyCloseSocket();
+        setTimeout( async function() {
+            await updateContentToken("/tournament/hub");
+        }, 400);
+        tournamentHubEventLoop();
+    }
+
 }

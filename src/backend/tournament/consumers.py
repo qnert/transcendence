@@ -284,7 +284,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         match_name = None
         if self.next_match:
             match_name = self.next_match.name
-        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': self.next_match})
+        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': self.next_match, 'tournament_user': self.tournament_user})
 
         match_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_match_lobby.html')
 
@@ -315,7 +315,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     async def send_finished_content(self):
         self.next_match = await database_sync_to_async(self.tournament.get_next_match)(self.tournament_user)
         matches_list = await database_sync_to_async(self.tournament.get_matches_list)()
-        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': self.next_match})
+        matches_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_matches_list.html', {'matches_list': matches_list, 'next_match': self.next_match, 'tournament_user': self.tournament_user})
         standings = await database_sync_to_async(self.tournament.get_participants_for_standings)()
         standings_html = await database_sync_to_async(render_to_string)('tournament_lobby_playing_standings.html', {'standings': standings})
         winners = await database_sync_to_async(self.tournament.get_winners)()
@@ -324,7 +324,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             is_single_winner = False
         is_winner = self.tournament_user in winners
         winners_html = await database_sync_to_async(render_to_string)('tournament_lobby_finished_winners.html', {'winners': winners, 'is_single_winner': is_single_winner})
-        respect_button_html = await database_sync_to_async(render_to_string)('tournament_lobby_finished_respect_button.html', {'is_winner': is_winner})
+        finished_buttons_html = await database_sync_to_async(render_to_string)('tournament_lobby_finished_buttons.html', {'is_winner': is_winner})
         await self.channel_layer.send(
                 self.channel_name,
                 {
@@ -333,7 +333,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                         'standings_html': standings_html,
                         'matches_list_html': matches_list_html,
                         'winners_html': winners_html,
-                        'respect_button_html': respect_button_html,
+                        'finished_buttons_html': finished_buttons_html,
                         'is_winner': is_winner,
                         }
                     }
