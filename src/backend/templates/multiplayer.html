@@ -31,7 +31,7 @@
       <p>Please enter values between 4 and 12 and leave no field empty!</p>
       <label for="room_name" id="labelRoomName" minlength="4" value="">Room Name:</label>
       <input id="room_name" type="text" />
-      <input id="createMultiplayer" type="button" value="Join/Create Game" />
+      <input class="btn btn-primary" id="createMultiplayer" type="button" value="Join/Create Game" />
     </form>
     <div id="roomInfo" class="versus-screen" style="display: none">
       <p></p>
@@ -40,7 +40,7 @@
       <div id="player1" class="player-name">Player1</div>
       <div class="versus-text">VS</div>
       <div id="player2" class="player-name">waiting...</div>
-      <input id="startRemoteGame" type="button" value="Start Game" style="display: none" />
+      <input class="btn btn-primary" id="startRemoteGame" type="button" value="Start Game" style="display: none" />
     </div>
     <div id="gameContainer" style="display: none;">
       <div class="player-wrapper">
@@ -49,7 +49,7 @@
         <div id="right_player" class="player-container player-right">Player2</div>
       </div>
       <div class="controls-container">
-        <input id="resetRemoteGameButton" type="button" value="Reset Game" style="display: none" />
+        <input class="btn btn-warning" id="resetRemoteGameButton" type="button" value="Reset Game" style="display: none" />
         <p>Control the player by using Up and Down arrow keys</p>
       </div>
     </div>
