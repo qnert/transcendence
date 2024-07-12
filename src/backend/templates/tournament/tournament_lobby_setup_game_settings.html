@@ -1,0 +1,63 @@
+<form id="lobby-game-settings-host-form">
+<thead>
+    <tr>
+        <th scope="col">Setting</th>
+        <th scope="col">Value</th>
+        {% if is_host %}
+        <th scope="col">Edit</th>
+        {% endif %}
+    </tr>
+</thead>
+
+<tbody>
+    {% for key, value in game_settings.items %}
+    <tr>
+        <td>{{ key }}</td>
+        {% if key == 'background_color' or key == 'border_color' or key == 'ball_color' %}
+        <td>
+            <div class="game-settings-color" style="background-color: {{ value }};"></div>
+        </td>
+        {% else %}
+        <td>
+            {% if value == True %}
+            ✅
+            {% elif value == False %}
+            ❌
+            {% else %}
+            {{ value }}
+            {% endif %}
+        </td>
+        {% endif %}
+        {% if is_host %}
+        <td>
+            {% if key == 'ball_speed' %}
+            <input id="ballSpeed" type="number" max="12" min="4" value="{{ value }}" required />
+            {% elif key == 'power_ups' %}
+            <input id="powerUps" type="checkbox" {% if value %} checked {% endif %} />
+            {% elif key == 'max_score' %}
+            <input id="maxScore" type="number" max="12" min="4" value="{{ value }}" required />
+            {% elif key == 'background_color' %}
+            <input id="background" type="color" value="{{ value }}" required />
+            {% elif key == 'border_color' %}
+            <input id="borders" type="color" value="{{ value }}" required />
+            {% elif key == 'ball_color' %}
+            <input id="ballColor" type="color" value="{{ value }}" required />
+            {% elif key == 'advanced_mode' %}
+            <input id="advancedMode" type="checkbox" {% if value %} checked {% endif %} />
+            {% endif %}
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</tbody>
+
+{% if is_host %}
+<tfoot>
+    <tr>
+        <td colspan="3">
+            <button type="submit" id="lobby-game-settings-host-form-submit" form="lobby-game-settings-host-form" class="btn btn-primary">Save Settings</button>
+        </td>
+    </tr>
+</tfoot>
+{% endif %}
+</form>

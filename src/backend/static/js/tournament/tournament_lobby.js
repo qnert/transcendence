@@ -185,20 +185,18 @@ function renderSetupContent(setupContent) {
     // This should be rendered everytime
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName("tbody")[0];
     participantsList.innerHTML = setupContent.participants_html;
-    const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName("tbody")[0];
-    gameSettingsList.innerHTML = setupContent.game_settings_list_html;
+    const gameSettingsList = document.getElementById("lobby-game-settings-list");
+    gameSettingsList.innerHTML = setupContent.game_settings_html;
 
     // Hint:
-    // Only render if current user is also host
-    if (setupContent.game_settings_editor_html) {
-        const gameInfoBox = document.getElementById("lobby-game-settings-editor-box");
-        gameInfoBox.innerHTML = setupContent.game_settings_editor_html;
-        // Hint:
-        // Only render if all participants are ready and current user is host
-        if (setupContent.advance_button_html) {
-            const advanceButtonBox = document.getElementById("lobby-advance-button-box");
-            advanceButtonBox.innerHTML = setupContent.advance_button_html;
-        }
+    // Only render if all participants are ready and current user is host
+    if (setupContent.advance_button_html) {
+        const advanceButtonBox = document.getElementById("lobby-advance-button-box");
+        advanceButtonBox.innerHTML = setupContent.advance_button_html;
+    }
+    else {
+        const advanceButtonBox = document.getElementById("lobby-advance-button-box");
+        advanceButtonBox.innerHTML = "";
     }
 }
 

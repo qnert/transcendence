@@ -8,19 +8,15 @@
 {% comment %} =============================    HEADER BOX    ===================== {% endcomment %}
 
     <div id="lobby-header-box" class=borderedBox>
-        <h1><small>Welcome to Lobby</small> {{ lobby.name }}</h1>
-        <button class="btn btn-danger" id="lobby-leave-button">
-            <i class="bi bi-arrow-return-left"></i> Leave Lobby
-        </button>
+        <h2>Welcome to Tournament {{ lobby.name }}</h2>
     </div>
 
 {% comment %} =============================    GAME / INFO BOX    ===================== {% endcomment %}
 
-    <div id="lobby-game-info-box" class=borderedBox>
-
-        <h2><em>{{ lobby.state }}</em> - Phase</h2>
+    <div id="lobby-game-info-box" class="borderedBox">
+    <h3>Participants</h3>
         <table class="table" id="lobby-participants-list">
-            <thead class="thead-dark">
+            <thead>
                 <tr>
                     <th scope="col" >Participant</th>
                     <th scope="col" >Status</th>
@@ -30,23 +26,12 @@
                 {% comment %} tournament_participants.html {% endcomment %}
             </tbody>
         </table>
-
-        <table class="table" id="lobby-game-settings-list">
-            <thead class="thead-dark">
-              <tr>
-                <th scope="col">Setting</th>
-                <th scope="col">Value</th>
-              </tr>
-            </thead>
-            <tbody> 
-                {% comment %} tournament_game_settings_list.html {% endcomment %}
-            </tbody>
+        <h3>Match Settings</h3>
+        <table class="table table-striped" id="lobby-game-settings-list">
+            {% comment %} tournament_game_settings.html {% endcomment %}
         </table>
-
-        <div id="lobby-game-settings-editor-box">
-        </div>
-
     </div>
+
 
 {% comment %} =============================    FOOTER BOX    ===================== {% endcomment %}
     
@@ -69,6 +54,9 @@
             <div id="lobby-advance-button-box">
                 {% comment %} tournament_advance_button.html {% endcomment %}
             </div>
+            <button class="btn btn-danger" id="lobby-leave-button">
+                <i class="bi bi-arrow-return-left"></i> Leave Lobby
+            </button>
         </div>
     </div>
 

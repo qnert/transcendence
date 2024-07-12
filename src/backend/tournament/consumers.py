@@ -232,13 +232,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         participants = await database_sync_to_async(self.tournament.get_participants_names_and_statuses)()
         participants_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_participants.html', {'participants': participants})
 
-        game_settings_list = await database_sync_to_async(self.tournament.get_game_settings)()
-        game_settings_list_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_game_settings_list.html', {'game_settings_list': game_settings_list})
+        game_settings = await database_sync_to_async(self.tournament.get_game_settings)()
+        game_settings_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_game_settings.html', {'game_settings': game_settings, 'is_host': self.is_host})
 
-        game_settings_editor_html = False
         advance_button_html = False
         if self.is_host:
-            game_settings_editor_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_game_settings_editor.html')
             if self.are_participants_ready:
                 advance_button_html = await database_sync_to_async(render_to_string)('tournament_lobby_setup_advance_button.html')
 
@@ -248,8 +246,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 'type': 'event_setup_content',
                 'setup_content': {
                     'participants_html': participants_html,
-                    'game_settings_list_html': game_settings_list_html,
-                    'game_settings_editor_html': game_settings_editor_html,
+                    'game_settings_html': game_settings_html,
                     'advance_button_html': advance_button_html,
                 }
             }

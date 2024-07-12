@@ -1,6 +1,6 @@
 {% for tournament in tournaments %}
-{% if tournament.get_state == "setup" %}
-<tr class="table-primary">
+{% if tournament.get_state == "setup" and tournament.get_participants.count < max_participants %}
+<tr class="table-success">
 {% else %}
 <tr>
 {% endif %}
@@ -19,7 +19,7 @@
         {{ tournament.get_state }}
     </td>
     <td>
-        {% if tournament.get_state == "setup" %}
+        {% if tournament.get_state == "setup" and tournament.get_participants.count < max_participants %}
         <button class="btn btn-success" id="hub-join-{{ tournament.name }}-button">Join</button>
         {% elif tournament.get_state == 'finished' %}
         <strong>Winners:</strong> {% for winner in tournament.get_winners %}

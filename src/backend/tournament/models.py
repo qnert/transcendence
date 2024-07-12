@@ -3,9 +3,10 @@ from django.core.exceptions import ValidationError
 from datetime import date
 from api.models import UserProfile
 from game.models import GameResult
+from collections import OrderedDict
 import json
 
-MAX_PARTICIPANTS = 4
+MAX_PARTICIPANTS = 2
 DEFAULT_GAME_SETTINGS = {
     "ball_speed": '10',
     "max_score": '1',
@@ -16,6 +17,15 @@ DEFAULT_GAME_SETTINGS = {
     "power_ups": False
 }
 
+DEFAULT_GAME_SETTINGS_ORDER = [
+    'ball_speed',
+    'max_score',
+    'background_color',
+    'border_color',
+    'ball_color',
+    'advanced_mode',
+    'power_ups',
+]
 
 class TournamentUser(models.Model):
 
@@ -325,6 +335,9 @@ class Tournament(models.Model):
 
     def get_game_settings(self):
         return self.game_settings
+
+    def get_game_settings(self):
+        return OrderedDict(sorted(self.game_settings.items(), key=lambda x: DEFAULT_GAME_SETTINGS_ORDER.index(x[0])))
 
     def get_state(self):
         return self.state
