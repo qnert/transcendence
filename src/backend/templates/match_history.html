@@ -9,37 +9,39 @@ Pong Game
 </head>
 <body>
 <div id="newContent">
-	<div class="container" id="History" alt="Match History of the User">
-	    <h1>Your Pong Game Match History</h1>
-	    <div class="history" id="history">
-	        <table>
-	            <thead scope="col">
-	                <tr>
-	                    <th>Opponent</th>
-	                    <th>Your Score</th>
-	                    <th>Opponent's Score</th>
-						<th>Win/Loss</th>
-	                    <th>Date Played</th>
-	                </tr>
-	            </thead>
-	            <tbody id="history-body">
-	            </tbody>
-	        </table>
-	    </div>
-		<div>
-            <button class="btn btn-primary"  id="pieChart">Win/Loss </button>
-            <button class="btn btn-primary"  id="lineChartAvg">Average Rally</button>
-            <button class="btn btn-primary"  id="lineChartMax">Longest Rally</button>
-            <button class="btn btn-primary"  id="lineChartMin">Shortest Rally</button>
 
-			<div id="stat-result"></div>
+    <h2>Advanced Stats</h2>
+    <div class="container borderedBox">
+        <div>
+            <button class="btn btn-primary" id="pieChart">Win/Loss </button>
+            <button class="btn btn-primary" id="lineChartAvg">Average Rally</button>
+            <button class="btn btn-primary" id="lineChartMax">Longest Rally</button>
+            <button class="btn btn-primary" id="lineChartMin">Shortest Rally</button>
+            <button class="btn btn-outline-secondary" id="hideAdvancedStats">Hide</button>
+        </div>
+        <div id="chart-container">
+            <img id="chart" src=""/>
+        </div>
+    </div>
 
-            <div id="chart-container">
-                <img id="chart" src=""/>
-            </div>
+    <h2>Match History</h1>
+    <div class="container borderedBox" id="History" alt="Match History of the User">
+        <div class="history" id="history">
+            <table class="table">
+                <thead scope="col">
+                    <tr>
+                        <th>Opponent</th>
+                        <th>Your Score</th>
+                        <th>Opponent's Score</th>
+                        <th>Win/Loss</th>
+                        <th>Date Played</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-		</div>
-
-	</div>
 </div>
 {% endblock %}

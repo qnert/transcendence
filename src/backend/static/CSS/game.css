@@ -1,39 +1,9 @@
-/* Add Flexbox styles to the container of the content */
-/* Style the form to match the design */
-#myForm {
-}
-
-/* Ensure consistent input field styles */
-#myForm input[type="number"],
-#myForm input[type="color"],
-#myForm input[type="text"],
-#myForm input[type="checkbox"],
-#myForm input[type="button"] {
-  width: 100%; /* Ensure full width */
-  padding: 12px; /* Consistent padding */
-  margin-bottom: 10px; /* Add margin for spacing */
-  border: 1px solid var(--COLOR-BASE-SHADOW);
-  border-radius: 5px;
-  box-sizing: border-box;
-  font-size: var(--FONT-SIZE-UNI);
-}
-
-#myForm input[type="button"] {
-  background-color: var(--COLOR-BASE-ACCENT); /* Blue background */
-  color: var(--COLOR-BASE-BACKGROUND); /* White text */
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  box-shadow: 0 2px 5px var(--COLOR-BASE-SHADOW); /* Subtle shadow */
-}
-
-#myForm input[type="button"]:hover {
-  background-color: #0056b3; /* Darker blue background on hover */
-  color: var(--COLOR-BASE-BACKGROUND); /* White text on hover */
-  box-shadow: 0 4px 10px var(--COLOR-BASE-SHADOW); /* Slightly larger shadow on hover */
-}
 
 /* Versus screen styling */
 .versus-screen {
+  display:flex;
+  flex-direction: column;
+  justify-content: space-evenly;
   width: 400px;
   margin: 50px auto;
   border: 2px solid var(--COLOR-BASE-ACCENT);
@@ -106,7 +76,3 @@
     margin-top: 20px;
   }
   
-  /* Style for reset button */
-  #resetGameButton {
-    margin-bottom: 10px;
-  }  

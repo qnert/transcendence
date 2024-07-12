@@ -1,15 +1,58 @@
+import { create_tournament_match, close_multi_on_change } from '../game/multiplayer.js'
+import { updateContentToken, handleRouteToken } from '../basics.js'
+import { tournamentHubEventLoop } from './tournament_hub.js'
+
 // =========================== GLOBAL ===============================
 
 let tournamentLobbySocket;
 
-// =========================== MAIN EVENT LOOP ===============================
+const msgRageQuit = "A kiddo decided to rage quit, the tournament has to end";
+const msgTaunt = "You just got served...";
+const msgRespect = "f";
 
+// =========================== EXPORTS ===============================
+
+// Hint:
+// used in multiplayer.js
+export function finishTournamentMatch() {
+    setTimeout(() => {
+        tournamentLobbySocket.send(
+            JSON.stringify({
+                finished_match: true,
+            })
+        );
+    }, 500);
+}
+
+// Hint:
+// used in multiplayer.js
+export function refreshTournamentPlayingLobby() {
+    tournamentLobbySocket.send(
+        JSON.stringify({
+            back_to_lobby: true,
+        })
+    );
+}
+
+// Hint:
+// used in handleURLChange() for global socket cleanup
+export function tournamentLobbyCloseSocket() {
+    if (tournamentLobbySocket) {
+        tournamentLobbySocket.close();
+        tournamentLobbySocket = null;
+    }
+}
+
+// Hint:
+// used in tournament_hub.js
 export function tournamentLobbyInit(lobbyName, userName) {
-    // this code is not run in reattachEventListener, so protection shouldnt be needed
+
     const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
     const tournamentLobbyStatusToggler = document.getElementById("lobby-status-switch");
+    const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
+
     tournamentLobbySocket = new WebSocket("ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
 
     tournamentLobbySocket.onmessage = (event) => socketMessageHandler(event, tournamentLobbyChatLog);
@@ -40,45 +83,73 @@ export function tournamentLobbyInit(lobbyName, userName) {
             })
         );
     };
+
+    tournamentLobbyLeaveButton.onclick = async function (event) {
+        event.preventDefault();
+        tournamentLobbyCloseSocket();
+        setTimeout( async function() {
+            await updateContentToken("/tournament/hub");
+        }, 300);
+        tournamentHubEventLoop();
+    }
+
 }
 
 // =========================== HELPERS ===============================
 
-const socketMessageHandler = (event, tournamentLobbyChatLog) => {
+async function socketMessageHandler (event, tournamentLobbyChatLog) {
     const data = JSON.parse(event.data);
-    let message = "";
 
+    // Hint:
+    // messages and notifications are handled differently in backend
+    let message = "";
     if (data.message) {
         message = data.message;
     } else if (data.notification) {
         message = data.notification;
     }
+
     if (message) {
-        updateChatLog(message, tournamentLobbyChatLog);
-    } else if (data.participants) {
-        updateParticipantsList(data.participants);
-    } else if (data.game_settings_list) {
-        updateGameSettingsList(data.game_settings_list);
-    } else if (data.game_settings_editor) {
-        renderGameSettingsEditor(data.game_settings_editor);
-    } else if (data.advance_button) {
-        renderAdvanceButton(data.advance_button);
+        renderChatLog(message, tournamentLobbyChatLog);
+    } else if (data.setup_content) {
+        renderSetupContent(data.setup_content);
+    } else if (data.playing_content) {
+        renderPlayingContent(data.playing_content);
+    } else if (data.finished_content) {
+        renderFinishedContent(data.finished_content);
+    } else if (data.end_screen) {
+        close_multi_on_change();
     }
 
-    /* note: in case this socket has become the host, some eventListeners have to be reattached */
+    // Hint:
+    // On MSG_LEAVE notification a data.disconnect is sent too,
+    // indicating wether the Tournament will be closed (only during 'playing' phase),
+    // in which case everyone has to leave/disconnect
+    if (data.disconnect == true) {
+        alert(msgRageQuit);
+        await handleRouteToken("/tournament/");
+        return;
+    }
+    // Hint:
+    // In case the host has changed, eventListeners must be reattached
     attachdynamicEventListeners();
 };
 
 const attachdynamicEventListeners = function () {
-    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
+
     const tournamentLobbyAdvanceState = document.getElementById("lobby-advance-state-button");
     if (tournamentLobbyAdvanceState) {
         tournamentLobbyAdvanceState.onclick = function (event) {
             event.preventDefault();
-            console.log("advance tournament button pressed");
-            // TODO implement
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    advanced_state: true,
+                })
+            );
         };
     }
+
+    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
     if (tournamentLobbySettingsForm) {
         tournamentLobbySettingsForm.onsubmit = function (event) {
             event.preventDefault();
@@ -98,46 +169,112 @@ const attachdynamicEventListeners = function () {
             );
         };
     }
+
 };
 
 // =========================== Server Side Rendering ===============================
 
-function updateChatLog(message, tournamentLobbyChatLog) {
-    // put no newline on first message
+function renderChatLog(message, tournamentLobbyChatLog) {
+    // Hint:
+    // All messages receive a newline in front,
+    // which makes handling auto scrolling to the bottom on new message easier
     if (!tournamentLobbyChatLog.value) {
         tournamentLobbyChatLog.value += message;
     } else {
         tournamentLobbyChatLog.value += "\n" + message;
     }
-    // scroll so new messages can be seen
     tournamentLobbyChatLog.scrollTop = tournamentLobbyChatLog.scrollHeight;
 }
 
-function updateParticipantsList(participantsHTML) {
+function renderSetupContent(setupContent) {
+    // Hint:
+    // This should be rendered everytime
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName("tbody")[0];
-    participantsList.innerHTML = participantsHTML;
+    participantsList.innerHTML = setupContent.participants_html;
+    const gameSettingsList = document.getElementById("lobby-game-settings-list");
+    gameSettingsList.innerHTML = setupContent.game_settings_html;
+
+    // Hint:
+    // Only render if all participants are ready and current user is host
+    if (setupContent.advance_button_html) {
+        const advanceButtonBox = document.getElementById("lobby-advance-button-box");
+        advanceButtonBox.innerHTML = setupContent.advance_button_html;
+    }
+    else {
+        const advanceButtonBox = document.getElementById("lobby-advance-button-box");
+        advanceButtonBox.innerHTML = "";
+    }
 }
 
-function updateGameSettingsList(gameSettingsHTML) {
-    const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName("tbody")[0];
-    gameSettingsList.innerHTML = gameSettingsHTML;
+function renderPlayingContent(playingContent) {
+    if (playingContent == "remove") {
+        const gameInfoBox = document.getElementById("lobby-game-info-box");
+        gameInfoBox.innerHTML = "";
+        const controlsBox = document.getElementById("lobby-controls-box");
+        if (controlsBox) {
+            controlsBox.remove();
+        }
+        const footerBox = document.getElementById("lobby-footer-box");
+        footerBox.style.display = "flex";
+    } else {
+        renderTournamentLobbyPlayingPhase(playingContent);
+    }
 }
 
-function renderGameSettingsEditor(gameSettingsEditorHTML) {
-    const gameInfoBox = document.getElementById("lobby-game-settings-editor-box");
-    gameInfoBox.innerHTML = gameSettingsEditorHTML;
+function renderTournamentLobbyPlayingPhase(playingContent) {
+    const gameInfoBox = document.getElementById("lobby-game-info-box");
+    gameInfoBox.innerHTML = playingContent.standings_html;
+    gameInfoBox.insertAdjacentHTML('beforeend', playingContent.matches_list_html)
+    tournamentLobbySocket.send(
+        JSON.stringify({
+            updated_match_list: true,
+        })
+    );
+    const joinNextTournamentMatch = document.getElementById("lobby-join-match-button");
+    if (joinNextTournamentMatch) {
+        joinNextTournamentMatch.onclick = function (event) {
+            event.preventDefault;
+            gameInfoBox.innerHTML = playingContent.match_html;
+            create_tournament_match(playingContent);
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    waiting_for_opponent: true,
+                })
+            );
+        }
+    }
 }
 
-function renderAdvanceButton(advanceButtonHTML) {
-    const controlsBox = document.getElementById("lobby-advance-button-box");
-    controlsBox.innerHTML = advanceButtonHTML;
-}
+function renderFinishedContent(finishedContent) {
+    const headerBox = document.getElementById("lobby-header-box");
+    headerBox.innerHTML = finishedContent.winners_html;
+    headerBox.insertAdjacentHTML('beforeend', finishedContent.finished_buttons_html)
 
-// =========================== CLEAN UP ===============================
+    const gameInfoBox = document.getElementById("lobby-game-info-box");
+    gameInfoBox.innerHTML = finishedContent.standings_html;
+    gameInfoBox.insertAdjacentHTML('beforeend', finishedContent.matches_list_html)
 
-export function tournamentLobbyCloseSocket() {
-    if (tournamentLobbySocket) {
-        tournamentLobbySocket.close();
-        tournamentLobbySocket = null;
+    const respectButton = document.getElementById("lobby-respect-button");
+    respectButton.onclick = function (event) {
+        event.preventDefault;
+        let msgToSend = msgRespect;
+        if (finishedContent.is_winner) {
+            msgToSend = msgTaunt;
+        }
+        tournamentLobbySocket.send(
+            JSON.stringify({
+                message: msgToSend,
+            })
+        );
+    }
+
+    const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
+    tournamentLobbyLeaveButton.onclick = async function (event) {
+        event.preventDefault();
+        tournamentLobbyCloseSocket();
+        setTimeout( async function() {
+            await updateContentToken("/tournament/hub");
+        }, 400);
+        tournamentHubEventLoop();
     }
 }

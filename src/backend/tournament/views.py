@@ -2,18 +2,24 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt  # TODO remove
 from django.core.exceptions import ValidationError
-from tournament.models import Tournament
+from tournament.models import Tournament, MAX_PARTICIPANTS
 from api.models import UserProfile
 import json
-
 
 # TODO protect incorrect method?
 def tournament_hub(request):
     if request.method == "GET":
-        tournaments = list(Tournament.objects.all().values())
-        return render(request, 'tournament_hub.html', {'tournaments': tournaments})
+        state_order = {
+                'setup': 1,
+                'playing': 2,
+                'finished': 3
+                }
+        tournaments = sorted(Tournament.objects.all(), key=lambda t: state_order.get(t.get_state(), 99))
+        return render(request, 'tournament_hub.html', {'tournaments': tournaments, 'max_participants': MAX_PARTICIPANTS})
 
-
+# Hint:
+# Used after creating and joining
+# tournament_hub.js
 def tournament_lobby(request, lobby_name):
     if request.method == "GET":
         try:
@@ -31,44 +37,27 @@ def tournament_lobby(request, lobby_name):
         except UserProfile.DoesNotExist:
             return JsonResponse({"error": "User profile not found!"}, status=401)
         except Tournament.DoesNotExist:
-            return JsonResponse({"error": "Lobby not found!"}, status=404)
+            return JsonResponse({"error": "Lobby not found!"}, status=400)
         except ValidationError as e:
             return JsonResponse({"error": e.message}, status=400)
         return render(request, "tournament_lobby.html", {"lobby": lobby})
 
-
-#   TODO deprecated?
+# Hint:
+# Used in Dropdown Menu
+# tournament_hub.js
 def tournament_api_get_list(request):
     if request.method == "GET":
-        tournaments = list(Tournament.objects.all().values())
-        return render(request, 'tournament_list.html', {'tag': 'option', 'tournaments': tournaments})
+        state_order = {
+                'setup': 1,
+                'playing': 2,
+                'finished': 3
+                }
+        tournaments = sorted(Tournament.objects.all(), key=lambda t: state_order.get(t.get_state(), 99))
+        return render(request, 'tournament_hub_list.html', {'tournaments': tournaments, 'max_participants': MAX_PARTICIPANTS})
 
-
-#   TODO deprecated?
-def tournament_api_get_participants(request, lobby_name):
-    if request.method == "GET":
-        try:
-            # user_profile = UserProfile.objects.get(user=request.user)
-            tournament = Tournament.objects.get(name=lobby_name)
-            participants = tournament.get_participants_names_and_statuses()
-        except UserProfile.DoesNotExist:
-            return JsonResponse({"error": "User profile not found!"}, status=401)
-        except Tournament.DoesNotExist:
-            return JsonResponse({"error": "Lobby not found!"}, status=404)
-        except ValidationError as e:
-            return JsonResponse({"error": e.message}, status=400)
-        return render(request, 'tournament_participants.html', {'participants': participants})
-
-
-#   TODO deprecated?
-def tournament_api_get_state(request):
-    if request.method == "GET":
-        tournament_name = request.GET.get("tournament_name")
-        tournament = Tournament.objects.get(name=tournament_name)
-        tournament_state = tournament.state
-        return JsonResponse({"state": tournament_state}, status=200)
-
-
+# Hint:
+# Used in on createButton click
+# tournament_hub.js
 @csrf_exempt
 def tournament_api_create(request):
     if request.method == "POST":

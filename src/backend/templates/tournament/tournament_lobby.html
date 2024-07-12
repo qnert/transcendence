@@ -8,17 +8,15 @@
 {% comment %} =============================    HEADER BOX    ===================== {% endcomment %}
 
     <div id="lobby-header-box" class=borderedBox>
-        <h1><small>Welcome to Lobby</small> {{ lobby.name }}</h1>
+        <h2>Welcome to Tournament {{ lobby.name }}</h2>
     </div>
-
 
 {% comment %} =============================    GAME / INFO BOX    ===================== {% endcomment %}
 
-    <div id="lobby-game-info-box" class=borderedBox>
-
-        <h2><em>{{ lobby.state }}</em> - Phase</h2>
+    <div id="lobby-game-info-box" class="borderedBox">
+    <h3>Participants</h3>
         <table class="table" id="lobby-participants-list">
-            <thead class="thead-dark">
+            <thead>
                 <tr>
                     <th scope="col" >Participant</th>
                     <th scope="col" >Status</th>
@@ -28,32 +26,19 @@
                 {% comment %} tournament_participants.html {% endcomment %}
             </tbody>
         </table>
-
-        <table class="table" id="lobby-game-settings-list">
-            <thead class="thead-dark">
-              <tr>
-                <th scope="col">Setting</th>
-                <th scope="col">Value</th>
-              </tr>
-            </thead>
-            <tbody> 
-                {% comment %} tournament_game_settings_list.html {% endcomment %}
-            </tbody>
+        <h3>Match Settings</h3>
+        <table class="table table-striped" id="lobby-game-settings-list">
+            {% comment %} tournament_game_settings.html {% endcomment %}
         </table>
-
-        <div id="lobby-game-settings-editor-box">
-        </div>
-
     </div>
+
 
 {% comment %} =============================    FOOTER BOX    ===================== {% endcomment %}
     
     <div class="borderedBox" id="lobby-footer-box">
         
         <div id="lobby-chat-box">
-            <div id="lobby-chat-log-box" >
-                <textarea class="form-control" id="lobby-chat-log" readonly></textarea>
-            </div>
+            <textarea class="form-control" id="lobby-chat-log" readonly></textarea>
             <div id="lobby-chat-input-box">
               <input class="form-control" id="lobby-chat-message-input" placeholder="Enter your message"  type="text" />
               <input class="btn btn-primary" id="lobby-chat-message-submit" type="button" value="Send" />
@@ -61,14 +46,16 @@
         </div>
 
         <div id="lobby-controls-box">
-            <h2>[ {{ lobby.name }} ] [ <em>{{ lobby.state }}</em> ]</h2>
             <div class="form-check form-switch" id="lobby-status-switch-box">
                 <input class="form-check-input" type="checkbox" role="switch" name="readyState" id="lobby-status-switch" unchecked>
-                <label class="form-check-label" for="lobby-status-switch">Set Ready Status</label>
+                <label class="form-check-label" for="lobby-status-switch">Set Ready</label>
             </div>
             <div id="lobby-advance-button-box">
                 {% comment %} tournament_advance_button.html {% endcomment %}
             </div>
+            <button class="btn btn-danger" id="lobby-leave-button">
+                <i class="bi bi-arrow-return-left btn-sm"></i> Leave Lobby
+            </button>
         </div>
     </div>
 

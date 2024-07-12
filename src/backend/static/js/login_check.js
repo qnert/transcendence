@@ -49,7 +49,6 @@ export async function checkLoginStatus() {
         if (response.ok && !friendSocket) { //check friendSocket to see if the user is already online
           initFriendSocket();
           loadChatHTML();
-          await loadFriends();
           pendingFriendRequest();
         }
       } catch (error) {

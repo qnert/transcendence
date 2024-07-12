@@ -10,12 +10,13 @@ import { startGameButton, resetGameButton, close_solo_on_change } from "./game/g
 import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
-import { matchHistoryButton, getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton } from "./profile/buttons.js";
+import { matchHistoryButton, getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton, hideAdvancedStatsButton } from "./profile/buttons.js";
 import { showLoggedInState, showLoggedOutState } from "./navbar/navbar.js";
 import { tournamentHubEventLoop} from "./tournament/tournament_hub.js";
 import { tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 import { twoFAStatus } from "./profile/2FA.js";
 import { jumpNextField } from "./profile/profile.js";
+import { getUsernameFromBackend } from "./chat/action_chat.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
@@ -98,14 +99,20 @@ export async function updateContentToken(path) {
         if (!response.ok) {
             if (response.status === 401) {
                 handle401Error();
-                return;
-            } else {
+                return false;
+            }
+            else if (response.status === 400) {
+                const errorCode = await response.json();
+                alert(errorCode.error);
+                return false;
+            }
+            else {
                 throw new Error("Unexpected Error");
             }
         }
 
         const html = await response.text();
-        if (!html) return;
+        if (!html) return true;
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
@@ -115,9 +122,10 @@ export async function updateContentToken(path) {
         oldContent.appendChild(newContent);
         reattachEventListeners();
     } catch (error) {
-        //console.error("Error fetching content:", error);
+        console.error("Error fetching content:", error);
         handleRouteToken("/home/");
     }
+    return true;
 }
 
 function updateContent(path) {
@@ -171,6 +179,7 @@ export async function handleRouteToken(path) {
 
 export function reattachEventListeners() {
     bindProfileButton();
+    getUsernameFromBackend();
     bindSaveChangesButton();
     checkBox();
     // checkLoginStatus();
@@ -178,6 +187,7 @@ export function reattachEventListeners() {
     defaultButton();
     generateQRCode();
     handleCheckbox();
+    hideAdvancedStatsButton();
     homeButton();
     lineChartAvgButton();
     lineChartMinButton();
@@ -245,6 +255,43 @@ export async function handle401Error() {
 	handleUrlChange();
 }
 
+window.onload = async function () {
+    handleUrlChange();
+    let currentUrl = window.location.href;
+    if (currentUrl.includes("/profile/")) {
+        await fetchProfileData();
+        await checkBox();
+    } else if (currentUrl.includes("/friend/")) {
+        let words = currentUrl.split("/");
+        let display_name = words[4];
+        await fetchFriendsData(display_name);
+    } else if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/") {
+        await loadFriends();
+		await updateFriendDropdown();
+    } else if (currentUrl.includes("game")) {
+        document.getElementById("background").value = "#ffffff"; // Default to white
+        document.getElementById("borders").value = "#0000ff"; // Default to blue
+        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+    } else if (currentUrl.includes("multiplayer")) {
+        document.getElementById("background").value = "#ffffff"; // Default to white
+        document.getElementById("borders").value = "#0000ff"; // Default to blue
+        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
+    } else if (currentUrl.includes("history")) {
+        getGameHistory();
+    }
+    if (!currentUrl.includes("login") && currentUrl !== "http://0.0.0.0:8000/" && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
+		const username = await getUsername();
+        showLoggedInState(username);
+		checkAccessToken();
+		await loadFriends();
+        await updateFriendDropdown();
+		return;
+    }
+	else {
+        showLoggedOutState();
+    }
+};
+
 export async function getLoginStatus() {
     try {
         const response = await fetch("/api/login_status", {
@@ -274,38 +321,3 @@ export async function getLoginStatus() {
 
 window.handle401Error = handle401Error;
 
-window.onload = async function () {
-    let currentUrl = window.location.href;
-    if (currentUrl.includes("/profile/")) {
-        await fetchProfileData();
-        await checkBox();
-    } else if (currentUrl.includes("/2FA/")) {
-        showLoggedOutState();
-        return;
-    } else if (currentUrl.includes("/friend/")) {
-        let words = currentUrl.split("/");
-        let display_name = words[4];
-        await loadContentFriend(display_name);
-    } else if (currentUrl.includes("game")) {
-        document.getElementById("background").value = "#ffffff";
-        document.getElementById("borders").value = "#0000ff";
-        document.getElementById("ballColor").value = "#0000ff";
-    } else if (currentUrl.includes("multiplayer")) {
-        document.getElementById("background").value = "#ffffff";
-        document.getElementById("borders").value = "#0000ff";
-        document.getElementById("ballColor").value = "#0000ff";
-    } else if (currentUrl.includes("history")) {
-        await getGameHistory();
-    }
-    if (!currentUrl.includes("login") && currentUrl !== "http://0.0.0.0:8000/" && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
-		const username = await getUsername();
-        showLoggedInState(username);
-		checkAccessToken();
-		await loadFriends();
-        await updateFriendDropdown();
-		return;
-    }
-	else {
-        showLoggedOutState();
-    }
-};

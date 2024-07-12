@@ -5,13 +5,13 @@
 {% endblock %}
 {% block content %}
   <div id="newContent">
-    <h1>Pong Game</h1>
+    <h2>Local Game</h2>
     <form class="borderedBox" id="myForm">
       <label for="ballSpeed" id="labelBallSpeed">Ball Speed:</label>
-      <input id="ballSpeed" type="number" max="12" min="4" value="8" required="">
+      <input class="form-control" id="ballSpeed" type="number" max="12" min="4" value="8" required="">
 
       <label for="maxScore" id="labelMaxScore">Max Score:</label>
-      <input id="maxScore" type="number" max="12" min="4" value="8" required="">
+      <input class="form-control" id="maxScore" type="number" max="12" min="4" value="8" required="">
 
       <label for="background" id="labelBackground">Background Color:</label>
       <input id="background" type="color" value="#ffffff" required="">
@@ -32,7 +32,7 @@
       <input id="AI" type="checkbox" required="">
 
       <p>Please enter values between 4 and 12 and leave no field empty!</p>
-      <input id="startGameButton" type="button" value="Start Game">
+      <input class="btn btn-primary" id="startGameButton" type="button" value="Start Game">
     </form>
     <div id="gameContainer" style="display: none;">
       <div class="player-wrapper">
@@ -41,7 +41,7 @@
         <div id="right_player" class="player-container player-right">Player2</div>
       </div>
       <div class="controls-container">
-        <input id="resetGameButton" type="button" value="Reset Game" style="display: none">
+        <input class="btn btn-warning" id="resetGameButton" type="button" value="Reset Game" style="display: none">
         <p>Control the left player by using W and S keys and control the right player by using Up and Down arrow keys</p>
         <p>When playing against the AI you can control your player by using Up and Down arrow keys</p>
       </div>

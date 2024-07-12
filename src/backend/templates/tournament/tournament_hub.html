@@ -1,27 +1,36 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div id="newContent">
+<div id="newContent">
+
     <h2>Create Tournament</h2>
     <form class="borderedBox" id="tournament-hub-form">
-      <label></label>
-      <input type="text" class="form-control" id="tournament-form-name-field" placeholder="Enter Tournament Name" aria-describedby="tournament-form-name-field-helper" />
-      <small id="tournament-form-name-field-helper" class="form-text text-muted">
-        <strong>Note:</strong> [ A-Z ] [ a-z ] [ 0-9 ] [ ._ ]
-        <em>must contain at least one letter, no spaces</em>
-      </small>
-      <button type="submit" form="tournament-form" id="tournamentCreateButton" class="btn btn-primary">Create</button>
+        <input type="text" class="form-control input-text" id="tournament-form-name-field" placeholder="Enter Tournament Name" aria-describedby="tournament-form-name-field-helper" />
+        <small id="tournament-form-name-field-helper" class="form-text text-muted">
+            <strong>Note:</strong> [ A-Z ] [ a-z ] [ 0-9 ] [ ._ ]
+            <em>must contain at least one letter, no spaces</em>
+        </small>
+        <button type="submit" form="tournament-form" id="tournamentCreateButton" class="btn btn-primary">Create</button>
     </form>
 
     <h2>Join Tournament</h2>
-    <div class="borderedBox" id="join-field-group">
-      <label for="join-field-list">Choose an existing Tournament:</label>
-      <select id="join-field-list" name="join-field-tournament">
-        <option selected="true" disabled="true"></option>
-        {% for tournament in tournaments %}
-          <option value="{{ tournament.name }}">{{ tournament.name }}</option>
-        {% endfor %}
-      </select>
-      <button type="submit" form="join-field-list" id="tournamentJoinButton" class="btn btn-primary">Join</button>
+    <div class="borderedBox" id="tournament-hub-lobby-list">
+        <button class="btn btn-secondary" id="hub-refresh-lobbies-button">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+        <table class="table table-hover" id="hub-tournament-list-table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Participants</th>
+                    <th scope="col">Slots</th>
+                    <th scope="col">State</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% include 'tournament_hub_list.html' with tournaments=tournaments max_participants=max_participants %}
+            </tbody>
+        </table>
     </div>
-  </div>
+</div>
 {% endblock %}
