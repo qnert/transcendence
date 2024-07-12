@@ -43,18 +43,20 @@
         position: fixed;
         bottom: 10px;
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: 4fr 1fr;
         column-gap: 10px;
 
+        .form-control {
+            max-width: 100%;
+        }
+
         #lobby-chat-box {
-            width: 100%;
             #lobby-chat-log {
                 min-height: 100px;
                 resize: none;
                 margin: 0;
                 padding-top: 0;
                 padding-bottom: 0;
-                box-sizing: border-box;
             }
             #lobby-chat-input-box {
                 display: flex;

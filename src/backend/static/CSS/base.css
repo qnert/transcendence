@@ -49,11 +49,11 @@ body {
     }
 
     .borderedBox {
-        width: 75%; /* Adjust width as needed */
+        width: 70%; /* Adjust width as needed */
         padding-top: 20px;
         padding-bottom: 20px;
-        padding-left: 10%;
-        padding-right: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
         border: 1px solid var(--COLOR-BASE-ACCENT);
         border-radius: 5px;
         box-shadow: 0 0 10px var(--COLOR-BASE-SHADOW);
@@ -96,22 +96,26 @@ body {
             text-align: center;
         }
 
+        .input-text {
+            min-width: 30%;
+        }
+
         .form-group {
             display: flex;
             flex-direction: column;
         }
 
         .form-control {
+            max-width: 10%;
             border-radius: 5px;
             border: 1px solid var(--COLOR-BASE-FONT);
             box-shadow: 0 0 5px var(--COLOR-BASE-SHADOW);
         }
 
-        .form-check {
-            .form-check-input {
-                border: 1px solid var(--COLOR-BASE-ACCENT);
-                border-radius: 5px;
-            }
+        .form-check-input {
+            border: 1px solid var(--COLOR-BASE-ACCENT);
+            border-radius: 5px;
         }
+
     }
 }

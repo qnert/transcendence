@@ -28,7 +28,7 @@
         {% if tournament.get_state == "setup" and tournament.get_participants.count < max_participants %}
         <button class="btn btn-success" id="hub-join-{{ tournament.name }}-button">Join</button>
         {% elif tournament.get_state == 'finished' %}
-        <strong>Winners:</strong> {% for winner in tournament.get_winners %}
+        <strong>Winners:</strong><br>{% for winner in tournament.get_winners %}
         {{ winner.get_nickname }}{% if not forloop.last %}, {% endif %}
         {% endfor %}
         {% else %}
