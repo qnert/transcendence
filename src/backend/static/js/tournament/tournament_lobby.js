@@ -1,5 +1,6 @@
 import { create_tournament_match, close_multi_on_change } from '../game/multiplayer.js'
-import { handleRouteToken } from '../basics.js'
+import { updateContentToken, handleRouteToken } from '../basics.js'
+import { tournamentHubEventLoop } from './tournament_hub.js'
 
 // =========================== GLOBAL ===============================
 
@@ -45,6 +46,17 @@ export function tournamentLobbyCloseSocket() {
 // Hint:
 // used in tournament_hub.js
 export function tournamentLobbyInit(lobbyName, userName) {
+
+    const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
+    tournamentLobbyLeaveButton.onclick = async function (event) {
+        event.preventDefault();
+        tournamentLobbyCloseSocket();
+        setTimeout( async function() {
+            await updateContentToken("/tournament/hub");
+        }, 300);
+        tournamentHubEventLoop();
+    }
+
     const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
@@ -174,20 +186,18 @@ function renderSetupContent(setupContent) {
     // This should be rendered everytime
     const participantsList = document.getElementById("lobby-participants-list").getElementsByTagName("tbody")[0];
     participantsList.innerHTML = setupContent.participants_html;
-    const gameSettingsList = document.getElementById("lobby-game-settings-list").getElementsByTagName("tbody")[0];
-    gameSettingsList.innerHTML = setupContent.game_settings_list_html;
+    const gameSettingsList = document.getElementById("lobby-game-settings-list");
+    gameSettingsList.innerHTML = setupContent.game_settings_html;
 
     // Hint:
-    // Only render if current user is also host
-    if (setupContent.game_settings_editor_html) {
-        const gameInfoBox = document.getElementById("lobby-game-settings-editor-box");
-        gameInfoBox.innerHTML = setupContent.game_settings_editor_html;
-        // Hint:
-        // Only render if all participants are ready and current user is host
-        if (setupContent.advance_button_html) {
-            const advanceButtonBox = document.getElementById("lobby-advance-button-box");
-            advanceButtonBox.innerHTML = setupContent.advance_button_html;
-        }
+    // Only render if all participants are ready and current user is host
+    if (setupContent.advance_button_html) {
+        const advanceButtonBox = document.getElementById("lobby-advance-button-box");
+        advanceButtonBox.innerHTML = setupContent.advance_button_html;
+    }
+    else {
+        const advanceButtonBox = document.getElementById("lobby-advance-button-box");
+        advanceButtonBox.innerHTML = "";
     }
 }
 
@@ -233,7 +243,7 @@ function renderTournamentLobbyPlayingPhase(playingContent) {
 function renderFinishedContent(finishedContent) {
     const headerBox = document.getElementById("lobby-header-box");
     headerBox.innerHTML = finishedContent.winners_html;
-    headerBox.insertAdjacentHTML('beforeend', finishedContent.respect_button_html)
+    headerBox.insertAdjacentHTML('beforeend', finishedContent.finished_buttons_html)
 
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = finishedContent.standings_html;
@@ -252,4 +262,15 @@ function renderFinishedContent(finishedContent) {
             })
         );
     }
+
+    const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
+    tournamentLobbyLeaveButton.onclick = async function (event) {
+        event.preventDefault();
+        tournamentLobbyCloseSocket();
+        setTimeout( async function() {
+            await updateContentToken("/tournament/hub");
+        }, 400);
+        tournamentHubEventLoop();
+    }
+
 }

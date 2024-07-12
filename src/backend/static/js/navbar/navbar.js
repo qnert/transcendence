@@ -6,11 +6,11 @@ import { getCookie } from "../security/csrft.js";
 export const showLoggedInState = (username) => {
   navButtons.innerHTML = `
 <li class="nav-item">
-  <button class="nav-button" id="game" >Solo Game</button>
+  <button class="nav-button" id="game" >Local</button>
 </li>
 
 <li class="nav-item">
-  <button class="nav-button" id="multiplayerGame">Play Multiplayer</button>
+  <button class="nav-button" id="multiplayerGame">Multiplayer</button>
 </li>
 
 <li class="nav-item">

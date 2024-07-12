@@ -17,27 +17,25 @@ export function tournamentHubEventLoop() {
         };
     }
 
-    const tournamentJoinButton = document.getElementById("tournamentJoinButton");
-    if (tournamentJoinButton) {
-        tournamentJoinButton.onclick = function (event) {
+    const tournamentRefreshLobbiesButton = document.getElementById("hub-refresh-lobbies-button");
+    if (tournamentRefreshLobbiesButton) {
+        tournamentRefreshLobbiesButton.onclick = async function (event) {
             event.preventDefault();
-            joinTournament();
-        };
+            refreshTournamentLobbyList();
+        }
     }
 
-    const tournamentDropDown = document.getElementById("join-field-list");
-    if (tournamentDropDown) {
-        tournamentDropDown.onclick = async function (event) {
-            event.preventDefault();
-            await getTournamentList(tournamentDropDown);
-        };
-    }
+    // Hint:
+    // will attach all available Join Buttons
+    attachDynamicEventListeners();
 }
 
-// =========================== MAIN FUNCTIONS ===============================
+// =========================== EVENT FUNCTIONS ===============================
 
 async function createTournament() {
-    // checks input for valid characters (a-z A-Z .- 0-9, maximum 50 chars, at least one letter)
+    // Hint:
+    // Input parsing for valid characters
+    // (a-z A-Z .- 0-9, maximum 50 chars, at least one letter)
     const regex = /^(?=.*[a-zA-Z])[a-zA-Z0-9.-]{1,50}$/;
     const tournamentName = document.getElementById("tournament-form-name-field").value;
     if (!regex.test(tournamentName)) {
@@ -52,17 +50,6 @@ async function createTournament() {
     }
 }
 
-async function joinTournament() {
-    const tournamentDropDown = document.getElementById("join-field-list");
-    const selectedOption = tournamentDropDown.options[tournamentDropDown.selectedIndex];
-    if (!selectedOption || !selectedOption.innerHTML) {
-        alert(msgInvalidOption);
-        return;
-    }
-    const tournamentName = selectedOption.innerHTML;
-    await enterTournamentLobby(tournamentName);
-}
-
 async function enterTournamentLobby(tournamentName) {
     const pathToLobby = "/tournament/lobby/" + tournamentName + "/";
     const userName = getUserNameFromDOM();
@@ -70,6 +57,32 @@ async function enterTournamentLobby(tournamentName) {
     if (response) {
         tournamentLobbyInit(tournamentName, userName);
     }
+    else {
+        refreshTournamentLobbyList();
+    }
+}
+
+function getUserNameFromDOM() {
+    const navbarDropdownMenuLink = document.getElementById("navbarDropdownMenuLink");
+    return navbarDropdownMenuLink.innerHTML.trim();
+}
+
+async function refreshTournamentLobbyList() {
+    const tournamentLobbyListTable = document.getElementById("hub-tournament-list-table");
+    const tbody = tournamentLobbyListTable.querySelector('tbody');
+    tbody.innerHTML = await getTournamentList();
+    attachDynamicEventListeners();
+}
+
+async function attachDynamicEventListeners() {
+    const buttons = document.querySelectorAll('[id^="hub-join-"][id$="-button"]');
+    buttons.forEach(button => {
+        button.onclick = function(event) {
+            event.preventDefault();
+            const tournamentName = this.id.replace('hub-join-', '').replace('-button', '');
+            enterTournamentLobby(tournamentName);
+        };
+    });
 }
 
 // =========================== API REQUESTS ===============================
@@ -90,15 +103,10 @@ async function postTournament(tournamentName) {
 }
 
 // TODO add security
-async function getTournamentList(tournamentDropDown) {
+async function getTournamentList() {
     const tournamentList = await fetch("/tournament/api/get_list/", {
         method: "GET",
     });
     const html = await tournamentList.text();
-    tournamentDropDown.innerHTML = html;
-}
-
-function getUserNameFromDOM() {
-    const navbarDropdownMenuLink = document.getElementById("navbarDropdownMenuLink");
-    return navbarDropdownMenuLink.innerHTML.trim();
+    return html;
 }

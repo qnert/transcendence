@@ -1,5 +1,5 @@
 <table class="table" id="lobby-standings-table">
-    <thead class="thead-dark">
+    <thead>
         <tr>
             <th scope="col">Participant</th>
             <th scope="col">Wins</th>
@@ -10,7 +10,11 @@
     </thead>
     <tbody>
         {% for participant in standings %}
+        {% if forloop.first %}
+        <tr class="table-active">
+        {% else %}
         <tr>
+        {% endif %}
             <td>
                 {{ participant.name }}
             </td>

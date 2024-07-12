@@ -10,7 +10,7 @@ import { startGameButton, resetGameButton, close_solo_on_change } from "./game/g
 import { loadFriends } from "./friends/fetch_friends.js";
 import { fetchProfileData } from "./profile/fetch_profile.js";
 import { createGameButton, startRemoteGame, resetRemoteGameButton, close_multi_on_change } from "./game/multiplayer.js";
-import { matchHistoryButton, getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton } from "./profile/buttons.js";
+import { matchHistoryButton, getGameHistory, pieChartButton, lineChartAvgButton, lineChartMaxButton, lineChartMinButton, hideAdvancedStatsButton } from "./profile/buttons.js";
 import { showLoggedInState, showLoggedOutState } from "./navbar/navbar.js";
 import { tournamentHubEventLoop} from "./tournament/tournament_hub.js";
 import { tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
@@ -171,6 +171,7 @@ export function reattachEventListeners() {
     defaultButton();
     generateQRCode();
     handleCheckbox();
+    hideAdvancedStatsButton();
     homeButton();
     lineChartAvgButton();
     lineChartMinButton();

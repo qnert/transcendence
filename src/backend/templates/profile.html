@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
   <div id="newContent">
-    <h1 id="profile-name"></h1>
+    <h2 id="profile-name"></h2>
       <form class="borderedBox" id="profileForm" method="POST" enctype="multipart/form-data">
         <div class="form-group">
           <img id="profile-picture" alt="Profile picture" style="width: 150px; height: 180px" />
@@ -45,14 +45,20 @@
 
       <h2 >Change Password</h2>
       <form class="borderedBox" id="newPasswordForm" method="POST" enctype="multipart/form-data">
-        <label for="password">Old Password:</label>
-        <input type="password" id="oldPassword" name="password" required />
+          <div class="form-group">
+            <label for="password">Old Password:</label>
+            <input type="password" id="oldPassword" name="password" required />
+          </div>
 
-        <label for="password">New Password:</label>
-        <input type="password" id="password" name="password" required />
+          <div class="form-group">
+            <label for="password">New Password:</label>
+            <input type="password" id="password" name="password" required />
+          </div>
 
-        <label for="confirmPassword">Confirm New Password:</label>
-        <input type="password" id="confirmNewPasswd" name="confirmPassword" required />
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password:</label>
+            <input type="password" id="confirmNewPasswd" name="confirmPassword" required />
+          </div>
 
         {% csrf_token %}
         <button type="submit" class="btn btn-primary" id="newPasswdButton">Set New Password</button>

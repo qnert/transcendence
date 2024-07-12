@@ -1,5 +1,39 @@
-{% comment %} TODO DEPRECATED ?!{% endcomment %}
-<{{ tag }} selected="true" disabled="true"></{{ tag }}>
+{% if not tournaments %}
+<tr>
+    <td colspan="6">No Tournaments yet!</td>
+</tr>
+{% else %}
+{% endif %}
 {% for tournament in tournaments %}
-<{{ tag }} value="{{ tournament.id }}">{{ tournament.name }}</{{ tag }}>
+{% if tournament.get_state == "setup" and tournament.get_participants.count < max_participants %}
+<tr class="table-warning">
+{% else %}
+<tr>
+{% endif %}
+    <td>
+        {{ tournament.name }}
+    </td>
+    <td>
+        {% for participant in tournament.get_participants %}
+        {{ participant.get_nickname }}{% if not forloop.last %},<br>{% endif %}
+        {% endfor %}
+    </td>
+    <td>
+        {{ tournament.get_participants_count }} / {{ max_participants }}
+    </td>
+    <td>
+        {{ tournament.get_state }}
+    </td>
+    <td>
+        {% if tournament.get_state == "setup" and tournament.get_participants.count < max_participants %}
+        <button class="btn btn-success" id="hub-join-{{ tournament.name }}-button">Join</button>
+        {% elif tournament.get_state == 'finished' %}
+        <strong>Winners:</strong> {% for winner in tournament.get_winners %}
+        {{ winner.get_nickname }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+        {% else %}
+        -
+        {% endif %}
+    </td>
+</tr>
 {% endfor %}

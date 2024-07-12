@@ -1,14 +1,18 @@
 {% for participant in participants %}
-  <tr>
+{% if participant.status %}
+<tr class="table-success">
+{% else %}
+<tr class="table-danger">
+{% endif %}
     <td>
-      {{ participant.name }}
+        {{ participant.name }}
     </td>
     <td>
-      {% if participant.status %}
+        {% if participant.status %}
         ✅
-      {% else %}
+        {% else %}
         ❌
-      {% endif %}
+        {% endif %}
     </td>
-  </tr>
+    </tr>
 {% endfor %}

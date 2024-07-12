@@ -38,6 +38,7 @@
     /* =====================  BOTTOM  ===================== */
 
     #lobby-footer-box {
+        margin-bottom: 0;
         padding: 10px;
         position: fixed;
         bottom: 10px;
