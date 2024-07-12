@@ -95,6 +95,11 @@ export async function getGameHistory(){
 
             data.forEach(result => {
                 const row = document.createElement('tr');
+                if (result.is_win) {
+                    row.classList.add("table-success");
+                } else {
+                    row.classList.add("table-danger");
+                }
                 row.innerHTML = `
                     <td>${result.opponent_profile}</td>
                     <td>${result.user_score}</td>
@@ -146,6 +151,20 @@ export async function lineChartMinButton(){
 			getChart("line_chart_min");
 		}
 	}
+}
+
+export async function hideAdvancedStatsButton() {
+	const hideButton = document.getElementById("hideAdvancedStats");
+    if (hideButton) {
+        hideButton.onclick = async function(event) {
+            event.preventDefault();
+            const chart = document.getElementById('chart');
+            if (chart) {
+                chart.innerHTML = "";
+                chart.src = "";
+            }
+        }
+    }
 }
 
 async function getChart(path){
