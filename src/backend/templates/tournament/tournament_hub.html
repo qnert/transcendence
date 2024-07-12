@@ -14,23 +14,23 @@
 
     <h2>Join Tournament</h2>
     <div class="borderedBox" id="tournament-hub-lobby-list">
-    <button class="btn btn-secondary" id="hub-refresh-lobbies-button">
-        <i class="bi bi-arrow-clockwise"></i> Refresh
-    </button>
-    <table class="table" id="hub-tournament-list-table">
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Participants</th>
-                <th scope="col">Slots</th>
-                <th scope="col">State</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-        {% include 'tournament_hub_list.html' with tournaments=tournaments max_participants=max_participants %}
-        </tbody>
-    </table>
+        <button class="btn btn-secondary" id="hub-refresh-lobbies-button">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+        <table class="table table-hover" id="hub-tournament-list-table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Participants</th>
+                    <th scope="col">Slots</th>
+                    <th scope="col">State</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% include 'tournament_hub_list.html' with tournaments=tournaments max_participants=max_participants %}
+            </tbody>
+        </table>
     </div>
   </div>
   {% endblock %}
