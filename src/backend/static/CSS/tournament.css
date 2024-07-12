@@ -43,7 +43,7 @@
         position: fixed;
         bottom: 10px;
         display: grid;
-        grid-template-columns: 4fr 1fr;
+        grid-template-columns: 3fr 1fr;
         column-gap: 10px;
 
         .form-control {
