@@ -7,6 +7,8 @@ import { deleteFriend } from './fetch_friends.js';
   window.acceptRequest = acceptRequest;
   window.denyRequest = denyRequest;
   window.stopPropagation = stopPropagation;
+  window.denyInvite = denyInvite;
+  window.acceptInvite = acceptInvite;
 
   let userId = null;
   export let friendSocket = null;
@@ -40,7 +42,7 @@ import { deleteFriend } from './fetch_friends.js';
         else if (data.type === "friend_request_notification")
           displayAlert(data.friend_name, data.friend_id);
         else if (data.type === "match_invite")
-          displayMatchInvite(data.message, data.friend_name, data.friend_id, data.room_name);
+          displayMatchInvite(data);
     };
 
     friendSocket.onclose = function (e) {
@@ -48,20 +50,34 @@ import { deleteFriend } from './fetch_friends.js';
     };
   }
 
-    export function closeFriendSocket() {
-        if (friendSocket) {
-            friendSocket.close();
-            friendSocket = null;
-        }
-    }
+function displayMatchInvite(data){
+    const dataObject = {
+        message: data.message,
+        friendName: data.friendName,
+        friendId: data.friendId,
+        roomName: data.roomName,
+    };
+    const dataString = JSON.stringify(dataObject).replace(/"/g, '&quot;');
 
+    const alertsContainer = document.getElementById("alerts-container");
+    const alertDiv = document.createElement("div");
+    alertDiv.className = "alert alert-primary d-flex align-items-center";
+    alertDiv.style.justifyContent = 'center';
+    alertDiv.role = "alert";
+    alertDiv.innerHTML = `
+        ${data.message}!
+        <button class="btn btn-success btn-sm ms-2" data-invite='${dataString}' onclick="acceptInvite(this)">Accept</button>
+        <button class="btn btn-danger btn-sm ms-2" onclick="denyInvite(this)">Deny</button>
+        `;
+    alertsContainer.appendChild(alertDiv);
+}
 
 function displayAlert(friendName, requestId) {
     const alertsContainer = document.getElementById("alerts-container");
     const alertDiv = document.createElement("div");
     alertDiv.className = "alert alert-primary d-flex align-items-center";
+    alertDiv.style.justifyContent = 'center';
     alertDiv.role = "alert";
-
     alertDiv.innerHTML = `
         <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
             <use xlink:href="#info-fill"/>
@@ -211,13 +227,7 @@ function checkFriendRequests() {
     }
 }
 
-// TODO how to get the request ID?
-// TODO how to get the to_user id
 export async function sendInvite(friendId, username, roomName) {
-    console.log(roomName)
-    console.log(username)
-    console.log(friendId)
-    console.log(friendSocket);
     if (friendSocket && friendSocket.readyState === WebSocket.OPEN) {
         friendSocket.send(
             JSON.stringify({
@@ -228,4 +238,18 @@ export async function sendInvite(friendId, username, roomName) {
             })
         );
     }
+}
+
+function denyInvite(self) {
+    const alertsContainer = document.getElementById("alerts-container");
+    if (alertsContainer) {
+        alertsContainer.innerHTML = "";
+    }
+}
+
+function acceptInvite(self) {
+    console.log("accepted invite");
+    const dataString = self.getAttribute('data-invite');
+    const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
+    console.log(data);
 }

@@ -17,7 +17,6 @@ import { tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 import { twoFAStatus } from "./profile/2FA.js";
 import { jumpNextField } from "./profile/profile.js";
 import { getUsernameFromBackend } from "./chat/action_chat.js";
-import { closeFriendSocket } from "./friends/action_friends.js";
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -28,7 +27,6 @@ export function handleUrlChange() {
     close_multi_on_change();
     close_solo_on_change();
     tournamentLobbyCloseSocket();
-    closeFriendSocket();
 }
 
 const originalPushState = window.history.pushState;
