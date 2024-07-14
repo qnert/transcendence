@@ -1,8 +1,11 @@
 import { getCookie } from "../security/csrft.js";
-import { updateFriendDropdown, acceptRequest, denyRequest } from "./action_friends.js";
+import { sendInvite, friendSocket, updateFriendDropdown, acceptRequest, denyRequest } from "./action_friends.js";
 import { selectFriend } from "../chat/action_chat.js";
-import { friendSocket } from "./action_friends.js";
 import { blockUser, unblockUser } from "../chat/fetch_chat.js";
+
+const msgInviteWrongURL = "You're not in the Multiplayer section!";
+const msgInviteNoLobby = "Not in a Multiplayer Lobby. Create a Game first!";
+const msgInviteFatal = "Something went horribly wrong!";
 
 window.acceptRequest = acceptRequest;
 window.denyRequest = denyRequest;
@@ -138,6 +141,44 @@ export function sendFriendRequest(userId) {
       document.getElementById('search-friends').value = '';
       document.getElementById('search-results').innerHTML = '';
     });
+}
+
+// Hint:
+// needs lobby to be in DOM to work
+// could also get it from multiplayer.js logic instead
+// TODO not in correct url
+// TODO get information from DOM
+// TODO no slot left
+// TODO game not created
+export function inviteFriendToMatch(friendId) {
+	const currentUrl = window.location.href;
+    if (currentUrl.includes("multiplayer")){
+        const roomInfo = document.getElementById("roomInfo");
+        const playerName = document.getElementById("player1");
+        if (roomInfo) {
+            if (roomInfo.style.display === "none" || playerName.style.display === "none" ) {
+                alert(msgInviteNoLobby);
+            }
+            else {
+                console.log("Room Info found");
+                console.log(roomInfo);
+                const message = roomInfo.innerHTML;
+                let parts = message.split(" ");
+                let roomName = parts[3].replace("!", "");
+                console.log(roomName);
+                console.log(playerName.innerHTML);
+                console.log(friendId);
+                sendInvite(friendId, playerName.innerHTML, roomName);
+                // TODO send Information ot Friend!
+            }
+        }
+        else {
+            alert(msgInviteFatal);
+        }
+    }
+    else {
+        alert(msgInviteWrongURL);
+    }
 }
 
 export function deleteFriend(friendId, element) {

@@ -1,8 +1,7 @@
-import { loadFriends, sendFriendRequest, updateUserStatus } from './fetch_friends.js';
+import { inviteFriendToMatch, loadFriends, sendFriendRequest, updateUserStatus } from './fetch_friends.js';
 import { deleteFriend } from './fetch_friends.js';
 
-
-
+  window.inviteFriendToMatch = inviteFriendToMatch;
   window.deleteFriend = deleteFriend;
   window.sendFriendRequest = sendFriendRequest;
   window.acceptRequest = acceptRequest;
@@ -40,12 +39,21 @@ import { deleteFriend } from './fetch_friends.js';
           updateUserStatus();
         else if (data.type === "friend_request_notification")
           displayAlert(data.friend_name, data.friend_id);
+        else if (data.type === "match_invite")
+          displayMatchInvite(data.message, data.friend_name, data.friend_id, data.room_name);
     };
 
     friendSocket.onclose = function (e) {
         console.log("Online socket closed");
     };
   }
+
+    export function closeFriendSocket() {
+        if (friendSocket) {
+            friendSocket.close();
+            friendSocket = null;
+        }
+    }
 
 
 function displayAlert(friendName, requestId) {
@@ -96,6 +104,9 @@ export async function updateFriendDropdown() {
 				<div class="dropdown">
 				  <a class="dropdown-toggle" style="margin-right: 5px;" role="button" id="dropdownMenuButton${friend.user_id}" onclick="stopPropagation(event)" data-bs-toggle="dropdown" aria-expanded="false"></a>
 				  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton${friend.user_id}">
+					<li>
+					  <button class="dropdown-item text-primary" onclick="inviteFriendToMatch(${friend.user_id})">Invite To Match</button>
+					</li>
 					<li>
 					  <button class="dropdown-item text-danger" onclick="deleteFriend(${friend.user_id}, this)">Remove Friend</button>
 					</li>
@@ -197,5 +208,24 @@ function checkFriendRequests() {
 
     if (friendRequestItems.length === 0) {
         friendRequestsContainer.remove();
+    }
+}
+
+// TODO how to get the request ID?
+// TODO how to get the to_user id
+export async function sendInvite(friendId, username, roomName) {
+    console.log(roomName)
+    console.log(username)
+    console.log(friendId)
+    console.log(friendSocket);
+    if (friendSocket && friendSocket.readyState === WebSocket.OPEN) {
+        friendSocket.send(
+            JSON.stringify({
+                action: "invite",
+                room_name: roomName,
+                username: username,
+                friend_id: friendId,
+            })
+        );
     }
 }
