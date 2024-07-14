@@ -342,16 +342,21 @@ export function create_tournament_match(playingContent) {
 export function create_join_game(){
     isTournamentMatch = false;
     isTournamentMatchFinished = false;
+
+    // TODO hide gameSettings with bool or sth
     ballSpeed = document.getElementById("ballSpeed").value;
-    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
-    ball.speedY = ballSpeed * Math.sin(ballAngle);
     border_color = document.getElementById("borders").value;
     ball_color = document.getElementById("ballColor").value;
     background_color = document.getElementById("background").value;
     maxScore = document.getElementById("maxScore").value;
     advanced_mode = document.getElementById("advancedMode").checked;
     power_up_mode = document.getElementById("powerUps").checked;
+
     let room_name = document.getElementById("room_name").value;
+
+    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
+    ball.speedY = ballSpeed * Math.sin(ballAngle);
+
     if (/[^a-zA-Z0-9]/.test(room_name)){
       alert('Please enter only alphabetical characters !');
       return;

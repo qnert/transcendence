@@ -160,16 +160,32 @@ export function inviteFriendToMatch(friendId) {
                 alert(msgInviteNoLobby);
             }
             else {
-                console.log("Room Info found");
-                console.log(roomInfo);
+                // Hint:
+                // parse the roomName from DOM
                 const message = roomInfo.innerHTML;
                 let parts = message.split(" ");
                 let roomName = parts[3].replace("!", "");
-                console.log(roomName);
-                console.log(playerName.innerHTML);
-                console.log(friendId);
-                sendInvite(friendId, playerName.innerHTML, roomName);
-                // TODO send Information ot Friend!
+
+                // HInt:
+                // prase gameSettings from DOM
+                const gameSettings = {
+                    ballSpeed: document.getElementById("ballSpeed").value,
+                    border_color: document.getElementById("borders").value,
+                    ball_color: document.getElementById("ballColor").value,
+                    background_color: document.getElementById("background").value,
+                    maxScore: document.getElementById("maxScore").value,
+                    advanced_mode: document.getElementById("advancedMode").checked,
+                    power_up_mode: document.getElementById("powerUps").checked,
+                }
+
+                const matchInfo = {
+                    roomName: roomName,
+                    playerName: playerName.innerHTML,
+                    friendId: friendId,
+                    gameSettings: gameSettings,
+                }
+
+                sendInvite(matchInfo);
             }
         }
         else {

@@ -38,10 +38,8 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
         elif action == 'deny':
             await self.deny_request(request_id)
         elif action == 'invite':
-            room_name = data.get('room_name')
-            username = data.get('username')
-            friend_id = data.get('friend_id')
-            await self.invite(room_name, username, friend_id)
+            match_info = dict(data.get('match_info'))
+            await self.invite(match_info)
 
     @database_sync_to_async
     def accept_request(self, request_id):
@@ -94,34 +92,24 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             print(f"In deny_request: {e}")
 
-
     @database_sync_to_async
-    def invite(self, room_name, username, friend_id):
+    def invite(self, match_info):
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-                f"user_{friend_id}",
+                f"user_{match_info['friendId']}",
                 {
                     "type": "match_invite",
-                    "message": f"{username} invited you to Multiplayer Lobby {room_name}",
-                    "friend_name": username,
-                    "friend_id": friend_id,
-                    "room_name": room_name,
+                    "message": f"{match_info['playerName']} invited you to Multiplayer Lobby {match_info['roomName']}",
+                    "match_info": match_info,
                     }
                 )
 
     async def match_invite(self, event):
-        message = event['message']
-        friend_name = event['friend_name']
-        friend_id = event['friend_id']
-        room_name = event['room_name']
-
         await self.send(text_data=json.dumps({
-        'type': 'match_invite',
-        'message': message,
-        'friend_name': friend_name,
-        'friend_id': friend_id,
-        'room_name': room_name,
-        }))
+            'type': 'match_invite',
+            'message': event['message'],
+            'matchInfo': event['match_info'],
+            }))
 
     async def friend_request_notification(self, event):
         message = event['message']

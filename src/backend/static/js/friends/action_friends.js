@@ -51,11 +51,13 @@ import { deleteFriend } from './fetch_friends.js';
   }
 
 function displayMatchInvite(data){
+    console.log("Data before stringify");
+    console.log(data);
+    const matchInfo = data.matchInfo;
     const dataObject = {
-        message: data.message,
-        friendName: data.friendName,
-        friendId: data.friendId,
-        roomName: data.roomName,
+        friendName: matchInfo.friendName,
+        friendId: matchInfo.friendId,
+        roomName: matchInfo.roomName,
     };
     const dataString = JSON.stringify(dataObject).replace(/"/g, '&quot;');
 
@@ -227,14 +229,12 @@ function checkFriendRequests() {
     }
 }
 
-export async function sendInvite(friendId, username, roomName) {
+export async function sendInvite(matchInfo) {
     if (friendSocket && friendSocket.readyState === WebSocket.OPEN) {
         friendSocket.send(
             JSON.stringify({
                 action: "invite",
-                room_name: roomName,
-                username: username,
-                friend_id: friendId,
+                match_info: matchInfo,
             })
         );
     }
@@ -251,5 +251,6 @@ function acceptInvite(self) {
     console.log("accepted invite");
     const dataString = self.getAttribute('data-invite');
     const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
+    console.log("Data after parsing");
     console.log(data);
 }
