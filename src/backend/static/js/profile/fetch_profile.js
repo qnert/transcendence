@@ -15,10 +15,12 @@ export async function fetchProfileData() {
         });
 
         if (!response.ok) {
-            if (response.status === 401) {
-                handle401Error();
-                return;
-            }
+			if (response.status === 401 || response.status === 405){
+				const errorData = await response.json
+				console.error(errorData.error)
+				handle401Error();
+				return;
+			}
 			else if (response.status === 403){
 				alert(response.error);
 				return;
