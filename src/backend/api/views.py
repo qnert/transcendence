@@ -84,7 +84,7 @@ def get_friends_profile(request):
             'picture_url': user_profile.profile_picture_url,
             'display_name': user_profile.display_name
         }
-	
+
         game_results = GameResult.objects.filter(user_profile=user_profile)
         if game_results is None:
             return JsonResponse({'error': 'There is no Game History'}, status=400)
@@ -624,7 +624,7 @@ def setup_2FA(request):
         return JsonResponse({'qr_code': img_str})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
- 
+
 @own_login_required
 def store_jwt(request):
     if request.method == "POST":
@@ -648,7 +648,7 @@ def logout_view(request):
             user.refresh_token = None
             refresh_token = RefreshToken(refresh_token)
             refresh_token.blacklist()
-            
+
         user.completed_2fa = False
         user.is_logged_in = False
         user.save()

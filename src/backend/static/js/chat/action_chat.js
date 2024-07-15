@@ -5,7 +5,9 @@ import { loadFriends } from "../friends/fetch_friends.js";
   let userId = null;
 
   export function getUsernameFromBackend() {
-    return fetch('/api/get_user_id/')
+    return fetch('/api/get_user_id/', {
+      method: "GET",
+    })
       .then(response => response.json())
       .then(data => {
         userId = data.id;

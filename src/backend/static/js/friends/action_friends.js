@@ -1,5 +1,6 @@
 import { deleteFriend, inviteFriendToMatch, loadFriends, sendFriendRequest, updateUserStatus } from './fetch_friends.js';
 import { handleRouteToken } from '../basics.js';
+import { getUsernameFromBackend } from '../chat/action_chat.js';
 
   window.inviteFriendToMatch = inviteFriendToMatch;
   window.deleteFriend = deleteFriend;
@@ -13,18 +14,6 @@ import { handleRouteToken } from '../basics.js';
   let userId = null;
   export let friendSocket = null;
   getUsernameFromBackend();
-
-  function getUsernameFromBackend() {
-    return fetch('/api/get_user_id/')
-      .then(response => response.json())
-      .then(data => {
-        userId = data.id;
-      })
-      .catch(error => {
-        console.error('Error loading user ID:', error);
-        throw error;
-      });
-  }
 
   export function initFriendSocket() {
     friendSocket = new WebSocket(
@@ -107,7 +96,7 @@ export async function updateFriendDropdown() {
 		const friendsMenu = document.getElementById("friends-list");
 		if (friendsMenu) {
 		  friendsMenu.innerHTML = ""; // Clear existing content
-  
+
 		  if (data.length === 0) {
 			const noFriendsElement = document.createElement("li");
 			noFriendsElement.id = "no-friends";
@@ -117,7 +106,7 @@ export async function updateFriendDropdown() {
 			data.forEach((friend) => {
 			  const friendItem = document.createElement("li");
 			  var onlineStatus = '<span style="visibility: hidden;" class="status-dot offline"></span>';
-  
+
 			  if (!friend.blocked_by && !friend.is_blocked) onlineStatus = '<span class="status-dot offline"></span>';
 			  friendItem.className = "friend-item d-flex align-items-center justify-content-between px-2 py-1";
 			  friendItem.id = `friend-${friend.user_id}`;

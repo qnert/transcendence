@@ -19,7 +19,7 @@ import { jumpNextField } from "./profile/profile.js";
 import { loadChatHTML } from "./chat/action_chat.js";
 import { friendSocket, initFriendSocket} from "./friends/action_friends.js";
 import { pendingFriendRequest } from "./friends/fetch_friends.js";
-import { getUsernameFromBackend } from "./module.js";
+import { getUsernameFromBackend } from "./chat/action_chat.js";
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -346,7 +346,7 @@ window.onload = async function () {
 				await updateFriendDropdown();
 			return;
 		}
-	} 
+	}
 	else if (currentUrl.includes("/friend/")) {
         let words = currentUrl.split("/");
         let display_name = words[4];
