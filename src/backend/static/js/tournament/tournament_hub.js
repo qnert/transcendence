@@ -1,4 +1,4 @@
-import { updateContentToken, handleRouteToken } from "../basics.js";
+import { handle401Error, updateContentToken, handleRouteToken } from "../basics.js";
 import { tournamentLobbyInit } from "./tournament_lobby.js";
 
 // =========================== GLOBAL ===============================
@@ -87,7 +87,6 @@ async function attachDynamicEventListeners() {
 
 // =========================== API REQUESTS ===============================
 
-// TODO try/catch?
 async function postTournament(tournamentName) {
     const token = localStorage.getItem("access_token");
     const response = await fetch("/tournament/api/create/", {
@@ -99,12 +98,15 @@ async function postTournament(tournamentName) {
         body: JSON.stringify({ tournament_name: tournamentName }),
     });
     if (!response.ok) {
+        if (response.status === 405 || response.status === 401) {
+            handle401Error();
+            return;
+        }
         const responseError = await response.json();
         throw new Error(responseError.error);
     }
 }
 
-// TODO try/catch?
 async function getTournamentList() {
     const token = localStorage.getItem("access_token");
     const tournamentList = await fetch("/tournament/api/get_list/", {
@@ -114,6 +116,12 @@ async function getTournamentList() {
             Authorization: `Bearer ${token}`,
         },
     });
+    if (!tournamentList.ok) {
+        if (tournamentList.status === 401) {
+            handle401Error();
+            return;
+        }
+    }
     const html = await tournamentList.text();
     return html;
 }
