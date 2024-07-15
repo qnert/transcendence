@@ -144,12 +144,7 @@ export function sendFriendRequest(userId) {
 }
 
 // Hint:
-// needs lobby to be in DOM to work
-// could also get it from multiplayer.js logic instead
-// TODO not in correct url
-// TODO get information from DOM
-// TODO no slot left
-// TODO game not created
+// needs lobby multiplayer DOM to work
 export function inviteFriendToMatch(friendId) {
 	const currentUrl = window.location.href;
     if (currentUrl.includes("multiplayer")){
@@ -167,7 +162,7 @@ export function inviteFriendToMatch(friendId) {
                 let roomName = parts[3].replace("!", "");
 
                 // HInt:
-                // prase gameSettings from DOM
+                // parse gameSettings from DOM
                 const gameSettings = {
                     ballSpeed: document.getElementById("ballSpeed").value,
                     border_color: document.getElementById("borders").value,
@@ -178,6 +173,8 @@ export function inviteFriendToMatch(friendId) {
                     power_up_mode: document.getElementById("powerUps").checked,
                 }
 
+                // Hint:
+                // put all Data in one object to send
                 const matchInfo = {
                     roomName: roomName,
                     playerName: playerName.innerHTML,

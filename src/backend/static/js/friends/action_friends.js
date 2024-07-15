@@ -51,13 +51,11 @@ import { deleteFriend } from './fetch_friends.js';
   }
 
 function displayMatchInvite(data){
-    console.log("Data before stringify");
-    console.log(data);
-    const matchInfo = data.matchInfo;
     const dataObject = {
-        friendName: matchInfo.friendName,
-        friendId: matchInfo.friendId,
-        roomName: matchInfo.roomName,
+        friendName: data.matchInfo.friendName,
+        friendId: data.matchInfo.friendId,
+        roomName: data.matchInfo.roomName,
+        gameSettings: data.matchInfo.gameSettings,
     };
     const dataString = JSON.stringify(dataObject).replace(/"/g, '&quot;');
 
@@ -248,9 +246,17 @@ function denyInvite(self) {
 }
 
 function acceptInvite(self) {
-    console.log("accepted invite");
+    const alertsContainer = document.getElementById("alerts-container");
+    if (alertsContainer) {
+        alertsContainer.innerHTML = "";
+    }
     const dataString = self.getAttribute('data-invite');
     const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
-    console.log("Data after parsing");
-    console.log(data);
+    console.log(data.gameSettings);
+
+
+    // TODO go to multiplayer page
+    // TODO join room via input field + submit button
+
+
 }
