@@ -1,5 +1,5 @@
-import { inviteFriendToMatch, loadFriends, sendFriendRequest, updateUserStatus } from './fetch_friends.js';
-import { deleteFriend } from './fetch_friends.js';
+import { deleteFriend, inviteFriendToMatch, loadFriends, sendFriendRequest, updateUserStatus } from './fetch_friends.js';
+import { handleRouteToken } from '../basics.js';
 
   window.inviteFriendToMatch = inviteFriendToMatch;
   window.deleteFriend = deleteFriend;
@@ -245,7 +245,7 @@ function denyInvite(self) {
     }
 }
 
-function acceptInvite(self) {
+async function acceptInvite(self) {
     const alertsContainer = document.getElementById("alerts-container");
     if (alertsContainer) {
         alertsContainer.innerHTML = "";
@@ -254,9 +254,13 @@ function acceptInvite(self) {
     const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
     console.log(data.gameSettings);
 
-
-    // TODO go to multiplayer page
-    // TODO join room via input field + submit button
-
-
+    await handleRouteToken("/multiplayer/");
+    const roomNameInput = document.getElementById("room_name");
+    if (roomNameInput) {
+        roomNameInput.value = data.roomName;
+    }
+    const submitButton = document.getElementById("createMultiplayer");
+    if (submitButton) {
+        submitButton.click()
+    }
 }
