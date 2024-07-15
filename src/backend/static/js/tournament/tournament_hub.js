@@ -87,14 +87,16 @@ async function attachDynamicEventListeners() {
 
 // =========================== API REQUESTS ===============================
 
-// TODO add security
+// TODO try/catch?
 async function postTournament(tournamentName) {
+    const token = localStorage.getItem("access_token");
     const response = await fetch("/tournament/api/create/", {
         method: "POST",
-        body: JSON.stringify({ tournament_name: tournamentName }),
         headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ tournament_name: tournamentName }),
     });
     if (!response.ok) {
         const responseError = await response.json();
@@ -102,10 +104,15 @@ async function postTournament(tournamentName) {
     }
 }
 
-// TODO add security
+// TODO try/catch?
 async function getTournamentList() {
+    const token = localStorage.getItem("access_token");
     const tournamentList = await fetch("/tournament/api/get_list/", {
         method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
     });
     const html = await tournamentList.text();
     return html;
