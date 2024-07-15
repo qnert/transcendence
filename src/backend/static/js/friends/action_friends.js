@@ -42,6 +42,19 @@ import { getUsernameFromBackend } from '../chat/action_chat.js';
 function displayMatchInvite(data){
     // Hint:
     // This checks if an alert is already rendered on 'client' side
+
+    const chatText = document.getElementById("chat-text");
+    if (chatText){
+        const message = data.message;
+        if (!chatText.value) chatText.value += message;
+        else chatText.value += "\n" + message;
+        chatText.scrollTop = chatText.scrollHeight;
+    }
+
+    if (data.sender === true) {
+      return;
+    }
+
     const inviteDivId = `invite-${data.matchInfo.playerName}-${data.matchInfo.roomName}`;
     if (document.getElementById(inviteDivId)){
         return;
@@ -55,7 +68,6 @@ function displayMatchInvite(data){
         inviteDivId: inviteDivId,
     };
     const dataString = JSON.stringify(dataObject).replace(/"/g, '&quot;');
-
 
     const alertsContainer = document.getElementById("alerts-container");
     const alertDiv = document.createElement("div");
