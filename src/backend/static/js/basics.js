@@ -380,3 +380,15 @@ window.onload = async function () {
 		document.getElementById('chat').innerHTML = '';
     }
 };
+
+window.dropDownMenu = dropDownMenu;
+
+export async function dropDownMenu(){
+	if(await getLoginStatus() === true){
+		if(friendSocket){
+			pendingFriendRequest();
+			await loadFriends();
+			await updateFriendDropdown();
+		}
+	}
+}

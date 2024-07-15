@@ -1,12 +1,16 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt  # TODO remove
+from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 from tournament.models import Tournament, MAX_PARTICIPANTS
 from api.models import UserProfile
+from api.decorators import *
 import json
 
-# TODO protect incorrect method?
+
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def tournament_hub(request):
     if request.method == "GET":
         state_order = {
@@ -16,10 +20,15 @@ def tournament_hub(request):
                 }
         tournaments = sorted(Tournament.objects.all(), key=lambda t: state_order.get(t.get_state(), 99))
         return render(request, 'tournament_hub.html', {'tournaments': tournaments, 'max_participants': MAX_PARTICIPANTS})
+    else:
+        return JsonResponse({"error": 'Method not allowed!'}, status=405)
 
 # Hint:
 # Used after creating and joining
 # tournament_hub.js
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def tournament_lobby(request, lobby_name):
     if request.method == "GET":
         try:
@@ -41,10 +50,15 @@ def tournament_lobby(request, lobby_name):
         except ValidationError as e:
             return JsonResponse({"error": e.message}, status=400)
         return render(request, "tournament_lobby.html", {"lobby": lobby})
+    else:
+        return JsonResponse({"error": 'Method not allowed!'}, status=405)
 
 # Hint:
 # Used in Dropdown Menu
 # tournament_hub.js
+@own_jwt_required
+@twoFA_required
+@own_login_required
 def tournament_api_get_list(request):
     if request.method == "GET":
         state_order = {
@@ -54,18 +68,24 @@ def tournament_api_get_list(request):
                 }
         tournaments = sorted(Tournament.objects.all(), key=lambda t: state_order.get(t.get_state(), 99))
         return render(request, 'tournament_hub_list.html', {'tournaments': tournaments, 'max_participants': MAX_PARTICIPANTS})
+    else:
+        return JsonResponse({"error": 'Method not allowed!'}, status=405)
 
 # Hint:
 # Used in on createButton click
 # tournament_hub.js
+@own_jwt_required
 @csrf_exempt
+@twoFA_required
+@own_login_required
 def tournament_api_create(request):
     if request.method == "POST":
         tournament_name = json.loads(request.body).get("tournament_name")
-        # TODO check for exceptions?
         user_profile = UserProfile.objects.get(user=request.user)
         if tournament_name is not None:
             if Tournament.objects.filter(name=tournament_name).exists():
                 return JsonResponse({"error": "Tournament exists already!"}, status=400)
             Tournament.objects.create(name=tournament_name, created_by=user_profile)
             return JsonResponse({"message": "Success"}, status=201)
+    else:
+        return JsonResponse({"error": 'Method not allowed!'}, status=405)
