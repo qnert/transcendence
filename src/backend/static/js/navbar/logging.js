@@ -8,6 +8,9 @@ import { showLoggedOutState } from "./navbar.js";
 import { updateFriendDropdown } from "../friends/action_friends.js";
 import { showLoggedInState } from "./navbar.js";
 import { handleUrlChange } from "../basics.js";
+import { loadChatHTML } from "../chat/action_chat.js";
+import { initFriendSocket } from "../friends/action_friends.js";
+import { pendingFriendRequest } from "../friends/fetch_friends.js";
 
 export function setPasswd() {
     const passwd = document.getElementById("setPasswd");
@@ -116,6 +119,7 @@ export async function logoutButton() {
 					localStorage.removeItem("refresh_token");
 				}
                 handleRoute("/login/");
+				document.getElementById('chat').innerHTML = '';
 				showLoggedOutState();
 				handleUrlChange();
             } catch (error) {
@@ -154,6 +158,7 @@ export async function logout() {;
 			localStorage.removeItem("refresh_token");
 		}
         handleRoute("/login/");
+		document.getElementById('chat').innerHTML = '';
 		showLoggedOutState();
 		handleUrlChange();
     } catch (error) {
@@ -237,8 +242,13 @@ export async function login() {
 					await storeJWT();
                     handleRouteToken("/home/");
 					showLoggedInState(username);
-                    await loadFriends();
-					await updateFriendDropdown();
+					if (!friendSocket) { //check friendSocket to see if the user is already online
+						initFriendSocket();
+					}
+						loadChatHTML();
+						pendingFriendRequest();
+						await loadFriends();
+						await updateFriendDropdown();
                 }
             } catch (error) {
                 console.error("Login error:", error);

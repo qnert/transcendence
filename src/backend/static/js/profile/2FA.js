@@ -4,6 +4,7 @@ import { loadFriends } from "../friends/fetch_friends.js";
 import { updateFriendDropdown } from "../friends/action_friends.js";
 import { updateContentToken } from "../basics.js";
 import { showLoggedInState } from "../navbar/navbar.js";
+import { loadChatHTML } from "../chat/action_chat.js";
 
 
 async function activatetwoFA() {
@@ -197,6 +198,7 @@ async function validateOTP() {
 			handleRouteToken("/home/");
             const username = await getUsername();
             showLoggedInState(username);
+			loadChatHTML();
 			await loadFriends();
 			await updateFriendDropdown();
         } else {

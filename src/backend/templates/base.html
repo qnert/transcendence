@@ -182,7 +182,6 @@
 			
 			const matchTable = document.getElementById('historyMatch');
 			if(matchTable){
-					console.log("test")
 					matchTable.innerHTML = '';
 		
 					gameData.forEach(result => {
@@ -238,7 +237,6 @@
         	oldContent.innerHTML = "";
         	oldContent.appendChild(newContent);
 			window.history.pushState({ path: path }, "", path);
-			console.log("WHY???")
         	await fetchFriendsData(display_name);
 
    		} catch (error) {

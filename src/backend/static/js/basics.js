@@ -16,7 +16,9 @@ import { tournamentHubEventLoop} from "./tournament/tournament_hub.js";
 import { tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 import { twoFAStatus } from "./profile/2FA.js";
 import { jumpNextField } from "./profile/profile.js";
-import { getUsernameFromBackend } from "./chat/action_chat.js";
+import { loadChatHTML } from "./chat/action_chat.js";
+import { friendSocket, initFriendSocket} from "./friends/action_friends.js";
+import { pendingFriendRequest } from "./friends/fetch_friends.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
@@ -302,7 +304,7 @@ export async function getLoginStatus() {
         });
         if (response.ok) {
             const data = await response.json();
-            return true;
+            return data.loginStatus;
         } else {
             if (response.status === 401) {
                 return false;
@@ -321,3 +323,58 @@ export async function getLoginStatus() {
 
 window.handle401Error = handle401Error;
 
+window.onload = async function () {
+    let currentUrl = window.location.href;
+    if (currentUrl.includes("/profile/")) {
+        await fetchProfileData();
+        await checkBox();
+    }else if (currentUrl.includes("login")){
+		if (await getLoginStatus() === true){
+			handleRouteToken("/home/");
+			const username = await getUsername();
+			console.log(username)
+        	showLoggedInState(username);
+			checkAccessToken();
+			if (!friendSocket) {
+				initFriendSocket();
+			}
+				loadChatHTML();
+				pendingFriendRequest();
+				await loadFriends();
+				await updateFriendDropdown();
+			return;
+		}
+	} 
+	else if (currentUrl.includes("/friend/")) {
+        let words = currentUrl.split("/");
+        let display_name = words[4];
+        await loadContentFriend(display_name);
+    } else if (currentUrl.includes("game")) {
+        document.getElementById("background").value = "#ffffff";
+        document.getElementById("borders").value = "#0000ff";
+        document.getElementById("ballColor").value = "#0000ff";
+    } else if (currentUrl.includes("multiplayer")) {
+        document.getElementById("background").value = "#ffffff";
+        document.getElementById("borders").value = "#0000ff";
+        document.getElementById("ballColor").value = "#0000ff";
+    } else if (currentUrl.includes("history")) {
+        await getGameHistory();
+    }
+    if (!currentUrl.includes("login") && currentUrl !== "http://0.0.0.0:8000/" && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
+		const username = await getUsername();
+        showLoggedInState(username);
+		checkAccessToken();
+		if (!friendSocket) {
+			initFriendSocket();
+		}
+			loadChatHTML();
+			pendingFriendRequest();
+			await loadFriends();
+			await updateFriendDropdown();
+		return;
+    }
+	else {
+        showLoggedOutState();
+		document.getElementById('chat').innerHTML = '';
+    }
+};
