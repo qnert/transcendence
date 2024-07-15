@@ -78,7 +78,6 @@ export function defaultButton() {
     }
 }
 
-
 export async function homeButton() {
     const homeButton = document.getElementById("homeButton");
     if (homeButton) {
