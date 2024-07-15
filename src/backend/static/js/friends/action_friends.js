@@ -257,7 +257,6 @@ function denyInvite(self) {
 }
 
 async function acceptInvite(self) {
-
     const dataString = self.getAttribute('data-invite');
     const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
 

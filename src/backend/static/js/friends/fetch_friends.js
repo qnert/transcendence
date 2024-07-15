@@ -6,6 +6,7 @@ import { blockUser, unblockUser } from "../chat/fetch_chat.js";
 const msgInviteWrongURL = "You're not in the Multiplayer section!";
 const msgInviteNoLobby = "Not in a Multiplayer Lobby. Create a Game first!";
 const msgInviteFatal = "Something went horribly wrong!";
+const msgInviteFull = "Brother/Sister, your game already is full!";
 
 window.acceptRequest = acceptRequest;
 window.denyRequest = denyRequest;
@@ -148,6 +149,10 @@ export function sendFriendRequest(userId) {
 export function inviteFriendToMatch(friendId) {
 	const currentUrl = window.location.href;
     if (currentUrl.includes("multiplayer")){
+        if (document.getElementById("player2").innerHTML != "waiting..."){
+            alert(msgInviteFull);
+            return;
+        }
         const roomInfo = document.getElementById("roomInfo");
         const playerName = document.getElementById("player1");
         if (roomInfo) {
