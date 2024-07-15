@@ -1,5 +1,4 @@
 import { reattachEventListeners } from "../basics.js";
-import { getCookie } from "../security/csrft.js";
 
 
 export const showLoggedInState = (username) => {
@@ -17,7 +16,7 @@ export const showLoggedInState = (username) => {
 </li>
 
 <li class="nav-item dropdown">
-  <button class="nav-button dropdown-toggle" id="friendsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+  <button class="nav-button dropdown-toggle" id="friendsDropdown" onclick="dropDownMenu()" data-bs-toggle="dropdown" aria-expanded="false">
   Friends
   </button>
   <ul class="dropdown-menu" aria-labelledby="friendsDropdown">
