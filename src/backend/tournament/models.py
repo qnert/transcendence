@@ -6,10 +6,10 @@ from game.models import GameResult
 from collections import OrderedDict
 import json
 
-MAX_PARTICIPANTS = 2
+MAX_PARTICIPANTS = 4
 DEFAULT_GAME_SETTINGS = {
-    "ball_speed": '10',
-    "max_score": '1',
+    "ball_speed": '5',
+    "max_score": '5',
     "background_color": '#ffffff',
     "border_color": '#0000ff',
     "ball_color": '#0000ff',
