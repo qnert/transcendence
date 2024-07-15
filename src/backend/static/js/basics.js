@@ -19,6 +19,7 @@ import { jumpNextField } from "./profile/profile.js";
 import { loadChatHTML } from "./chat/action_chat.js";
 import { friendSocket, initFriendSocket} from "./friends/action_friends.js";
 import { pendingFriendRequest } from "./friends/fetch_friends.js";
+import { getUsernameFromBackend } from "./module.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     reattachEventListeners();
