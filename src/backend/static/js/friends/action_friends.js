@@ -1,13 +1,14 @@
-import { loadFriends, sendFriendRequest, updateUserStatus } from './fetch_friends.js';
-import { deleteFriend } from './fetch_friends.js';
+import { deleteFriend, inviteFriendToMatch, loadFriends, sendFriendRequest, updateUserStatus } from './fetch_friends.js';
+import { handleRouteToken } from '../basics.js';
 
-
-
+  window.inviteFriendToMatch = inviteFriendToMatch;
   window.deleteFriend = deleteFriend;
   window.sendFriendRequest = sendFriendRequest;
   window.acceptRequest = acceptRequest;
   window.denyRequest = denyRequest;
   window.stopPropagation = stopPropagation;
+  window.denyInvite = denyInvite;
+  window.acceptInvite = acceptInvite;
 
   let userId = null;
   export let friendSocket = null;
@@ -40,6 +41,8 @@ import { deleteFriend } from './fetch_friends.js';
           updateUserStatus();
         else if (data.type === "friend_request_notification")
           displayAlert(data.friend_name, data.friend_id);
+        else if (data.type === "match_invite")
+          displayMatchInvite(data);
     };
 
     friendSocket.onclose = function (e) {
@@ -47,13 +50,44 @@ import { deleteFriend } from './fetch_friends.js';
     };
   }
 
+function displayMatchInvite(data){
+    // Hint:
+    // This checks if an alert is already rendered on 'client' side
+    const inviteDivId = `invite-${data.matchInfo.playerName}-${data.matchInfo.roomName}`;
+    if (document.getElementById(inviteDivId)){
+        return;
+    }
+
+    const dataObject = {
+        friendName: data.matchInfo.playerName,
+        friendId: data.matchInfo.friendId,
+        roomName: data.matchInfo.roomName,
+        gameSettings: data.matchInfo.gameSettings,
+        inviteDivId: inviteDivId,
+    };
+    const dataString = JSON.stringify(dataObject).replace(/"/g, '&quot;');
+
+
+    const alertsContainer = document.getElementById("alerts-container");
+    const alertDiv = document.createElement("div");
+    alertDiv.className = "alert alert-primary d-flex align-items-center";
+    alertDiv.style.justifyContent = 'center';
+    alertDiv.role = "alert";
+    alertDiv.id = inviteDivId;
+    alertDiv.innerHTML = `
+        ${data.message}!
+        <button class="btn btn-success btn-sm ms-2" data-invite='${dataString}' onclick="acceptInvite(this)">Accept</button>
+        <button class="btn btn-danger btn-sm ms-2" data-invite='${dataString}' onclick="denyInvite(this)">Deny</button>
+        `;
+    alertsContainer.appendChild(alertDiv);
+}
 
 function displayAlert(friendName, requestId) {
     const alertsContainer = document.getElementById("alerts-container");
     const alertDiv = document.createElement("div");
     alertDiv.className = "alert alert-primary d-flex align-items-center";
+    alertDiv.style.justifyContent = 'center';
     alertDiv.role = "alert";
-
     alertDiv.innerHTML = `
         <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
             <use xlink:href="#info-fill"/>
@@ -96,6 +130,9 @@ export async function updateFriendDropdown() {
 				<div class="dropdown">
 				  <a class="dropdown-toggle" style="margin-right: 5px;" role="button" id="dropdownMenuButton${friend.user_id}" onclick="stopPropagation(event)" data-bs-toggle="dropdown" aria-expanded="false"></a>
 				  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton${friend.user_id}">
+					<li>
+					  <button class="dropdown-item text-primary" onclick="inviteFriendToMatch(${friend.user_id})">Invite To Match</button>
+					</li>
 					<li>
 					  <button class="dropdown-item text-danger" onclick="deleteFriend(${friend.user_id}, this)">Remove Friend</button>
 					</li>
@@ -197,5 +234,42 @@ function checkFriendRequests() {
 
     if (friendRequestItems.length === 0) {
         friendRequestsContainer.remove();
+    }
+}
+
+export async function sendInvite(matchInfo) {
+    if (friendSocket && friendSocket.readyState === WebSocket.OPEN) {
+        friendSocket.send(
+            JSON.stringify({
+                action: "invite",
+                match_info: matchInfo,
+            })
+        );
+    }
+}
+
+function denyInvite(self) {
+    const dataString = self.getAttribute('data-invite');
+    const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
+
+    const alertDiv = document.getElementById(data.inviteDivId);
+    alertDiv.remove();
+}
+
+async function acceptInvite(self) {
+    const dataString = self.getAttribute('data-invite');
+    const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
+
+    const alertDiv = document.getElementById(data.inviteDivId);
+    alertDiv.remove();
+
+    await handleRouteToken("/multiplayer/");
+    const roomNameInput = document.getElementById("room_name");
+    if (roomNameInput) {
+        roomNameInput.value = data.roomName;
+    }
+    const submitButton = document.getElementById("createMultiplayer");
+    if (submitButton) {
+        submitButton.click()
     }
 }

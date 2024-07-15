@@ -1,8 +1,12 @@
 import { getCookie } from "../security/csrft.js";
-import { updateFriendDropdown, acceptRequest, denyRequest } from "./action_friends.js";
+import { sendInvite, friendSocket, updateFriendDropdown, acceptRequest, denyRequest } from "./action_friends.js";
 import { selectFriend } from "../chat/action_chat.js";
-import { friendSocket } from "./action_friends.js";
 import { blockUser, unblockUser } from "../chat/fetch_chat.js";
+
+const msgInviteWrongURL = "You're not in the Multiplayer section!";
+const msgInviteNoLobby = "Not in a Multiplayer Lobby. Create a Game first!";
+const msgInviteFatal = "Something went horribly wrong!";
+const msgInviteFull = "Brother/Sister, your game already is full!";
 
 window.acceptRequest = acceptRequest;
 window.denyRequest = denyRequest;
@@ -138,6 +142,61 @@ export function sendFriendRequest(userId) {
       document.getElementById('search-friends').value = '';
       document.getElementById('search-results').innerHTML = '';
     });
+}
+
+// Hint:
+// needs lobby multiplayer DOM to work
+export function inviteFriendToMatch(friendId) {
+	const currentUrl = window.location.href;
+    if (currentUrl.includes("multiplayer")){
+        if (document.getElementById("player2").innerHTML != "waiting..."){
+            alert(msgInviteFull);
+            return;
+        }
+        const roomInfo = document.getElementById("roomInfo");
+        const playerName = document.getElementById("player1");
+        if (roomInfo) {
+            if (roomInfo.style.display === "none" || playerName.style.display === "none" ) {
+                alert(msgInviteNoLobby);
+            }
+            else {
+                // Hint:
+                // parse the roomName from DOM
+                const message = roomInfo.innerHTML;
+                let parts = message.split(" ");
+                let roomName = parts[3].replace("!", "");
+
+                // HInt:
+                // parse gameSettings from DOM
+                const gameSettings = {
+                    ballSpeed: document.getElementById("ballSpeed").value,
+                    border_color: document.getElementById("borders").value,
+                    ball_color: document.getElementById("ballColor").value,
+                    background_color: document.getElementById("background").value,
+                    maxScore: document.getElementById("maxScore").value,
+                    advanced_mode: document.getElementById("advancedMode").checked,
+                    power_up_mode: document.getElementById("powerUps").checked,
+                }
+
+                // Hint:
+                // put all Data in one object to send
+                const matchInfo = {
+                    roomName: roomName,
+                    playerName: playerName.innerHTML,
+                    friendId: friendId,
+                    gameSettings: gameSettings,
+                }
+
+                sendInvite(matchInfo);
+            }
+        }
+        else {
+            alert(msgInviteFatal);
+        }
+    }
+    else {
+        alert(msgInviteWrongURL);
+    }
 }
 
 export function deleteFriend(friendId, element) {

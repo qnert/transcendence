@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, UserProfile
+from .models import User, UserProfile, FriendRequest, Friendship
 
 
 @admin.register(User)
@@ -13,3 +13,14 @@ class UserProfile(admin.ModelAdmin):
     list_filter = ('user',)
     search_fields = ('user__username', 'display_name')
     ordering = ('user',)
+
+
+# Register your models here.
+@admin.register(FriendRequest)
+class FriendRequest(admin.ModelAdmin):
+    list_display = ('from_user', 'to_user', 'timestamp', 'accepted')
+
+
+@admin.register(Friendship)
+class Friendship(admin.ModelAdmin):
+    list_display = ('user1', 'user2', 'timestamp')

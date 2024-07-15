@@ -37,6 +37,9 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
             await self.accept_request(request_id)
         elif action == 'deny':
             await self.deny_request(request_id)
+        elif action == 'invite':
+            match_info = dict(data.get('match_info'))
+            await self.invite(match_info)
 
     @database_sync_to_async
     def accept_request(self, request_id):
@@ -88,6 +91,25 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
             friend_request.delete()
         except Exception as e:
             print(f"In deny_request: {e}")
+
+    @database_sync_to_async
+    def invite(self, match_info):
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+                f"user_{match_info['friendId']}",
+                {
+                    "type": "match_invite",
+                    "message": f"{match_info['playerName']} invited you to Multiplayer Lobby {match_info['roomName']}",
+                    "match_info": match_info,
+                    }
+                )
+
+    async def match_invite(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'match_invite',
+            'message': event['message'],
+            'matchInfo': event['match_info'],
+            }))
 
     async def friend_request_notification(self, event):
         message = event['message']

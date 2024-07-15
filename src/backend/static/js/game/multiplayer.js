@@ -346,15 +346,18 @@ export function create_join_game(){
     isTournamentMatchFinished = false;
 	checkAccessToken();
     ballSpeed = document.getElementById("ballSpeed").value;
-    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
-    ball.speedY = ballSpeed * Math.sin(ballAngle);
     border_color = document.getElementById("borders").value;
     ball_color = document.getElementById("ballColor").value;
     background_color = document.getElementById("background").value;
     maxScore = document.getElementById("maxScore").value;
     advanced_mode = document.getElementById("advancedMode").checked;
     power_up_mode = document.getElementById("powerUps").checked;
+
     let room_name = document.getElementById("room_name").value;
+
+    ball.speedX = random * ballSpeed * Math.cos(ballAngle);
+    ball.speedY = ballSpeed * Math.sin(ballAngle);
+
     if (/[^a-zA-Z0-9]/.test(room_name)){
       alert('Please enter only alphabetical characters !');
       return;
@@ -595,7 +598,7 @@ function reset() {
         const myForm = document.getElementById("myForm");
         if (myForm) {
             myForm.style.visibility = "block";
-            myForm.style.display = "block";
+            myForm.style.display = "flex";
         }
         const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
         if (resetRemoteGameButton) {
@@ -620,7 +623,6 @@ function start_game() {
     document.getElementById("gameContainer").style.display = "block";
     document.getElementById("board").style.display = "block";
 
-    // TODO focus here
     board = document.getElementById("board");
     board.style.display = "block";
     board.focus();
@@ -642,7 +644,6 @@ function start_game() {
     document.getElementById("right_player").style.display = "block";
     //board vars
 
-    // TODO added for testing purposes
     if (!isTournamentMatch){
         if (check_input_froms() == -1){
           alert("The host entered wrong settings for the game!");
