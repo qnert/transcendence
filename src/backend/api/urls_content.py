@@ -10,4 +10,5 @@ urlpatterns = [
 	path('profile/', views_content.profileView),
 	path('friend/<str:display_name>/', views_content.friends_profile),
 	path('chat/', views_content.chatView),
+	path('error_page', views_content.ErrorPage),
 ]

@@ -4,17 +4,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-  path('register/', views.RegisterView.as_view()),
-	path('login/', views.LoginView),
-	path('logout/', views.LogoutView),
-	path('setup-2fa/', views.setup_2FA),
+	path('login/', views.login_view),
+	path('logout/', views.logout_view),
+	path('setup_2fa/', views.setup_2FA),
 	path('Update_2FA_Status/', views.Update_2FA_Status),
 	path('validate_otp/', views.validate_otp),
-	path('get_2fa_status/', views.Get_2FA_Status),
+	path('get_2fa_status/', views.get_2fa_status),
 	path('check_login_status/', views.check_login_status),
 	path('oauth/', views.redirect_to_login, name='oauth'),
 	path('fetch_user_data/', views.fetch_user_data),
-	path('set_passwd/', views.SetPasswd),
+	path('set_passwd/', views.set_passwd),
 	path('set_new_passwd/', views.set_new_passwd),
 	path('get_profile/', views.get_profile),
 	path('save_changes/', views.save_changes),

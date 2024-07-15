@@ -17,8 +17,10 @@ export async function checkLoginStatus() {
         });
 
         if (!response.ok) {
-			if(response.status === 400){
-				handleRoute("/login/");
+			if (response.status === 401 || response.status === 405 || response.status === 403){
+				const errorData = await response.json
+				console.error(errorData.error)
+				handle401Error();
 				return;
 			}
             throw new Error("Getting login status failed");
@@ -36,6 +38,14 @@ export async function checkLoginStatus() {
             },
             body: JSON.stringify({ token: token }),
         });
+		if (!response.ok) {
+			if (response.status === 401 || response.status === 405){
+				const errorData = await response.json
+				console.error(errorData.error)
+				handle401Error();
+				return;
+			}
+		}
         if (response.ok && !friendSocket) { //check friendSocket to see if the user is already online
           initFriendSocket();
           loadChatHTML();

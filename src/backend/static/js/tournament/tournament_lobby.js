@@ -47,20 +47,12 @@ export function tournamentLobbyCloseSocket() {
 // used in tournament_hub.js
 export function tournamentLobbyInit(lobbyName, userName) {
 
-    const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
-    tournamentLobbyLeaveButton.onclick = async function (event) {
-        event.preventDefault();
-        tournamentLobbyCloseSocket();
-        setTimeout( async function() {
-            await updateContentToken("/tournament/hub");
-        }, 300);
-        tournamentHubEventLoop();
-    }
-
     const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
     const tournamentLobbyStatusToggler = document.getElementById("lobby-status-switch");
+    const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
+
     tournamentLobbySocket = new WebSocket("ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
 
     tournamentLobbySocket.onmessage = (event) => socketMessageHandler(event, tournamentLobbyChatLog);
@@ -91,6 +83,16 @@ export function tournamentLobbyInit(lobbyName, userName) {
             })
         );
     };
+
+    tournamentLobbyLeaveButton.onclick = async function (event) {
+        event.preventDefault();
+        tournamentLobbyCloseSocket();
+        setTimeout( async function() {
+            await updateContentToken("/tournament/hub");
+        }, 300);
+        tournamentHubEventLoop();
+    }
+
 }
 
 // =========================== HELPERS ===============================
@@ -134,7 +136,7 @@ async function socketMessageHandler (event, tournamentLobbyChatLog) {
 };
 
 const attachdynamicEventListeners = function () {
-    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
+
     const tournamentLobbyAdvanceState = document.getElementById("lobby-advance-state-button");
     if (tournamentLobbyAdvanceState) {
         tournamentLobbyAdvanceState.onclick = function (event) {
@@ -146,6 +148,8 @@ const attachdynamicEventListeners = function () {
             );
         };
     }
+
+    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
     if (tournamentLobbySettingsForm) {
         tournamentLobbySettingsForm.onsubmit = function (event) {
             event.preventDefault();
@@ -165,6 +169,7 @@ const attachdynamicEventListeners = function () {
             );
         };
     }
+
 };
 
 // =========================== Server Side Rendering ===============================
@@ -272,5 +277,4 @@ function renderFinishedContent(finishedContent) {
         }, 400);
         tournamentHubEventLoop();
     }
-
 }
