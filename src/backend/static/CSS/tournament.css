@@ -51,6 +51,7 @@
         }
 
         #lobby-chat-box {
+            width: 100%;
             #lobby-chat-log {
                 min-height: 100px;
                 resize: none;

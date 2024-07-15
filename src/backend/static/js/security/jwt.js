@@ -1,4 +1,6 @@
-import { handleRouteToken } from "../basics.js";
+import { getLoginStatus, handle401Error, handleRouteToken } from "../basics.js";
+import { checkLoginStatus } from "../login_check.js";
+import { logout } from "../navbar/logging.js";
 
 function checkJWTToken() {
     const access_token = localStorage.getItem("access_token");
@@ -19,6 +21,10 @@ export async function getAccessToken(username, password, csrftoken) {
         });
 
         if (!response.ok) {
+			if(response.status === 405 || response.status === 403){
+				handle401Error();
+				return;
+			}
             throw new Error("Token failed");
         }
         const data = await response.json();
@@ -30,27 +36,38 @@ export async function getAccessToken(username, password, csrftoken) {
     }
 }
 
+
 //test if refresh token is null
 async function refreshToken() {
-    const refreshToken = localStorage.getItem("refresh_token");
-    try {
-        const response = await fetch("/token/refresh/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Cache-Control": "no-cache",
-            },
-            body: JSON.stringify({ refresh: refreshToken }),
-        });
-
-        if (!response.ok) {
-            throw new Error("Token refresh failed");
-        }
-        const data = await response.json();
-        localStorage.setItem("access_token", data.access);
-    } catch (error) {
-        console.error("Token refresh error:", error);
-        alert("Token refresh failed. Please login again.");
-        handleRouteToken("/home/");
-    }
+	let test = getLoginStatus()
+	if(test === true){
+		const refreshToken = localStorage.getItem("refresh_token");
+		if(!refreshToken){
+			logout();
+		}
+		try {
+			const response = await fetch("/token/refresh/", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ refresh: refreshToken }),
+			});
+	
+			if (!response.ok) {
+				if(response.status === 405){
+					handle401Error();
+					return;
+				}
+				throw new Error("Token refresh failed");
+			}
+			const data = await response.json();
+			localStorage.setItem("access_token", data.access);
+			localStorage.setItem("refresh_token", data.refresh);
+		} catch (error) {
+			console.error("Token refresh error:", error);
+			alert("Token refresh failed. Please login again.");
+			handleRouteToken("/home/");
+		}
+	}
 }

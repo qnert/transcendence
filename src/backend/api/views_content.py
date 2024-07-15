@@ -36,7 +36,7 @@ def friends_profile(request, display_name):
 		user_profile = UserProfile.objects.get(display_name=display_name)
 	except:
 		context= {'error_message': f'There is no user with name: {display_name}'}
-		return render(request, '404.html', context)
+		return render(request, '404Page.html', context)
 	context= {'display_name': display_name}
 	return render(request, 'friends.html', context)
 
@@ -46,3 +46,7 @@ def set_passwd(request):
 
 def chatView(request):
 	return render(request, 'chatroom.html')
+
+
+def ErrorPage(request):
+	return render(request, '404Page.html')

@@ -1,3 +1,4 @@
+import { checkAccessToken } from "../profile/profile.js";
 import { refreshTournamentPlayingLobby, finishTournamentMatch } from '../tournament/tournament_lobby.js'
 
 export function createGameButton() {
@@ -123,6 +124,7 @@ export function resetRemoteGameButton() {
 // =========================   TOURNAMENT      =================================
 
 export function create_tournament_match(playingContent) {
+	checkAccessToken();
     isTournamentMatch = true;
     isTournamentMatchFinished = false;
     if (chatSocket) {
@@ -342,8 +344,7 @@ export function create_tournament_match(playingContent) {
 export function create_join_game(){
     isTournamentMatch = false;
     isTournamentMatchFinished = false;
-
-    // TODO hide gameSettings with bool or sth
+	checkAccessToken();
     ballSpeed = document.getElementById("ballSpeed").value;
     border_color = document.getElementById("borders").value;
     ball_color = document.getElementById("ballColor").value;

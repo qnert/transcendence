@@ -1,5 +1,15 @@
 import { handleRoute, handleRouteToken } from "../basics.js";
 import { getLoginStatus } from "../basics.js";
+import { getUsername } from "../basics.js";
+import { showLoggedInState } from "./navbar.js";
+import { friendSocket } from "../friends/action_friends.js";
+import { initFriendSocket } from "../friends/action_friends.js";
+import { loadChatHTML } from "../chat/action_chat.js";
+import { pendingFriendRequest } from "../friends/fetch_friends.js";
+import { loadFriends } from "../friends/fetch_friends.js";
+import { updateFriendDropdown } from "../friends/action_friends.js";
+
+
 
 export function soloGame() {
     const soloGameButton = document.getElementById("game");
@@ -21,12 +31,25 @@ export function multiplayerGame() {
     }
 }
 
-export function loginButton() {
+export async function loginButton() {
     const loginButton = document.getElementById("login");
     if (loginButton) {
-        loginButton.onclick = function (event) {
+        loginButton.onclick = async function (event) {
             event.preventDefault();
 			handleRoute("/login/");
+			if(await getLoginStatus() === true){
+				handleRouteToken("/home/");
+				const username = await getUsername();
+				showLoggedInState(username);
+				checkAccessToken();
+				if (!friendSocket) {
+					initFriendSocket();
+				}
+					loadChatHTML();
+					pendingFriendRequest();
+					await loadFriends();
+					await updateFriendDropdown();
+			}
         };
     }
 }

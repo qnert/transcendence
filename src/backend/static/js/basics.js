@@ -16,7 +16,10 @@ import { tournamentHubEventLoop} from "./tournament/tournament_hub.js";
 import { tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 import { twoFAStatus } from "./profile/2FA.js";
 import { jumpNextField } from "./profile/profile.js";
-import { getUsernameFromBackend } from "./chat/action_chat.js";
+import { loadChatHTML } from "./chat/action_chat.js";
+import { friendSocket, initFriendSocket} from "./friends/action_friends.js";
+import { pendingFriendRequest } from "./friends/fetch_friends.js";
+import { getUsernameFromBackend } from "./module.js";
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -47,12 +50,17 @@ window.history.replaceState = function (state, title, url) {
 
 window.addEventListener("popstate", async function (event) {
     if (event.state && event.state.path) {
-        if (event.state.path === "/login/") {
-            if (await getLoginStatus()) {
+		if(!(await getLoginStatus())){
+			window.history.replaceState({ path: "/login/" }, "", "/login/");
+			await updateContent("/login/");
+		}
+        else if (event.state.path === "/login/") {
+			if (await getLoginStatus()) {
 				window.history.replaceState({ path: "/home/" }, "", "/home/");
                 await updateContentToken("/home/");
             } else {
                 await updateContent("/login/");
+				return;
             }
 		}else if(event.state.path === "/2FA/"){
 			if (await twoFAStatus()) {
@@ -64,7 +72,16 @@ window.addEventListener("popstate", async function (event) {
 		}else if(event.state.path.includes("tournament/lobby")){
 			window.history.replaceState({ path: "/tournament/hub/" }, "", "/tournament/hub/");
 			await updateContentToken("/tournament/hub/");
+		} else if(event.state.path.includes("/friend/")){
+			let currentUrl = window.location.href;
+			let words = currentUrl.split("/");
+			let display_name = words[4];
+			await handleRouteToken(`/friend/${encodeURIComponent(display_name)}/`) //TODO does not load!!!
+			console.log("HERE")
+			await loadContentFriend(display_name);
+
 		}else {
+			// console.log(event.state.path)
 			await updateContent(event.state.path);
         }
     }
@@ -155,6 +172,8 @@ export async function handleRoute(path) {
     }
 }
 
+window.handleRouteToken = handleRouteToken;
+
 export async function handleRouteToken(path) {
     if (window.location.pathname !== path) {
         window.history.pushState({ path: path }, "", path);
@@ -167,7 +186,7 @@ export function reattachEventListeners() {
     getUsernameFromBackend();
     bindSaveChangesButton();
     checkBox();
-    checkLoginStatus();
+    // checkLoginStatus();
     createGameButton();
     defaultButton();
     generateQRCode();
@@ -214,13 +233,16 @@ export async function getUsername() {
         });
 
         if (!response.ok) {
-            console.log("Failed to get username from backend");
-            return;
+			if (response.status === 401 || response.status === 405){
+				const errorData = await response.json
+				console.error(errorData.error)
+				handle401Error();
+				return;
+			}
         }
 
         const data = await response.json();
         const username = data.username;
-        console.log(username);
         return username;
     } catch (error) {
         console.error("Error fetching username:", error);
@@ -229,7 +251,7 @@ export async function getUsername() {
 }
 
 export async function handle401Error() {
-    if (getLoginStatus()) {
+    if (await getLoginStatus() === true) {
         await logout();
     }
     handleRoute("/login/");
@@ -260,6 +282,17 @@ window.onload = async function () {
         document.getElementById("ballColor").value = "#0000ff"; // Default to blue
     } else if (currentUrl.includes("history")) {
         getGameHistory();
+    }
+    if (!currentUrl.includes("login") && currentUrl !== "http://0.0.0.0:8000/" && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
+		const username = await getUsername();
+        showLoggedInState(username);
+		checkAccessToken();
+		await loadFriends();
+        await updateFriendDropdown();
+		return;
+    }
+	else {
+        showLoggedOutState();
     }
 };
 
@@ -297,13 +330,27 @@ window.onload = async function () {
     if (currentUrl.includes("/profile/")) {
         await fetchProfileData();
         await checkBox();
-    } else if (currentUrl.includes("/2FA/")) {
-        showLoggedOutState();
-        return;
-    } else if (currentUrl.includes("/friend/")) {
+    }else if (currentUrl.includes("login")){
+		if (await getLoginStatus() === true){
+			handleRouteToken("/home/");
+			const username = await getUsername();
+			console.log(username)
+        	showLoggedInState(username);
+			checkAccessToken();
+			if (!friendSocket) {
+				initFriendSocket();
+			}
+				loadChatHTML();
+				pendingFriendRequest();
+				await loadFriends();
+				await updateFriendDropdown();
+			return;
+		}
+	} 
+	else if (currentUrl.includes("/friend/")) {
         let words = currentUrl.split("/");
         let display_name = words[4];
-        await fetchFriendsData(display_name);
+        await loadContentFriend(display_name);
     } else if (currentUrl.includes("game")) {
         document.getElementById("background").value = "#ffffff";
         document.getElementById("borders").value = "#0000ff";
@@ -315,14 +362,21 @@ window.onload = async function () {
     } else if (currentUrl.includes("history")) {
         await getGameHistory();
     }
-    if (!currentUrl.includes("/login/") || currentUrl !== "0.0.0.0:8000/" || currentUrl.includes("/2FA/")) {
-        await loadFriends();
-        await updateFriendDropdown();
-    }
-    if (await getLoginStatus()) {
-        const username = await getUsername();
+    if (!currentUrl.includes("login") && currentUrl !== "http://0.0.0.0:8000/" && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
+		const username = await getUsername();
         showLoggedInState(username);
-    } else {
+		checkAccessToken();
+		if (!friendSocket) {
+			initFriendSocket();
+		}
+			loadChatHTML();
+			pendingFriendRequest();
+			await loadFriends();
+			await updateFriendDropdown();
+		return;
+    }
+	else {
         showLoggedOutState();
+		document.getElementById('chat').innerHTML = '';
     }
 };

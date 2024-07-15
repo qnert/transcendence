@@ -18,7 +18,6 @@ export async function jumpNextField() {
 			if (nextInput) {
 				nextInput.focus();
 				if(oldInput === passwdInput){
-					console.log("test")
 					setNewPasswd();
 				}
 			}
@@ -72,8 +71,13 @@ export async function setNewPasswd(){
 					alert(response.error);
 					return;
 				}
-				else if(response.status === 403){
+				else if(response.status === 400){
 					alert("Incorrect old Password");
+					return ;
+				}
+				else if(response.status === 403){
+					handle401Error();
+					alert("CSRF Token not set");
 					return ;
 				}
             }
@@ -111,6 +115,8 @@ async function getUsernameFromBackend() {
     }
 }
 
+
+window.checkAccessToken = checkAccessToken;
 
 export async function checkAccessToken() {
     const token = localStorage.getItem("access_token");
