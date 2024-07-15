@@ -51,23 +51,33 @@ import { handleRouteToken } from '../basics.js';
   }
 
 function displayMatchInvite(data){
+    // Hint:
+    // This checks if an alert is already rendered on 'client' side
+    const inviteDivId = `invite-${data.matchInfo.playerName}-${data.matchInfo.roomName}`;
+    if (document.getElementById(inviteDivId)){
+        return;
+    }
+
     const dataObject = {
-        friendName: data.matchInfo.friendName,
+        friendName: data.matchInfo.playerName,
         friendId: data.matchInfo.friendId,
         roomName: data.matchInfo.roomName,
         gameSettings: data.matchInfo.gameSettings,
+        inviteDivId: inviteDivId,
     };
     const dataString = JSON.stringify(dataObject).replace(/"/g, '&quot;');
+
 
     const alertsContainer = document.getElementById("alerts-container");
     const alertDiv = document.createElement("div");
     alertDiv.className = "alert alert-primary d-flex align-items-center";
     alertDiv.style.justifyContent = 'center';
     alertDiv.role = "alert";
+    alertDiv.id = inviteDivId;
     alertDiv.innerHTML = `
         ${data.message}!
         <button class="btn btn-success btn-sm ms-2" data-invite='${dataString}' onclick="acceptInvite(this)">Accept</button>
-        <button class="btn btn-danger btn-sm ms-2" onclick="denyInvite(this)">Deny</button>
+        <button class="btn btn-danger btn-sm ms-2" data-invite='${dataString}' onclick="denyInvite(this)">Deny</button>
         `;
     alertsContainer.appendChild(alertDiv);
 }
@@ -239,19 +249,20 @@ export async function sendInvite(matchInfo) {
 }
 
 function denyInvite(self) {
-    const alertsContainer = document.getElementById("alerts-container");
-    if (alertsContainer) {
-        alertsContainer.innerHTML = "";
-    }
+    const dataString = self.getAttribute('data-invite');
+    const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
+
+    const alertDiv = document.getElementById(data.inviteDivId);
+    alertDiv.remove();
 }
 
 async function acceptInvite(self) {
-    const alertsContainer = document.getElementById("alerts-container");
-    if (alertsContainer) {
-        alertsContainer.innerHTML = "";
-    }
+
     const dataString = self.getAttribute('data-invite');
     const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
+
+    const alertDiv = document.getElementById(data.inviteDivId);
+    alertDiv.remove();
 
     await handleRouteToken("/multiplayer/");
     const roomNameInput = document.getElementById("room_name");
