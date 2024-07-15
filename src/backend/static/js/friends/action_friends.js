@@ -252,7 +252,6 @@ async function acceptInvite(self) {
     }
     const dataString = self.getAttribute('data-invite');
     const data = JSON.parse(dataString.replace(/&quot;/g, '"'));
-    console.log(data.gameSettings);
 
     await handleRouteToken("/multiplayer/");
     const roomNameInput = document.getElementById("room_name");

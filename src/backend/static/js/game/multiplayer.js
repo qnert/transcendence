@@ -597,7 +597,7 @@ function reset() {
         const myForm = document.getElementById("myForm");
         if (myForm) {
             myForm.style.visibility = "block";
-            myForm.style.display = "block";
+            myForm.style.display = "flex";
         }
         const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
         if (resetRemoteGameButton) {
@@ -622,7 +622,6 @@ function start_game() {
     document.getElementById("gameContainer").style.display = "block";
     document.getElementById("board").style.display = "block";
 
-    // TODO focus here
     board = document.getElementById("board");
     board.style.display = "block";
     board.focus();
@@ -644,7 +643,6 @@ function start_game() {
     document.getElementById("right_player").style.display = "block";
     //board vars
 
-    // TODO added for testing purposes
     if (!isTournamentMatch){
         if (check_input_froms() == -1){
           alert("The host entered wrong settings for the game!");
