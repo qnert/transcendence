@@ -27,4 +27,3 @@ django-prometheus
 numpy
 matplotlib
 validators
-gunicorn

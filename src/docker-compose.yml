@@ -11,7 +11,6 @@ services:
       dockerfile: Docker/Dockerfile_backend
     ports:
       - 8000:8000
-      - 8001:8001
     volumes:
       - .:/app
     depends_on:
@@ -118,7 +117,7 @@ services:
     networks:
       - transcendence
     volumes:
-      - ./backend/static:/app/staticfiles
+      - ./backend/static:/staticfiles
     depends_on:
       - prometheus
       - grafana
