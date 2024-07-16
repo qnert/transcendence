@@ -110,12 +110,14 @@ services:
   nginx:
     container_name: nginx
     build:
-      context: ./Docker
-      dockerfile: Dockerfile_nginx
+      context: .
+      dockerfile: Docker/Dockerfile_nginx
     ports:
       - 80:80
     networks:
       - transcendence
+    volumes:
+      - ./backend/static:/staticfiles
     depends_on:
       - prometheus
       - grafana

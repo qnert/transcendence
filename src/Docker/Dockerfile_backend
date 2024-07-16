@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y netcat-traditional || apt-get install -
 
 COPY backend/ /app
 
+RUN mkdir /logs
 EXPOSE 8000
 
 # COPY Docker/healthcheck.sh /usr/local/bin/healthcheck.sh
