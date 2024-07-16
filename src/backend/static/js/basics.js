@@ -259,43 +259,6 @@ export async function handle401Error() {
 	handleUrlChange();
 }
 
-window.onload = async function () {
-    handleUrlChange();
-    let currentUrl = window.location.href;
-    const urlPattern = /^https?:\/\/[a-zA-Z0-9.-]+:8000\/$/;
-    if (currentUrl.includes("/profile/")) {
-        await fetchProfileData();
-        await checkBox();
-    } else if (currentUrl.includes("/friend/")) {
-        let words = currentUrl.split("/");
-        let display_name = words[4];
-        await fetchFriendsData(display_name);
-    } else if (!currentUrl.includes("/login/") || !urlPattern.test(currentUrl)) {
-        await loadFriends();
-        await updateFriendDropdown();
-    } else if (currentUrl.includes("game")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
-    } else if (currentUrl.includes("multiplayer")) {
-        document.getElementById("background").value = "#ffffff"; // Default to white
-        document.getElementById("borders").value = "#0000ff"; // Default to blue
-        document.getElementById("ballColor").value = "#0000ff"; // Default to blue
-    } else if (currentUrl.includes("history")) {
-        getGameHistory();
-    }
-    if (!currentUrl.includes("login") && !urlPattern.test(currentUrl) && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
-        const username = await getUsername();
-        showLoggedInState(username);
-        checkAccessToken();
-        await loadFriends();
-        await updateFriendDropdown();
-        return;
-    } else {
-        showLoggedOutState();
-    }
-};
-
 export async function getLoginStatus() {
     try {
         const response = await fetch("/api/login_status", {
@@ -326,6 +289,7 @@ export async function getLoginStatus() {
 window.handle401Error = handle401Error;
 
 window.onload = async function () {
+    handleUrlChange();
     let currentUrl = window.location.href;
     const urlPattern = /^https?:\/\/[a-zA-Z0-9.-]+:8000\/$/;
     if (currentUrl.includes("/profile/")) {
