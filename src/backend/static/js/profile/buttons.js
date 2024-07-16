@@ -7,8 +7,8 @@ import { getAccessToken } from "../security/jwt.js";
 export async function saveChanges() {
     const picture_url = document.getElementById("profile-picture_url").value;
     const display_name = document.getElementById("profile-display_name").value;
-	if (display_name.length < 1 || display_name.length > 20 || display_name.trim() === ""){
-		alert("display name must be between 1 and 20 characters long");
+	if (display_name.length < 1 || display_name.length > 10 || display_name.trim() === ""){
+		alert("display name must be between 1 and 10 characters long");
 		return;
 	}
     const csrftoken = getCookie("csrftoken");
