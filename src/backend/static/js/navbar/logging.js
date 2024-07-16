@@ -123,7 +123,8 @@ export async function logoutButton() {
 				showLoggedOutState();
 				handleUrlChange();
             } catch (error) {
-                console.log("Error in logout", error);
+                // ignore error
+                // console.log("Error in logout", error);
             }
         };
     }
@@ -162,7 +163,8 @@ export async function logout() {;
 		showLoggedOutState();
 		handleUrlChange();
     } catch (error) {
-        console.log("Error in logout", error);
+        // ignore error
+        // console.log("Error in logout", error);
     }
 };
 

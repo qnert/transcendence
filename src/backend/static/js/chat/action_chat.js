@@ -57,7 +57,6 @@ function initChatToggler() {
     const checkBox = document.getElementById("check");
     if (checkBox) {
         checkBox.onchange = function (event) {
-            console.log(event);
             toggleChatDisplay();
         };
     }
@@ -68,12 +67,10 @@ export function toggleChatDisplay() {
     const chatContent = document.getElementById("chatContent");
 
     if (chatCheckbox.checked) {
-        console.log("is checked");
         chatContent.style.display = "block";
         loadFriends();
         initializeChatEvents();
     } else {
-        console.log("is not checked");
         chatContent.style.display = "none";
     }
 }
@@ -154,7 +151,6 @@ function initializeWebSocket(friendId) {
 }
 
 function sendMessage() {
-    console.log('message sent');
     const messageInput = document.getElementById("message");
     const message = messageInput.value.trim();
     if (message && chatSocket.readyState === WebSocket.OPEN) {

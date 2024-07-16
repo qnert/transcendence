@@ -236,7 +236,8 @@ export function generateQRCode() {
                 const qrCodeImg = document.getElementById("qrcode");
                 qrCodeImg.src = "data:image/png;base64," + data.qr_code;
             } catch (error) {
-                console.log("Error:", error);
+                // ignore error
+                // console.log("Error:", error);
             }
         };
     }

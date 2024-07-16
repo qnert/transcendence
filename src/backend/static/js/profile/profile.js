@@ -136,7 +136,6 @@ export async function checkAccessToken() {
             } else {
                 const url = window.location.href;
                 if (!url.includes("set_passwd")){
-                    console.log("Token verification failed. Logging out.");
                     logout();
                     handleRoute("/login/");
                 }
@@ -149,7 +148,6 @@ export async function checkAccessToken() {
     } else {
         const url = window.location.href;
         if (!url.includes("set_passwd")){
-            console.log("No token found. Logging out.");
             logout();
             handleRoute("/login/");
         }
