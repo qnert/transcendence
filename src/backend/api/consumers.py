@@ -3,8 +3,9 @@ from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from .models import FriendRequest, Friendship, UserProfile
+from .models import User
 import json
-
+from chat.models import Message
 
 class FriendRequestConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -94,21 +95,46 @@ class FriendRequestConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def invite(self, match_info):
+
+        player_name = match_info['playerName']
+        user_profile = UserProfile.objects.get(display_name=player_name)
+        user_id = user_profile.user.id
+        username = user_profile.user.username
+
+        sender = User.objects.get(id=user_id)
+        recipient = User.objects.get(id=match_info['friendId'])
+        friendship = Friendship.objects.get(user1__in=[sender, recipient], user2__in=[sender, recipient])
+
+        message = f"Hey, let's play a Match in Lobby {match_info['roomName']}!"
+        Message.objects.create(sender=sender, recipient=recipient, content=message, friendship=friendship)
+
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
                 f"user_{match_info['friendId']}",
                 {
                     "type": "match_invite",
-                    "message": f"{match_info['playerName']} invited you to Multiplayer Lobby {match_info['roomName']}",
+                    "message": f'{username}: {message}',
                     "match_info": match_info,
+                    'sender': False,
                     }
                 )
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user_id}",
+            {
+                "type": "match_invite",
+                "message": f'{username}: {message}',
+                "match_info": match_info,
+                'sender': True,
+            }
+        )
 
     async def match_invite(self, event):
         await self.send(text_data=json.dumps({
             'type': 'match_invite',
             'message': event['message'],
             'matchInfo': event['match_info'],
+            'sender': event['sender']
             }))
 
     async def friend_request_notification(self, event):
