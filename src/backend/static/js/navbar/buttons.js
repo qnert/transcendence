@@ -9,8 +9,6 @@ import { pendingFriendRequest } from "../friends/fetch_friends.js";
 import { loadFriends } from "../friends/fetch_friends.js";
 import { updateFriendDropdown } from "../friends/action_friends.js";
 
-
-
 export function soloGame() {
     const soloGameButton = document.getElementById("game");
     if (soloGameButton) {
