@@ -12,13 +12,13 @@ import { getUsernameFromBackend } from '../chat/action_chat.js';
   window.acceptInvite = acceptInvite;
 
   let userId = null;
-  export let friendSocket = null;
+  let friendSocket = null;
   getUsernameFromBackend();
 
   export function initFriendSocket() {
-    friendSocket = new WebSocket(
-    'ws://' + window.location.host + '/ws/online/'
-    );
+    if (!friendSocket){
+      friendSocket = new WebSocket("ws://" + window.location.host + "/ws/online/");
+    }
 
     friendSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
@@ -34,6 +34,20 @@ import { getUsernameFromBackend } from '../chat/action_chat.js';
           displayMatchInvite(data);
     };
   }
+
+export function closeFriendSocket() {
+    if (friendSocket) {
+        friendSocket.close();
+        friendSocket = null;
+    }
+}
+
+export function getFriendSocketStatus() {
+  if (friendSocket) {
+    return true;
+  }
+  return false;
+}
 
 function displayMatchInvite(data){
     // Hint:

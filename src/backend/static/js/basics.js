@@ -17,7 +17,7 @@ import { tournamentLobbyCloseSocket } from "./tournament/tournament_lobby.js";
 import { twoFAStatus } from "./profile/2FA.js";
 import { jumpNextField } from "./profile/profile.js";
 import { loadChatHTML } from "./chat/action_chat.js";
-import { friendSocket, initFriendSocket} from "./friends/action_friends.js";
+import { initFriendSocket} from "./friends/action_friends.js";
 import { pendingFriendRequest } from "./friends/fetch_friends.js";
 import { getUsernameFromBackend } from "./chat/action_chat.js";
 
@@ -299,9 +299,7 @@ window.onload = async function () {
 			const username = await getUsername();
         	showLoggedInState(username);
 			checkAccessToken();
-			if (!friendSocket) {
 				initFriendSocket();
-			}
 				loadChatHTML();
 				pendingFriendRequest();
 				await loadFriends();
@@ -328,9 +326,7 @@ window.onload = async function () {
         const username = await getUsername();
         showLoggedInState(username);
         checkAccessToken();
-        if (!friendSocket) {
-            initFriendSocket();
-        }
+        initFriendSocket();
         loadChatHTML();
         pendingFriendRequest();
         await loadFriends();
@@ -346,9 +342,7 @@ window.dropDownMenu = dropDownMenu;
 
 export async function dropDownMenu(){
 	if(await getLoginStatus() === true){
-        if(!friendSocket){
-            initFriendSocket();
-        }
+        initFriendSocket();
         pendingFriendRequest();
         await loadFriends();
         await updateFriendDropdown();

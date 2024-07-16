@@ -1,8 +1,7 @@
 import { getCookie } from "./security/csrft.js";
 import { loadFriends, pendingFriendRequest } from "./friends/fetch_friends.js";
 import { loadChatHTML } from "./chat/action_chat.js";
-import { initFriendSocket } from "./friends/action_friends.js";
-import { friendSocket } from "./friends/action_friends.js";
+import { getFriendSocketStatus, initFriendSocket } from "./friends/action_friends.js";
 import { handleRoute } from "./basics.js";
 
 export async function checkLoginStatus() {
@@ -46,7 +45,7 @@ export async function checkLoginStatus() {
 				return;
 			}
 		}
-        if (response.ok && !friendSocket) { //check friendSocket to see if the user is already online
+        if (response.ok && !getFriendSocketStatus()) { //check friendSocket to see if the user is already online
           initFriendSocket();
           loadChatHTML();
           pendingFriendRequest();

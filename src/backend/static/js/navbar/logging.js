@@ -3,13 +3,12 @@ import { getAccessToken } from "../security/jwt.js";
 import { getLoginStatus, getUsername, handle401Error, handleRoute, handleRouteToken } from "../basics.js";
 import { getCookie } from "../security/csrft.js";
 import { loadFriends } from "../friends/fetch_friends.js";
-import { friendSocket } from "../friends/action_friends.js";
 import { showLoggedOutState } from "./navbar.js";
 import { updateFriendDropdown } from "../friends/action_friends.js";
 import { showLoggedInState } from "./navbar.js";
 import { handleUrlChange } from "../basics.js";
 import { loadChatHTML } from "../chat/action_chat.js";
-import { initFriendSocket } from "../friends/action_friends.js";
+import { closeFriendSocket, initFriendSocket } from "../friends/action_friends.js";
 import { pendingFriendRequest } from "../friends/fetch_friends.js";
 
 export function setPasswd() {
@@ -109,9 +108,7 @@ export async function logoutButton() {
 					}
 					throw new Error("Logout fail");
 				}
-                if (friendSocket) {
-                    friendSocket.close();
-                }
+                closeFriendSocket();
 				if(accessToken){
 					localStorage.removeItem("access_token");
 				}
@@ -124,7 +121,7 @@ export async function logoutButton() {
 				handleUrlChange();
             } catch (error) {
                 // ignore error
-                // console.log("Error in logout", error);
+                console.error("Error in logout", error);
             }
         };
     }
@@ -149,9 +146,7 @@ export async function logout() {;
 			}
 			throw new Error("Logout fail");
 		}
-        if (friendSocket) {
-            friendSocket.close();
-        }
+        closeFriendSocket();
 		if(accessToken){
 			localStorage.removeItem("access_token");
 		}
@@ -164,7 +159,7 @@ export async function logout() {;
 		handleUrlChange();
     } catch (error) {
         // ignore error
-        // console.log("Error in logout", error);
+        console.error("Error in logout", error);
     }
 };
 
@@ -244,13 +239,11 @@ export async function login() {
 					await storeJWT();
                     handleRouteToken("/home/");
 					showLoggedInState(username);
-					if (!friendSocket) { //check friendSocket to see if the user is already online
 						initFriendSocket();
-					}
-						loadChatHTML();
-						pendingFriendRequest();
-						await loadFriends();
-						await updateFriendDropdown();
+                        loadChatHTML();
+                        pendingFriendRequest();
+                        await loadFriends();
+                        await updateFriendDropdown();
                 }
             } catch (error) {
                 console.error("Login error:", error);

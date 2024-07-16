@@ -291,7 +291,6 @@ export function create_tournament_match(playingContent) {
           rally = 0;
           return;
         }
-        // TODO go through this and see whats necessary
         else if (data.type == 'disconnected'){
             const startRemoteGame = document.getElementById("startRemoteGame");
             const startTournamentMatchButton = document.getElementById("startTournamentMatch");
@@ -659,10 +658,6 @@ function start_game() {
     context.fillRect(player2.x, player2.y, player2.width, player2.height);
 
     //key listener if key is pressed
-
-    // TODO if we want arrow keys to still be able to scroll window (accessibility mb)
-    // we should check if the #board is focused before doing anything
-    // preventDefault will block window scrolling, because thats annoying while playing
     window.addEventListener('keydown', (event) => {
       if (username == connected_users[0]){
         if (event.code == 'ArrowUp') {
