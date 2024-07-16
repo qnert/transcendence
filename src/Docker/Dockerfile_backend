@@ -16,10 +16,14 @@ EXPOSE 8000
 
 # COPY Docker/healthcheck.sh /usr/local/bin/healthcheck.sh
 COPY Docker/wait-for-it.sh /usr/local/bin/wait-for-it.sh
+COPY Docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # RUN chmod +x /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # CMD ["/usr/local/bin/healthcheck.sh", "python", "/app/backend/manage.py", "runserver", "0.0.0.0:8000"]
 
-CMD /usr/local/bin/wait-for-it.sh database:5432 -- python /app/backend/manage.py makemigrations; python /app/backend/manage.py migrate; python /app/backend/manage.py runserver 0.0.0.0:8000
+# CMD /usr/local/bin/wait-for-it.sh database:5432 -- python /app/backend/manage.py makemigrations; python /app/backend/manage.py migrate; python /app/backend/manage.py runserver 0.0.0.0:8000
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
