@@ -396,10 +396,10 @@ def save_changes(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-
 @own_jwt_required
 @twoFA_required
 @own_login_required
+@csrf_exempt
 def set_new_passwd(request):
     if request.method == "POST":
         user = request.user
@@ -414,6 +414,7 @@ def set_new_passwd(request):
         return JsonResponse({'message': 'New password set successfully'}, status=200)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
 
 
 @own_jwt_required
@@ -625,6 +626,8 @@ def setup_2FA(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+
+@csrf_exempt
 @own_login_required
 def store_jwt(request):
     if request.method == "POST":
@@ -658,7 +661,7 @@ def logout_view(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-@csrf_protect
+# @csrf_protect
 def login_view(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -666,8 +669,8 @@ def login_view(request):
         password = data.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            if user.refresh_token is not None:
-                return JsonResponse({'error': 'User already logged in'}, status=400)
+            # if user.refresh_token is not None:
+            #     return JsonResponse({'error': 'User already logged in'}, status=400)
             login(request, user)
             user.is_logged_in = True
             user.save()
@@ -678,9 +681,7 @@ def login_view(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-# @own_jwt_required
-# @twoFA_required
-# @own_login_required
+@csrf_exempt
 def get_user_id(request):
     if request.method == "GET":
         id = request.user.id
