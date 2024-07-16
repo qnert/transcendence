@@ -289,7 +289,7 @@ window.handle401Error = handle401Error;
 window.onload = async function () {
     handleUrlChange();
     let currentUrl = window.location.href;
-    const urlPattern = /^https?:\/\/[a-zA-Z0-9.-]+:8000\/$/;
+    const urlPattern = /^https?:\/\/[a-zA-Z0-9.-]\/$/;
     if (currentUrl.includes("/profile/")) {
         await fetchProfileData();
         await checkBox();
