@@ -18,6 +18,7 @@ COPY Docker/healthcheck.sh /usr/local/bin/healthcheck.sh
 
 RUN chmod +x /usr/local/bin/healthcheck.sh
 
+# TODO change in eval
 CMD ["/usr/local/bin/healthcheck.sh", "python", "/app/backend/manage.py", "runserver", "0.0.0.0:8000"]
 
 # CMD /usr/local/bin/wait-for-it.sh database:5432 -- python /app/backend/manage.py makemigrations; python /app/backend/manage.py migrate; python /app/backend/manage.py runserver 0.0.0.0:8000
