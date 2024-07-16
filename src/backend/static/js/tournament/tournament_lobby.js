@@ -53,7 +53,7 @@ export function tournamentLobbyInit(lobbyName, userName) {
     const tournamentLobbyStatusToggler = document.getElementById("lobby-status-switch");
     const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
 
-    tournamentLobbySocket = new WebSocket("ws://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
+    tournamentLobbySocket = new WebSocket("wss://" + window.location.host + "/ws/tournament/lobby/" + lobbyName + "/" + userName + "/");
 
     tournamentLobbySocket.onmessage = (event) => socketMessageHandler(event, tournamentLobbyChatLog);
 

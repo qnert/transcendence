@@ -132,7 +132,7 @@ function initializeWebSocket(friendId) {
         chatSocket.close();
     }
 
-    chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${userId}/${friendId}/`);
+    chatSocket = new WebSocket(`wss://${window.location.host}/ws/chat/${userId}/${friendId}/`);
 
     chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);

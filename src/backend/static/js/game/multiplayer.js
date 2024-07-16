@@ -170,7 +170,7 @@ export function create_tournament_match(playingContent) {
     }
 
     if (!chatSocket){
-        chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
+        chatSocket = new WebSocket(`wss://${window.location.host}/ws/game/${room_name}/${username}/`);
     }
 
     chatSocket.onmessage = function(e) {
@@ -358,7 +358,7 @@ export function create_join_game(){
     })
     .then(data => {
       username = data.username;
-      chatSocket = new WebSocket(`ws://${window.location.host}/ws/game/${room_name}/${username}/`);
+      chatSocket = new WebSocket(`wss://${window.location.host}/ws/game/${room_name}/${username}/`);
       chatSocket.onopen = function(e) {
     }
     chatSocket.onmessage = function(e) {

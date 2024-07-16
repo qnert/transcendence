@@ -17,7 +17,7 @@ import { getUsernameFromBackend } from '../chat/action_chat.js';
 
   export function initFriendSocket() {
     if (!friendSocket){
-      friendSocket = new WebSocket("ws://" + window.location.host + "/ws/online/");
+      friendSocket = new WebSocket("wss://" + window.location.host + "/ws/online/");
     }
 
     friendSocket.onmessage = function (e) {
