@@ -265,7 +265,6 @@ export function start_game() {
     context.font = "45px Verdana";
     context.fillText(score1, boardWidth/5, 45);
     context.fillText(score2, boardWidth/5 * 4, 45);
-    console.log(ballSpeed);
   }
 
   function check_size_power_up(){

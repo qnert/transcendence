@@ -26,7 +26,6 @@ export async function fetchProfileData() {
 				return;
 			}
             else if (response.status === 405) {
-                console.log("Method not allowed");
                 return;
             }
             throw new Error('Network response was not ok');

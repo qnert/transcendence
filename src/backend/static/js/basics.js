@@ -77,11 +77,9 @@ window.addEventListener("popstate", async function (event) {
 			let words = currentUrl.split("/");
 			let display_name = words[4];
 			await handleRouteToken(`/friend/${encodeURIComponent(display_name)}/`) //TODO does not load!!!
-			console.log("HERE")
 			await loadContentFriend(display_name);
 
 		}else {
-			// console.log(event.state.path)
 			await updateContent(event.state.path);
         }
     }
@@ -334,7 +332,6 @@ window.onload = async function () {
 		if (await getLoginStatus() === true){
 			handleRouteToken("/home/");
 			const username = await getUsername();
-			console.log(username)
         	showLoggedInState(username);
 			checkAccessToken();
 			if (!friendSocket) {

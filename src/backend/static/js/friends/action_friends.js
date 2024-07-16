@@ -33,10 +33,6 @@ import { getUsernameFromBackend } from '../chat/action_chat.js';
         else if (data.type === "match_invite")
           displayMatchInvite(data);
     };
-
-    friendSocket.onclose = function (e) {
-        console.log("Online socket closed");
-    };
   }
 
 function displayMatchInvite(data){
