@@ -1,0 +1,12 @@
+[req]
+distinguished_name = req_distinguished_name
+prompt = no
+
+[req_distinguished_name]
+C = DE
+ST = Baden-Wuerttemberg
+L = Heilbronn
+O = 42
+OU = Student
+CN = jwillert
+emailAddress = jwillert@student.42heilbronn.de

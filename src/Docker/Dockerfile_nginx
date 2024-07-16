@@ -1,3 +1,9 @@
 FROM nginx:latest
 
+WORKDIR /etc/nginx/ssl
+COPY Docker/openssl.cnf ./
+
+COPY --chmod=755 Docker/create_tls_certificates.sh ./
+RUN ./create_tls_certificates.sh
+
 COPY Docker/nginx.conf /etc/nginx/nginx.conf
