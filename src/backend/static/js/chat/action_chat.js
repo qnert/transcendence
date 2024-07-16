@@ -19,67 +19,60 @@ import { loadFriends } from "../friends/fetch_friends.js";
   }
 
 export function loadChatHTML() {
-  const chatHTML = `
-      <input type="checkbox" id="check">
-      <label class="chat-btn" for="check">
-          <i class="fa fa-commenting-o comment"></i>
-          <i class="fa fa-close close"></i>
-      </label>
+    const chatHTML = `
+    <input type="checkbox" id="check">
+    <label class="chat-btn" for="check">
+      <i class="fa fa-commenting-o comment"></i>
+      <i class="fa fa-close close"></i>
+    </label>
+    <div id="chatContent" style="display: none;">
+      <div class="wrapper" id="friendsList">
+        <div class="header">
+          <h6>Message a Friend</h6>
+        </div>
+        <div class="chat-form">
+          <ul class="friend-list" id="friendList">
+            <!-- Friend list items will be dynamically inserted here -->
+          </ul>
+        </div>
+      </div>
+      <div class="wrapper" id="chatRoom" style="display: none;">
+        <div class="header">
+          <h6 id="chat-header">Chat with <span id="friend-name"></span></h6>
+        </div>
+        <div class="chat-form">
+          <textarea class="form-control" id="chat-text" rows="5" readonly></textarea>
+          <input type="text" class="form-control chat-text" id="message" placeholder="Your Message">
+          <button class="btn-chat btn-success btn-block" id="send">Send</button>
+          <button class="btn-chat btn-success btn-block" id="leave">Back</button>
+        </div>
+      </div>
+    </div>
   `;
-  document.getElementById('chat').innerHTML = chatHTML;
-  const checkBox = document.getElementById('check');
-  checkBox.checked = true;
-  if (checkBox) {
-    document.addEventListener('change', function(event) {
-      if (event.target.id == 'check') {
-        event.preventDefault();
-        checkBox.checked = !checkBox.checked;
-        toggleChatDisplay();
-      }
-    });
-  }
+    document.getElementById("chat").innerHTML = chatHTML;
+    initChatToggler();
+}
+
+function initChatToggler() {
+    const checkBox = document.getElementById("check");
+    if (checkBox) {
+        checkBox.onchange = function (event) {
+            toggleChatDisplay();
+        };
+    }
 }
 
 export function toggleChatDisplay() {
-  const chatCheckbox = document.getElementById('check');
-  const chatDiv = document.getElementById('chat');
-  const friendsListDiv = document.getElementById('friendsList');
+    const chatCheckbox = document.getElementById("check");
+    const chatContent = document.getElementById("chatContent");
 
-  if (chatCheckbox.checked && !friendsListDiv) {
-    chatDiv.innerHTML += `
-        <div class="wrapper" id="friendsList">
-            <div class="header">
-                <h6>Message a Friend</h6>
-            </div>
-            <div class="chat-form">
-                <ul class="friend-list" id="friendList">
-                    <!-- Friend list items will be dynamically inserted here -->
-                </ul>
-            </div>
-        </div>
-        <div class="wrapper" id="chatRoom" style="display: none;">
-            <div class="header">
-                <h6 id="chat-header">Chat with <span id="friend-name"></span></h6>
-            </div>
-            <div class="chat-form">
-                <textarea class="form-control" id="chat-text" rows="5" readonly></textarea>
-                <input type="text" class="form-control chat-text" id="message" placeholder="Your Message">
-                <button class="btn-chat btn-success btn-block" id="send">Send</button>
-                <button class="btn-chat btn-success btn-block" id="leave">Back</button>
-            </div>
-        </div>
-    `;
-    loadFriends();
-    initializeChatEvents();
-  } else {
-    chatDiv.innerHTML = `
-    <input type="checkbox" id="check">
-    <label class="chat-btn" for="check">
-        <i class="fa fa-commenting-o comment"></i>
-        <i class="fa fa-close close"></i>
-    </label>
-    `;
-  }
+    if (chatCheckbox.checked) {
+        chatContent.style.display = "block";
+        loadFriends();
+        initializeChatEvents();
+    } else {
+        chatContent.style.display = "none";
+    }
 }
 
 export function selectFriend(friendId, friendName) {

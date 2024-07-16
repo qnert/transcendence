@@ -4,6 +4,10 @@ from .decorators import *
 from django.http import JsonResponse
 from .models import *
 
+def custom_404(request, exception):
+	context = {"error message": "There is no page with that URL"}
+	return render(request, '404Page.html', context, status=404)
+
 def baseView(request):
 	return render(request, 'base.html')
 
