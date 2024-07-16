@@ -31,7 +31,6 @@ export function loadChatHTML() {
   checkBox.checked = true;
   if (checkBox) {
     document.addEventListener('change', function(event) {
-      console.log(event);
       if (event.target.id == 'check') {
         event.preventDefault();
         checkBox.checked = !checkBox.checked;
@@ -47,7 +46,6 @@ export function toggleChatDisplay() {
   const friendsListDiv = document.getElementById('friendsList');
 
   if (chatCheckbox.checked && !friendsListDiv) {
-    console.log("is checked");
     chatDiv.innerHTML += `
         <div class="wrapper" id="friendsList">
             <div class="header">
@@ -74,7 +72,6 @@ export function toggleChatDisplay() {
     loadFriends();
     initializeChatEvents();
   } else {
-    console.log("is not checked");
     chatDiv.innerHTML = `
     <input type="checkbox" id="check">
     <label class="chat-btn" for="check">
@@ -161,7 +158,6 @@ function initializeWebSocket(friendId) {
 }
 
 function sendMessage() {
-    console.log('message sent');
     const messageInput = document.getElementById("message");
     const message = messageInput.value.trim();
     if (message && chatSocket.readyState === WebSocket.OPEN) {
