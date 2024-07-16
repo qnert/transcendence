@@ -2,7 +2,6 @@ import { handleRoute, handleRouteToken } from "../basics.js";
 import { getLoginStatus } from "../basics.js";
 import { getUsername } from "../basics.js";
 import { showLoggedInState } from "./navbar.js";
-import { friendSocket } from "../friends/action_friends.js";
 import { initFriendSocket } from "../friends/action_friends.js";
 import { loadChatHTML } from "../chat/action_chat.js";
 import { pendingFriendRequest } from "../friends/fetch_friends.js";
@@ -40,9 +39,7 @@ export async function loginButton() {
 				const username = await getUsername();
 				showLoggedInState(username);
 				checkAccessToken();
-				if (!friendSocket) {
 					initFriendSocket();
-				}
 					loadChatHTML();
 					pendingFriendRequest();
 					await loadFriends();

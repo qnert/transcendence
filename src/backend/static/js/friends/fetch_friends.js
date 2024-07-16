@@ -1,5 +1,5 @@
 import { getCookie } from "../security/csrft.js";
-import { sendInvite, friendSocket, updateFriendDropdown, acceptRequest, denyRequest } from "./action_friends.js";
+import { sendInvite, updateFriendDropdown, acceptRequest, denyRequest, getFriendSocketStatus } from "./action_friends.js";
 import { selectFriend } from "../chat/action_chat.js";
 import { blockUser, unblockUser } from "../chat/fetch_chat.js";
 
@@ -12,7 +12,7 @@ window.acceptRequest = acceptRequest;
 window.denyRequest = denyRequest;
 
 export async function loadFriends() {
-	if (friendSocket) {
+	if (getFriendSocketStatus) {
 	  try {
 		const response = await fetch("/api/friends/");
 		const data = await response.json();
