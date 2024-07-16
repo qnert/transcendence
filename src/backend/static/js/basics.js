@@ -327,6 +327,7 @@ window.handle401Error = handle401Error;
 
 window.onload = async function () {
     let currentUrl = window.location.href;
+    const urlPattern = /^https?:\/\/[a-zA-Z0-9.-]+:8000\/$/;
     if (currentUrl.includes("/profile/")) {
         await fetchProfileData();
         await checkBox();
@@ -362,22 +363,21 @@ window.onload = async function () {
     } else if (currentUrl.includes("history")) {
         await getGameHistory();
     }
-    if (!currentUrl.includes("login") && currentUrl !== "http://0.0.0.0:8000/" && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
-		const username = await getUsername();
+    if (!currentUrl.includes("login") && !urlPattern.test(currentUrl) && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
+        const username = await getUsername();
         showLoggedInState(username);
-		checkAccessToken();
-		if (!friendSocket) {
-			initFriendSocket();
-		}
-			loadChatHTML();
-			pendingFriendRequest();
-			await loadFriends();
-			await updateFriendDropdown();
-		return;
-    }
-	else {
+        checkAccessToken();
+        if (!friendSocket) {
+            initFriendSocket();
+        }
+        loadChatHTML();
+        pendingFriendRequest();
+        await loadFriends();
+        await updateFriendDropdown();
+        return;
+    } else {
         showLoggedOutState();
-		document.getElementById('chat').innerHTML = '';
+        document.getElementById("chat").innerHTML = "";
     }
 };
 
