@@ -180,23 +180,27 @@
 				}
 			}
 			
-			const matchTable = document.getElementById('historyMatch');
-			if(matchTable){
-					matchTable.innerHTML = '';
-		
-					gameData.forEach(result => {
-						const row = document.createElement('tr');
-						row.innerHTML = `
-							<td>${result.user_profile}</td>
-							<td>${result.opponent_profile}</td>
-							<td>${result.user_score}</td>
-							<td>${result.opponent_score}</td>
-							<td>${result.is_win ? 'Win' : 'Loss'}</td>
-							<td>${result.date_played}</td>
-						`;
-						matchTable.appendChild(row);
-					});
-				}
+            const matchTable = document.getElementById('historyMatch');
+            if(matchTable){
+                matchTable.innerHTML = '';
+                gameData.forEach(result => {
+                    const row = document.createElement('tr');
+                    if (result.is_win) {
+                        row.classList.add("table-success");
+                    } else {
+                        row.classList.add("table-danger");
+                    }
+                    row.innerHTML = `
+                            <td>${result.user_profile}</td>
+                            <td>${result.opponent_profile}</td>
+                            <td>${result.user_score}</td>
+                            <td>${result.opponent_score}</td>
+                            <td>${result.is_win ? 'Win' : 'Loss'}</td>
+                            <td>${result.date_played}</td>
+                        `;
+                    matchTable.appendChild(row);
+                });
+            }
 		} catch (error) {
 			console.error("Error fetching profile data:", error);
 		}

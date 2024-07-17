@@ -3,52 +3,39 @@
 {% block content %}
 
 <div id="newContent">
-	<h1 id="profile-name"></h1>
-		<div class="form-group">
-                <img id="profile-picture" alt="Profile picture" style="width: 150px; height: 180px;">
-        </div>
-		<div class="form-group">
-			<label for="username">Username</label>
-			<div class="input-group">
-				<input type="text" class="form-control" id="profile-username" readonly>
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="email">Email</label>
-			<div class="input-group">
-				<input type="email" class="form-control" id="profile-email"  readonly>
+	<h2 id="profile-name"></h2>
+	<div class="borderedBox">
+		<img id="profile-picture" alt="Profile picture" style="width: 150px; height: 180px;">
 
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="display_name">Display Name</label>
-			<div class="input-group">
-				<input type="text" class="form-control" id="profile-display_name" readonly>
+		<label for="profile-username">Username</label>
+		<input type="text" class="form-control input-text" id="profile-username" readonly>
 
-			</div>
-		</div>
+		<label for="profile-email">Email</label>
+		<input type="email" class="form-control input-text" id="profile-email" readonly>
 
-		<div class="container" id="matchHistory" alt="Match History of the User">
-			<h1>Game History</h1>
-			<div class="History">
-				<table>
-					<thead scope="col">
-						<tr>
-							<th>User</th>
-							<th>Opponent</th>
-							<th>Your Score</th>
-							<th>Opponent's Score</th>
-							<th>Win/Loss</th>
-							<th>Date Played</th>
-						</tr>
-					</thead>
-					<tbody id="historyMatch">
-					</tbody>
-				</table>
-			</div>
+		<label for="profile-display_name">Display Name</label>
+		<input type="text" class="form-control input-text" id="profile-display_name" readonly>
+	</div>
+
+	<h2>Match History</h2>
+	<div class="container borderedBox" id="matchHistory" alt="Match History of the User">
+		<div class="History">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>User</th>
+						<th>Opponent</th>
+						<th>Your Score</th>
+						<th>Opponent's Score</th>
+						<th>Win/Loss</th>
+						<th>Date Played</th>
+					</tr>
+				</thead>
+				<tbody id="historyMatch">
+				</tbody>
+			</table>
 		</div>
+	</div>
 </div>
-
-
 
 {% endblock content %}
