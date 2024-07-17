@@ -8,8 +8,8 @@ import json
 
 MAX_PARTICIPANTS = 4
 DEFAULT_GAME_SETTINGS = {
-    "ball_speed": '5',
-    "max_score": '5',
+    "ball_speed": '8',
+    "max_score": '8',
     "background_color": '#ffffff',
     "border_color": '#0000ff',
     "ball_color": '#0000ff',
@@ -340,9 +340,6 @@ class Tournament(models.Model):
 
     def get_participants(self):
         return self.participants.all()
-
-    def get_game_settings(self):
-        return self.game_settings
 
     def get_game_settings(self):
         return OrderedDict(sorted(self.game_settings.items(), key=lambda x: DEFAULT_GAME_SETTINGS_ORDER.index(x[0])))
