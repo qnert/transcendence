@@ -149,26 +149,53 @@ const attachdynamicEventListeners = function () {
         };
     }
 
-    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
-    if (tournamentLobbySettingsForm) {
-        tournamentLobbySettingsForm.onsubmit = function (event) {
-            event.preventDefault();
-            const gameSettings = {
-                ball_speed: document.getElementById("ballSpeed").value,
-                max_score: document.getElementById("maxScore").value,
-                background_color: document.getElementById("background").value,
-                border_color: document.getElementById("borders").value,
-                ball_color: document.getElementById("ballColor").value,
-                advanced_mode: document.getElementById("advancedMode").checked,
-                power_ups: document.getElementById("powerUps").checked,
-            };
-            tournamentLobbySocket.send(
-                JSON.stringify({
-                    game_settings_edited: gameSettings,
-                })
-            );
+const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
+if (tournamentLobbySettingsForm) {
+    tournamentLobbySettingsForm.onsubmit = function (event) {
+        event.preventDefault();
+
+        // Extract values
+        const ballSpeed = document.getElementById("ballSpeed").value;
+        const maxScore = document.getElementById("maxScore").value;
+
+        // Validate inputs
+        if (maxScore === "" || ballSpeed === "") {
+            alert("Max Score and Ball Speed cannot be empty.");
+            return;
+        }
+
+        const maxScoreInt = parseInt(maxScore);
+        const ballSpeedInt = parseInt(ballSpeed);
+
+        if (maxScoreInt > 12 || maxScoreInt <= 3) {
+            alert("Max Score must be between 4 and 12.");
+            return;
+        }
+
+        if (ballSpeedInt > 20 || ballSpeedInt <= 3) {
+            alert("Ball Speed must be between 4 and 20.");
+            return;
+        }
+
+        // Collect game settings
+        const gameSettings = {
+            ball_speed: ballSpeedInt.toString(),
+            max_score: maxScoreInt.toString(),
+            background_color: document.getElementById("background").value,
+            border_color: document.getElementById("borders").value,
+            ball_color: document.getElementById("ballColor").value,
+            advanced_mode: document.getElementById("advancedMode").checked,
+            power_ups: document.getElementById("powerUps").checked,
         };
-    }
+
+        // Send settings to the backend
+        tournamentLobbySocket.send(
+            JSON.stringify({
+                game_settings_edited: gameSettings,
+            })
+        );
+    };
+}
 
 };
 
