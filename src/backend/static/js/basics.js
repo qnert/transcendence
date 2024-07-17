@@ -286,10 +286,17 @@ export async function getLoginStatus() {
 
 window.handle401Error = handle401Error;
 
+function checkingBaseUrl(currentUrl){
+	let words = currentUrl.split("/");
+	if(words.length > 4)
+		return false;
+	return true;
+}
+
+
 window.onload = async function () {
     handleUrlChange();
     let currentUrl = window.location.href;
-    const urlPattern = /^https?:\/\/[a-zA-Z0-9.-]\/$/;
     if (currentUrl.includes("/profile/")) {
         await fetchProfileData();
         await checkBox();
@@ -322,7 +329,7 @@ window.onload = async function () {
     } else if (currentUrl.includes("history")) {
         await getGameHistory();
     }
-    if (!currentUrl.includes("login") && !urlPattern.test(currentUrl) && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
+    if (!currentUrl.includes("login") && !checkingBaseUrl(currentUrl) && !currentUrl.includes("2FA") && !currentUrl.includes("set_passwd")) {
         const username = await getUsername();
         showLoggedInState(username);
         checkAccessToken();
