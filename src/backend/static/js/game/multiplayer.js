@@ -145,7 +145,7 @@ export function create_tournament_match(playingContent) {
     power_up_mode = playingContent.game_settings.power_ups;
 
     const startTournamentMatchButton = document.getElementById("startTournamentMatch");
-    if (startTournamentMatchButton) 
+    if (startTournamentMatchButton)
         startTournamentMatchButton.onclick = function (event) {
         event.preventDefault();
         chatSocket.send(
@@ -513,7 +513,7 @@ export function create_join_game(){
         document.getElementById("board").style.display = "none";
         document.getElementById("left_player").style.display = "none";
         document.getElementById("right_player").style.display = "none";
-        
+
         const resetRemoteGameButton = document.getElementById("resetRemoteGameButton");
         if (resetRemoteGameButton) {
             resetRemoteGameButton.style.display = "none";
@@ -625,13 +625,12 @@ function start_game() {
     document.getElementById("right_player").style.display = "block";
     //board vars
 
-    if (!isTournamentMatch){
-        if (check_input_froms() == -1){
-          alert("The host entered wrong settings for the game!");
-          reset();
-          return ;
-        }
+    if (check_input_froms() == -1){
+      alert("The host entered wrong settings for the game!");
+      reset();
+      return ;
     }
+
     player1.curr_speedY = playerSpeedY;
     player2.curr_speedY = playerSpeedY;
 
