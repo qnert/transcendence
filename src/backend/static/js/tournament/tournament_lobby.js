@@ -1,6 +1,6 @@
-import { create_tournament_match, close_multi_on_change } from '../game/multiplayer.js'
-import { updateContentToken, handleRouteToken } from '../basics.js'
-import { tournamentHubEventLoop } from './tournament_hub.js'
+import { create_tournament_match, close_multi_on_change } from "../game/multiplayer.js";
+import { updateContentToken, handleRouteToken } from "../basics.js";
+import { tournamentHubEventLoop } from "./tournament_hub.js";
 
 // =========================== GLOBAL ===============================
 
@@ -46,7 +46,6 @@ export function tournamentLobbyCloseSocket() {
 // Hint:
 // used in tournament_hub.js
 export function tournamentLobbyInit(lobbyName, userName) {
-
     const tournamentLobbyChatLog = document.getElementById("lobby-chat-log");
     const tournamentLobbyChatInput = document.getElementById("lobby-chat-message-input");
     const tournamentLobbyChatSubmit = document.getElementById("lobby-chat-message-submit");
@@ -87,17 +86,16 @@ export function tournamentLobbyInit(lobbyName, userName) {
     tournamentLobbyLeaveButton.onclick = async function (event) {
         event.preventDefault();
         tournamentLobbyCloseSocket();
-        setTimeout( async function() {
+        setTimeout(async function () {
             await updateContentToken("/tournament/hub");
         }, 300);
         tournamentHubEventLoop();
-    }
-
+    };
 }
 
 // =========================== HELPERS ===============================
 
-async function socketMessageHandler (event, tournamentLobbyChatLog) {
+async function socketMessageHandler(event, tournamentLobbyChatLog) {
     const data = JSON.parse(event.data);
 
     // Hint:
@@ -126,17 +124,15 @@ async function socketMessageHandler (event, tournamentLobbyChatLog) {
     // indicating wether the Tournament will be closed (only during 'playing' phase),
     // in which case everyone has to leave/disconnect
     if (data.disconnect == true) {
-        alert(msgRageQuit);
-        await handleRouteToken("/tournament/");
+        leaveTournament();
         return;
     }
     // Hint:
     // In case the host has changed, eventListeners must be reattached
     attachdynamicEventListeners();
-};
+}
 
 const attachdynamicEventListeners = function () {
-
     const tournamentLobbyAdvanceState = document.getElementById("lobby-advance-state-button");
     if (tournamentLobbyAdvanceState) {
         tournamentLobbyAdvanceState.onclick = function (event) {
@@ -149,54 +145,53 @@ const attachdynamicEventListeners = function () {
         };
     }
 
-const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
-if (tournamentLobbySettingsForm) {
-    tournamentLobbySettingsForm.onsubmit = function (event) {
-        event.preventDefault();
+    const tournamentLobbySettingsForm = document.getElementById("lobby-game-settings-host-form");
+    if (tournamentLobbySettingsForm) {
+        tournamentLobbySettingsForm.onsubmit = function (event) {
+            event.preventDefault();
 
-        // Extract values
-        const ballSpeed = document.getElementById("ballSpeed").value;
-        const maxScore = document.getElementById("maxScore").value;
+            // Extract values
+            const ballSpeed = document.getElementById("ballSpeed").value;
+            const maxScore = document.getElementById("maxScore").value;
 
-        // Validate inputs
-        if (maxScore === "" || ballSpeed === "") {
-            alert("Max Score and Ball Speed cannot be empty.");
-            return;
-        }
+            // Validate inputs
+            if (maxScore === "" || ballSpeed === "") {
+                alert("Max Score and Ball Speed cannot be empty.");
+                return;
+            }
 
-        const maxScoreInt = parseInt(maxScore);
-        const ballSpeedInt = parseInt(ballSpeed);
+            const maxScoreInt = parseInt(maxScore);
+            const ballSpeedInt = parseInt(ballSpeed);
 
-        if (maxScoreInt > 12 || maxScoreInt <= 3) {
-            alert("Max Score must be between 4 and 12.");
-            return;
-        }
+            if (maxScoreInt > 12 || maxScoreInt <= 3) {
+                alert("Max Score must be between 4 and 12.");
+                return;
+            }
 
-        if (ballSpeedInt > 20 || ballSpeedInt <= 3) {
-            alert("Ball Speed must be between 4 and 20.");
-            return;
-        }
+            if (ballSpeedInt > 20 || ballSpeedInt <= 3) {
+                alert("Ball Speed must be between 4 and 20.");
+                return;
+            }
 
-        // Collect game settings
-        const gameSettings = {
-            ball_speed: ballSpeedInt.toString(),
-            max_score: maxScoreInt.toString(),
-            background_color: document.getElementById("background").value,
-            border_color: document.getElementById("borders").value,
-            ball_color: document.getElementById("ballColor").value,
-            advanced_mode: document.getElementById("advancedMode").checked,
-            power_ups: document.getElementById("powerUps").checked,
+            // Collect game settings
+            const gameSettings = {
+                ball_speed: ballSpeedInt.toString(),
+                max_score: maxScoreInt.toString(),
+                background_color: document.getElementById("background").value,
+                border_color: document.getElementById("borders").value,
+                ball_color: document.getElementById("ballColor").value,
+                advanced_mode: document.getElementById("advancedMode").checked,
+                power_ups: document.getElementById("powerUps").checked,
+            };
+
+            // Send settings to the backend
+            tournamentLobbySocket.send(
+                JSON.stringify({
+                    game_settings_edited: gameSettings,
+                })
+            );
         };
-
-        // Send settings to the backend
-        tournamentLobbySocket.send(
-            JSON.stringify({
-                game_settings_edited: gameSettings,
-            })
-        );
-    };
-}
-
+    }
 };
 
 // =========================== Server Side Rendering ===============================
@@ -226,8 +221,7 @@ function renderSetupContent(setupContent) {
     if (setupContent.advance_button_html) {
         const advanceButtonBox = document.getElementById("lobby-advance-button-box");
         advanceButtonBox.innerHTML = setupContent.advance_button_html;
-    }
-    else {
+    } else {
         const advanceButtonBox = document.getElementById("lobby-advance-button-box");
         advanceButtonBox.innerHTML = "";
     }
@@ -251,7 +245,7 @@ function renderPlayingContent(playingContent) {
 function renderTournamentLobbyPlayingPhase(playingContent) {
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = playingContent.standings_html;
-    gameInfoBox.insertAdjacentHTML('beforeend', playingContent.matches_list_html)
+    gameInfoBox.insertAdjacentHTML("beforeend", playingContent.matches_list_html);
     tournamentLobbySocket.send(
         JSON.stringify({
             updated_match_list: true,
@@ -268,18 +262,18 @@ function renderTournamentLobbyPlayingPhase(playingContent) {
                     waiting_for_opponent: true,
                 })
             );
-        }
+        };
     }
 }
 
 function renderFinishedContent(finishedContent) {
     const headerBox = document.getElementById("lobby-header-box");
     headerBox.innerHTML = finishedContent.winners_html;
-    headerBox.insertAdjacentHTML('beforeend', finishedContent.finished_buttons_html)
+    headerBox.insertAdjacentHTML("beforeend", finishedContent.finished_buttons_html);
 
     const gameInfoBox = document.getElementById("lobby-game-info-box");
     gameInfoBox.innerHTML = finishedContent.standings_html;
-    gameInfoBox.insertAdjacentHTML('beforeend', finishedContent.matches_list_html)
+    gameInfoBox.insertAdjacentHTML("beforeend", finishedContent.matches_list_html);
 
     const respectButton = document.getElementById("lobby-respect-button");
     respectButton.onclick = function (event) {
@@ -293,15 +287,24 @@ function renderFinishedContent(finishedContent) {
                 message: msgToSend,
             })
         );
-    }
+    };
 
     const tournamentLobbyLeaveButton = document.getElementById("lobby-leave-button");
     tournamentLobbyLeaveButton.onclick = async function (event) {
         event.preventDefault();
         tournamentLobbyCloseSocket();
-        setTimeout( async function() {
+        setTimeout(async function () {
             await updateContentToken("/tournament/hub");
-        }, 400);
+        }, 700);
         tournamentHubEventLoop();
-    }
+    };
+}
+
+export async function leaveTournament() {
+    alert(msgRageQuit);
+    tournamentLobbyCloseSocket();
+    setTimeout(async function () {
+        await updateContentToken("/tournament/hub");
+    }, 700);
+    tournamentHubEventLoop();
 }
