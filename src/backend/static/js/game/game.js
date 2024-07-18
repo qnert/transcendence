@@ -476,7 +476,12 @@ export function start_game() {
       // soundVictory.play();
       context.clearRect(0, 0, board.width, board.height);
       context.font = "90px sans-serif";
-      context.fillText("Winner: Player 1", boardWidth/2, 160);
+      if (ai_enabled){
+        context.fillText("Winner: AI", boardWidth/2, 160);
+      }
+      else {
+        context.fillText("Winner: Player 1", boardWidth/2, 160);
+      }
       return 1;
     }
     else if (score2 >= maxScore) {
