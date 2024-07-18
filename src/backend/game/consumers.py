@@ -181,6 +181,16 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     await self.send(text_data=json.dumps(data))
 
   async def send_game_action(self, text_data_json):
+    if (text_data_json['action'] == 'stop'):
+      await self.channel_layer.group_send(
+        self.room_group_name,{
+          'type': 'game_action_stop',
+          'action': text_data_json['action'],
+          'player': text_data_json['player'],
+          'paddle_y': text_data_json['paddle_y']
+        }
+      )
+      return
     await self.channel_layer.group_send(
       self.room_group_name,{
         'type': 'game_action',
@@ -194,6 +204,15 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         'type': 'game_action',
         'action': event['action'],
         'player': event['player']
+    }
+    await self.send(text_data=json.dumps(data))
+
+  async def game_action_stop(self, event):
+    data = {
+        'type': 'game_action',
+        'action': event['action'],
+        'player': event['player'],
+        'paddle_y': event['paddle_y']
     }
     await self.send(text_data=json.dumps(data))
 

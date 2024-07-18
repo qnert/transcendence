@@ -253,10 +253,14 @@ export function create_tournament_match(playingContent) {
               player2.movespeed = player2.curr_speedY;
           }
           else if (data.action == 'stop'){
-            if (data.player == '1')
+            if (data.player == '1'){
               player1.movespeed = 0;
-            else if (data.player == '2')
+              player1.y = data.paddle_y;
+            }
+            else if (data.player == '2'){
               player2.movespeed = 0;
+              player2.y = data.paddle_y;
+            }
           }
           else if (data.action == 'power_up_used_speed'){
             if (data.player == '1')
@@ -440,10 +444,14 @@ export function create_join_game(){
               player2.movespeed = player2.curr_speedY;
           }
           else if (data.action == 'stop'){
-            if (data.player == '1')
+            if (data.player == '1'){
               player1.movespeed = 0;
-            else if (data.player == '2')
+              player1.y = data.paddle_y;
+            }
+            else if (data.player == '2'){
               player2.movespeed = 0;
+              player2.y = data.paddle_y;
+            }
           }
           else if (data.action == 'power_up_used_speed'){
             if (data.player == '1')
@@ -667,6 +675,7 @@ function start_game() {
               if (chatSocket) {
                 chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '1'}));
               }
+              player1.movespeed = -(player1.curr_speedY);
           }
           else{
             player1.movespeed = 0;
@@ -679,6 +688,7 @@ function start_game() {
               if (chatSocket) {
                 chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '1'}));
               }
+              player1.movespeed = player1.curr_speedY;
           }
           else{
             player1.movespeed = 0;
@@ -693,6 +703,7 @@ function start_game() {
               if (chatSocket) {
                 chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_up', 'player': '2'}));
               }
+              player2.movespeed = -(player2.curr_speedY);
           }
           else{
             player2.movespeed = 0;
@@ -705,6 +716,7 @@ function start_game() {
               if (chatSocket) {
                 chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'move_down', 'player': '2'}));
               }
+              player2.movespeed = player2.curr_speedY;
           }
           else{
             player2.movespeed = 0;
@@ -719,7 +731,7 @@ function start_game() {
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
         e.preventDefault();
           if (chatSocket) {
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '1'}));
+            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '1', 'paddle_y': player1.y}));
           }
       }
     }
@@ -727,7 +739,7 @@ function start_game() {
       if (e.code == 'ArrowUp' || e.code == 'ArrowDown') {
         e.preventDefault();
           if (chatSocket) {
-            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '2'}));
+            chatSocket.send(JSON.stringify({'type': 'game_action', 'action': 'stop', 'player': '2', 'paddle_y': player2.y}));
           }
       }
     }
@@ -928,10 +940,10 @@ function start_game() {
             ball.speedY *= -1;
         }
     }
-    if (ball.x <= player1.x + player1.width && ball.x + ball.width >= player1.x
+    if (ball.x - 5 <= player1.x + player1.width && ball.x - 5 + ball.width >= player1.x
       && ball.y + ball.height >= player1.y && ball.y <= player1.y + player1.height){
-      if (checkPaddleCollision(prevX, ball.x, player1.x, player1.width) && ball.x < player1.x + player1.width){
-        ballSpeed *= 1.01;
+      if (checkPaddleCollision(prevX, ball.x - 5, player1.x, player1.width) && ball.x - 5 < player1.x + player1.width){
+        ballSpeed *= 1.005;
         let diff = ball.y - (player1.y + player1.height/2);
         let rad = degreesToRadians(45);
         let angle = mapValue(diff, -player1.height/2, player1.height/2, -rad, rad);
@@ -940,10 +952,10 @@ function start_game() {
         chatSocket.send(JSON.stringify({'type': 'ball_move', 'ball_speed_x': ball.speedX, 'ball_speed_y': ball.speedY, 'player': '1'}));
       }
     }
-    else if (checkPaddleCollision(prevX, ball.x, player2.x, player2.width) && ball.x + ball.width >= player2.x && ball.x <= player2.x + player2.width
+    else if (checkPaddleCollision(prevX, ball.x + 5, player2.x, player2.width) && ball.x + 5 + ball.width >= player2.x && ball.x + 5 <= player2.x + player2.width
         && ball.y <= player2.y + player2.height && ball.y + ball.height >= player2.y){
-        if (ball.x > player2.x){
-          ballSpeed *= 1.01;
+        if (ball.x + 5 > player2.x){
+          ballSpeed *= 1.005;
           let diff = ball.y - (player2.y + player2.height/2);
           let angle = mapValue(diff, -player2.height/2, player2.height/2, degreesToRadians(225), degreesToRadians(135));
           ball.speedX = ballSpeed * Math.cos(angle);
@@ -1002,25 +1014,23 @@ function start_game() {
     if (ball.x < 0){
       // if (score2 <= maxScore - 1)
       //   soundGoal.play();
-      score2++;
       ballSpeed = init_ballSpeed;
       let random = Math.random() * 2 - 1;
       let ballAngle = random * Math.PI / 4;
       ball.speedX = ballSpeed * Math.cos(ballAngle);
       ball.speedY = ballSpeed * Math.sin(ballAngle);
       ball.speedX *= -1;
-      chatSocket.send(JSON.stringify({'type': 'reset_game', 'ball_speed_x': ball.speedX, 'ball_speed_y': ball.speedY, 'score1': score1, 'score2': score2}));
+      chatSocket.send(JSON.stringify({'type': 'reset_game', 'ball_speed_x': ball.speedX, 'ball_speed_y': ball.speedY, 'score1': score1, 'score2': score2 + 1}));
     }
     else if (ball.x > boardWidth){
       // if (score1 <= maxScore - 1)
       //   soundGoal.play();
-      score1++;
       ballSpeed = init_ballSpeed;
       let random = Math.random() * 2 - 1;
       let ballAngle = random * Math.PI / 4;
       ball.speedX = ballSpeed * Math.cos(ballAngle);
       ball.speedY = ballSpeed * Math.sin(ballAngle);
-      chatSocket.send(JSON.stringify({'type': 'reset_game', 'ball_speed_x': ball.speedX, 'ball_speed_y': ball.speedY, 'score1': score1, 'score2': score2}));
+      chatSocket.send(JSON.stringify({'type': 'reset_game', 'ball_speed_x': ball.speedX, 'ball_speed_y': ball.speedY, 'score1': score1 + 1, 'score2': score2}));
     }
     if (score1 >= maxScore) {
       // soundVictory.play();
