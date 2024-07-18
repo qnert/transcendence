@@ -83,13 +83,9 @@ export async function getGameHistory(){
         });
         if (!response.ok) {
 			if (response.status === 401 || response.status === 405){
-				const errorData = await response.json
-				console.error(errorData.error)
 				handle401Error();
+				}
 				return;
-			}
-            const errorData = await response.json();
-            alert(errorData.error);
         } else {
 			const data = await response.json();
             const historyTable = document.getElementById('history-body');
@@ -181,14 +177,10 @@ async function getChart(path){
         });
         if (!response.ok) {
 			if (response.status === 401 || response.status === 405){
-				const errorData = await response.json
-				console.error(errorData.error)
 				handle401Error();
-				return;
 			}
 			if(response.status === 400){
 				alert("No data given!");
-				return;
 			}
 			return ;
         } else {
