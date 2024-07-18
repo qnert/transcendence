@@ -1056,7 +1056,7 @@ function start_game() {
         'min_rally': minRally,
         'average_rally': average}));
       return 1;
-      }, 500);
+      }, 200);
       return 1;
     }
     else if (score2 >= maxScore) {
@@ -1095,7 +1095,7 @@ function start_game() {
         'average_rally': average}));
         }
         return 1;
-      }, 500);
+      }, 200);
       return 1;
     }
     return 0;

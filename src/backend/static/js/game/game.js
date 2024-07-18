@@ -1,7 +1,7 @@
 import { checkAccessToken } from "../profile/profile.js";
 
 function reset() {
-    document.getElementById("myForm").style.display = "block";
+    document.getElementById("myForm").style.display = "flex";
     document.getElementById("board").style.display = "none";
     document.getElementById("resetGameButton").style.display = "none";
     document.getElementById("left_player").innerText = "Player1";
@@ -123,8 +123,11 @@ export function start_game() {
       speedY: ballSpeed * Math.sin(ballAngle)
     }
 
-    if (check_input_froms() == -1)
+    if (check_input_froms() == -1){
+      alert("The host entered wrong settings for the game!");
+      reset();
       return ;
+    }
     player1.curr_speedY = playerSpeedY;
     player2.curr_speedY = playerSpeedY;
     document.getElementById("myForm").style.display = "none";
@@ -473,7 +476,12 @@ export function start_game() {
       // soundVictory.play();
       context.clearRect(0, 0, board.width, board.height);
       context.font = "90px sans-serif";
-      context.fillText("Winner: Player 1", boardWidth/2, 160);
+      if (ai_enabled){
+        context.fillText("Winner: AI", boardWidth/2, 160);
+      }
+      else {
+        context.fillText("Winner: Player 1", boardWidth/2, 160);
+      }
       return 1;
     }
     else if (score2 >= maxScore) {
