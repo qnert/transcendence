@@ -7,7 +7,7 @@ import { tournamentHubEventLoop } from "./tournament_hub.js";
 let tournamentLobbySocket;
 
 const msgRageQuit = "A kiddo decided to rage quit, the tournament has to end";
-const msgTaunt = "You just got served...";
+const msgTaunt = "You just got rekt...";
 const msgRespect = "f";
 
 // =========================== EXPORTS ===============================

@@ -5,6 +5,7 @@ import { tournamentLobbyInit } from "./tournament_lobby.js";
 
 const msgInvalidName = "Invalid tournament name!";
 const msgInvalidOption = "Please select an existing Tournament!";
+const msgInvalidLength = "Please enter a name smaller than 10 characters";
 
 // =========================== MAIN EVENT LOOP ===============================
 
@@ -38,6 +39,10 @@ async function createTournament() {
     // (a-z A-Z .- 0-9, maximum 50 chars, at least one letter)
     const regex = /^(?=.*[a-zA-Z])[a-zA-Z0-9.-]{1,50}$/;
     const tournamentName = document.getElementById("tournament-form-name-field").value;
+    if (tournamentName.length > 10){
+        alert(msgInvalidLength);
+        return;
+    }
     if (!regex.test(tournamentName)) {
         alert(msgInvalidName);
         return;
