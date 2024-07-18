@@ -292,25 +292,17 @@ export function create_tournament_match(playingContent) {
           return;
         }
         else if (data.type == 'disconnected'){
-          leaveTournament();
+          chatSocket.close();
+          chatSocket = null;
+          if (id != 0){
+            cancelAnimationFrame(id);
+            id = 0;
+          }
+          if (intervalID != 0){
+            clearInterval(intervalID);
+            intervalID = 0;
+          }
           return;
-          //   const startRemoteGame = document.getElementById("startRemoteGame");
-          //   const startTournamentMatchButton = document.getElementById("startTournamentMatch");
-          //   if (startRemoteGame){
-          //       startRemoteGame.style.display = "none";
-          //   }
-          //   else if (startTournamentMatchButton) {
-          //       startTournamentMatchButton.style.display = "none";
-          //   }
-          // if (id != 0){
-          //   cancelAnimationFrame(id);
-          //   id = 0;
-          // }
-          // if (intervalID != 0){
-          //   clearInterval(intervalID);
-          //   intervalID = 0;
-          // }
-          // return;
         }
         if (!isTournamentMatchFinished) {
             document.getElementById("roomInfo").style.display = "block";
