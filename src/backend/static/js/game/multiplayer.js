@@ -796,7 +796,9 @@ function start_game() {
                   backToTournamentLobbyButton.style.display = "inline-block";
                   backToTournamentLobbyButton.onclick = function (event) {
                     event.preventDefault();
-                    chatSocket.close();
+					if(chatSocket){
+						chatSocket.close();
+					}
                     chatSocket = null;
                     refreshTournamentPlayingLobby();
                   }
