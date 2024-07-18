@@ -113,16 +113,10 @@ export async function twoFAStatus() {
             });
 			if (!response.ok) {
 				if (response.status === 401 || response.status === 405){
-					const errorData = await response.json
-					console.error(errorData.error)
 					handle401Error();
-					return;
 				}
-				else{
-					throw new Error("Fetching twoFA failed");
-				}
-			}
-			else{
+				return;
+			}else{
 				const responeData = await response.json();
 				if (responeData.enable === true) {
 					return true;
@@ -186,11 +180,9 @@ async function validateOTP() {
         });
 
 		if (response.status === 401 || response.status === 405 || response.status === 403){
-			const errorData = await response.json
-			console.error(errorData.error)
 			handle401Error();
 			return;
-        }
+		}
 
         const data = await response.json();
 
@@ -226,8 +218,6 @@ export function generateQRCode() {
                 });
 
 				if (response.status === 401 || response.status === 405){
-					const errorData = await response.json
-					console.error(errorData.error)
 					handle401Error();
 					return;
 				}

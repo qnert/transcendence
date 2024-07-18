@@ -144,10 +144,6 @@ function initializeWebSocket(friendId) {
           chatText.value += '\n' + message;
         chatText.scrollTop = chatText.scrollHeight;
     };
-
-    chatSocket.onclose = function (e) {
-        console.error("Chat socket closed");
-    };
 }
 
 function sendMessage() {

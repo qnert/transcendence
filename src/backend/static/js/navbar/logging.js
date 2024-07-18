@@ -213,8 +213,7 @@ export async function login() {
 						handle401Error();
 					}
 					else if(response.status === 400){
-						alert("User already logged in");
-						// handle401Error();
+						alert("User already logged in. Exiting your other session!");
 					}
 					return;
 				}

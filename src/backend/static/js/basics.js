@@ -79,7 +79,15 @@ window.addEventListener("popstate", async function (event) {
 			await handleRouteToken(`/friend/${encodeURIComponent(display_name)}/`) //TODO does not load!!!
 			await loadContentFriend(display_name);
 
-		}else {
+		}else if(event.state.path.includes("profile")){
+			await updateContentToken("/profile/");
+			fetchProfileData();
+		}
+		else if(event.state.path.includes("history")){
+			await updateContentToken("/history/");
+			getGameHistory();
+		}
+		else {
 			await updateContent(event.state.path);
         }
     }
@@ -232,11 +240,9 @@ export async function getUsername() {
 
         if (!response.ok) {
 			if (response.status === 401 || response.status === 405){
-				const errorData = await response.json
-				console.error(errorData.error)
 				handle401Error();
-				return;
-			}
+				}
+			return;
         }
 
         const data = await response.json();

@@ -669,8 +669,9 @@ def login_view(request):
         password = data.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            # if user.refresh_token is not None:
-            #     return JsonResponse({'error': 'User already logged in'}, status=400)
+            if user.refresh_token is not None:
+                fast_logout(user)
+                return JsonResponse({'error': 'User already logged in'}, status=400)
             login(request, user)
             user.is_logged_in = True
             user.save()
