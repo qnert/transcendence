@@ -8,9 +8,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from .models import User
 
-def fast_logout(request):
-    if not isinstance(request.user, AnonymousUser):
-        user = request.user
+def fast_logout(user):
+    if not isinstance(user, AnonymousUser):
         if user.is_logged_in:
             refresh_token = user.refresh_token
             if refresh_token is not None:
@@ -51,7 +50,7 @@ def twoFA_required(view_func):
                 if request.headers.get('Content-Type') == 'application/json':
                     return JsonResponse({'error': 'You are not logged in'}, status=401)
                 else:
-                    fast_logout(request)
+                    fast_logout(request.user)
                     return redirect('/login/')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
